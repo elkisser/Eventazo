@@ -44,9 +44,9 @@ export function TicketPreview() {
           </span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Navigation */}
-        <div className="flex items-center justify-center gap-3">
+      <CardContent className="space-y-3 sm:space-y-4">
+        {/* Navegación */}
+        <div className="flex items-center justify-center gap-2 sm:gap-3">
           <Button
             variant="outline"
             size="icon"
@@ -55,7 +55,7 @@ export function TicketPreview() {
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span className="text-sm text-slate-300 font-mono">
+          <span className="text-xs sm:text-sm text-slate-300 font-mono">
             Ticket {formattedNumber} / {formatTicketNumber(maxNumber, digits)}
           </span>
           <Button
