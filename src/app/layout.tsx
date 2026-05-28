@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Generador de Rifas | Sistema Profesional de Tickets",
+  title: "Eventazo | Generador de Rifas Profesional",
   description:
-    "Genera rifas y tickets de sorteos de forma profesional. Optimizado para impresión A4 con diseño premium.",
+    "Generá rifas y tickets de sorteos de forma profesional. Optimizado para impresión A4 con diseño premium.",
 };
 
 export default function RootLayout({

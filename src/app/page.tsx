@@ -132,7 +132,15 @@ export default function Home() {
       <footer className="border-t border-slate-800 py-3 sm:py-4 mt-6 sm:mt-8">
         <div className="container mx-auto px-4 text-center">
           <p className="text-[10px] sm:text-xs text-slate-500">
-            Generador de Rifas Profesional • Diseñado para impresión de alta calidad
+            Eventazo • Hecho por{" "}
+            <a
+              href="https://somos-env.netlify.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-amber-400 hover:text-amber-300 underline underline-offset-2 transition-colors"
+            >
+              SoMoS
+            </a>
           </p>
         </div>
       </footer>
