@@ -242,6 +242,41 @@ export function PrizeEditor() {
         </div>
       </div>
 
+      {/* Column selector */}
+      <div className="flex flex-wrap items-center justify-between gap-2 p-2 bg-slate-900/50 rounded-lg border border-slate-800 text-xs shadow-inner">
+        <div className="flex items-center gap-1.5 text-slate-300">
+          <span className="text-[11px] text-slate-400">Columnas:</span>
+          <div className="flex rounded bg-slate-800 p-0.5 border border-slate-700/60">
+            {[
+              { id: "auto", label: "Auto" },
+              { id: 2, label: "2 col" },
+              { id: 3, label: "3 col" },
+              { id: 4, label: "4 col" },
+            ].map((colOpt) => {
+              const active = (ticketConfig.prizeColumns ?? "auto") === colOpt.id;
+              return (
+                <button
+                  key={String(colOpt.id)}
+                  type="button"
+                  onClick={() => setTicketConfig({ prizeColumns: colOpt.id as 2 | 3 | 4 | "auto" })}
+                  className={`px-2 py-0.5 text-[10px] font-medium rounded transition-colors cursor-pointer ${
+                    active
+                      ? "bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold"
+                      : "text-slate-400 hover:text-slate-200"
+                  }`}
+                >
+                  {colOpt.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <span className="text-[10px] text-emerald-400/90 font-mono flex items-center gap-1">
+          ✓ Sin límite de premios
+        </span>
+      </div>
+
       {mode === "list" ? (
         <div className="space-y-2">
           {/* Scrollable list of items */}
@@ -342,14 +377,6 @@ export function PrizeEditor() {
             <Info className="h-3.5 w-3.5 text-amber-400/80 shrink-0" />
             Cada salto de línea (<kbd className="px-1 py-0.5 bg-slate-800 border border-slate-700 rounded text-[10px] text-amber-300 font-mono">Enter</kbd>) suma un premio numerado automáticamente.
           </p>
-        </div>
-      )}
-
-      {/* Notice if prizes exceed 20 */}
-      {prizes.length > 20 && (
-        <div className="text-[11px] text-amber-400/90 bg-amber-500/10 border border-amber-500/20 rounded px-2 py-1.5 flex items-center gap-1.5">
-          <Info className="h-3.5 w-3.5 shrink-0" />
-          <span>El diseño del boleto imprime hasta 20 premios (10 por columna) para legibilidad óptima.</span>
         </div>
       )}
     </div>

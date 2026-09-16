@@ -39,6 +39,7 @@ export const DEFAULT_TICKET_CONFIG: TicketConfig = {
   subtitleFontSize: 12,
   stubFontSize: 10,
   generalFontScale: 100,
+  prizeColumns: "auto",
   primaryColor: "#991b1b",
 };
 

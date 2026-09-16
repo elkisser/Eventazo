@@ -1,6 +1,6 @@
 import { PDFDocument, rgb, StandardFonts, PDFPage, PDFFont, degrees } from "pdf-lib";
 import { TicketConfig, PrintConfig } from "@/types";
-import { formatTicketNumber, getDigitsNeeded, formatCurrency, hexToRgb, formatShortDate } from "@/lib/utils";
+import { formatTicketNumber, getDigitsNeeded, formatCurrency, hexToRgb, formatShortDate, resolvePrizeColumns } from "@/lib/utils";
 import { A4_WIDTH_PT, A4_HEIGHT_PT, MM_TO_PT } from "@/lib/constants";
 
 interface PDFGeneratorOptions {
@@ -201,45 +201,40 @@ function drawTicket(
   const phY = prizesTop - PRIZE_HEADER_SIZE - 1.5 * s;
   page.drawText("LISTA DE PREMIOS:", { x: cx + 3, y: phY, size: PRIZE_HEADER_SIZE, font: fontBold, color: BLACK });
 
-  // Cálculo para garantizar que NINGÚN premio sea omitido o cortado
-  const c1 = config.prizes.filter((_, i) => i % 2 === 0);
-  const c2 = config.prizes.filter((_, i) => i % 2 === 1);
-  const rowsCount = Math.max(1, Math.max(c1.length, c2.length));
+  // Cálculo dinámico de multicolumna para que entren TODOS los premios sin límite
+  const requestedPrizesFontSize = config.prizesFontSize ?? 8;
+  const numCols = resolvePrizeColumns(config.prizeColumns, config.prizes.length, requestedPrizesFontSize);
+  const rowsCount = Math.max(1, Math.ceil(config.prizes.length / numCols));
   const prizeAreaTop = phY - PRIZE_HEADER_SIZE - 1.5 * s;
   const availablePrizeH = Math.max(10, prizeAreaTop - prizesBottom - 1 * s);
   const actualLineH = availablePrizeH / rowsCount;
 
   // Ajuste inteligente de tamaño de fuente para que entren TODOS los premios en el alto disponible
-  const desiredPrizePt = 5 * s * ((config.prizesFontSize ?? 8) / 8) * fontScale;
+  const desiredPrizePt = 5 * s * (requestedPrizesFontSize / 8) * fontScale;
   const actualPrizeFontSize = Math.max(2.4, Math.min(desiredPrizePt, actualLineH * 0.82));
 
-  const col1X = cx + 3;
-  const col2X = cx + mainContentW * 0.5;
-  const colW = mainContentW * 0.47;
-  const maxChars = Math.floor(colW / (actualPrizeFontSize * 0.5));
+  // Distribuir premios en columnas
+  const prizeColumns = Array.from({ length: numCols }, (_, c) =>
+    config.prizes.filter((_, i) => i % numCols === c)
+  );
 
-  // Renderizar TODOS los premios de ambas columnas
-  c1.forEach((p, i) => {
-    const t = `${p.label} ${p.description}`;
-    const tr = t.length > maxChars ? t.substring(0, maxChars - 2) + ".." : t;
-    page.drawText(tr, {
-      x: col1X,
-      y: prizeAreaTop - (i + 0.85) * actualLineH,
-      size: actualPrizeFontSize,
-      font: fontItalic,
-      color: ACCENT_COLOR,
-    });
-  });
+  const colWidth = mainContentW / numCols;
+  const colContentW = colWidth - 2.5 * s;
+  const maxChars = Math.max(6, Math.floor(colContentW / (actualPrizeFontSize * 0.52)));
 
-  c2.forEach((p, i) => {
-    const t = `${p.label} ${p.description}`;
-    const tr = t.length > maxChars ? t.substring(0, maxChars - 2) + ".." : t;
-    page.drawText(tr, {
-      x: col2X,
-      y: prizeAreaTop - (i + 0.85) * actualLineH,
-      size: actualPrizeFontSize,
-      font: fontItalic,
-      color: ACCENT_COLOR,
+  // Renderizar TODOS los premios de todas las columnas
+  prizeColumns.forEach((colPrizes, colIdx) => {
+    const colX = cx + 2.5 * s + colIdx * colWidth;
+    colPrizes.forEach((p, rowIdx) => {
+      const t = `${p.label} ${p.description}`;
+      const tr = t.length > maxChars ? t.substring(0, maxChars - 2) + ".." : t;
+      page.drawText(tr, {
+        x: colX,
+        y: prizeAreaTop - (rowIdx + 0.85) * actualLineH,
+        size: actualPrizeFontSize,
+        font: fontItalic,
+        color: ACCENT_COLOR,
+      });
     });
   });
 

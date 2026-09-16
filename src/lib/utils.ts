@@ -113,3 +113,19 @@ export function hexToRgb(hex: string): { r: number; g: number; b: number } {
     b: (parseInt(clean.substring(4, 6), 16) || 27) / 255,
   };
 }
+
+export function resolvePrizeColumns(
+  prizeColumns?: 2 | 3 | 4 | "auto",
+  prizesCount: number = 20,
+  fontSize: number = 8
+): number {
+  if (prizeColumns && prizeColumns !== "auto") {
+    return prizeColumns;
+  }
+  if (fontSize >= 11 && prizesCount > 12) {
+    return prizesCount > 24 ? 4 : 3;
+  }
+  if (prizesCount > 28) return 4;
+  if (prizesCount > 14) return 3;
+  return 2;
+}

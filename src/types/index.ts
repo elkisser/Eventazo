@@ -15,6 +15,8 @@ export interface TicketConfig {
   subtitleFontSize?: number; // default: 12
   stubFontSize?: number; // default: 10
   generalFontScale?: number; // default: 100 (%)
+  // Columnas para la lista de premios
+  prizeColumns?: 2 | 3 | 4 | "auto"; // default: "auto"
   // Color principal de acento
   primaryColor?: string; // default: "#991b1b"
 }

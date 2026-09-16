@@ -23,7 +23,7 @@ import { Label } from "@/components/ui/label";
 import { useRifaStore } from "@/store/useRifaStore";
 import { PrizeEditor } from "@/components/PrizeEditor";
 import { COLOR_PRESETS } from "@/lib/constants";
-import { formatSpanishDate, formatShortDate } from "@/lib/utils";
+import { formatSpanishDate, formatShortDate, resolvePrizeColumns } from "@/lib/utils";
 
 export function ConfigPanel() {
   const { ticketConfig, setTicketConfig, printConfig, setPrintConfig } = useRifaStore();
@@ -43,7 +43,8 @@ export function ConfigPanel() {
 
   // Auto-fitting prize font size calculation for guidance in UI
   const numPrizes = ticketConfig.prizes.length;
-  const prizeRows = Math.max(1, Math.ceil(numPrizes / 2));
+  const numCols = resolvePrizeColumns(ticketConfig.prizeColumns, numPrizes, prizesSize);
+  const prizeRows = Math.max(1, Math.ceil(numPrizes / numCols));
   const heightFactor = (printConfig.ticketHeight || 50) / 50;
   const maxFittingPrizesPx = Math.max(6, Math.floor((78 * heightFactor) / prizeRows));
   const effectivePrizesSize = Math.max(5.5, Math.min(prizesSize, maxFittingPrizesPx));
@@ -407,13 +408,64 @@ export function ConfigPanel() {
                   onChange={(val) => setTicketConfig({ prizesFontSize: val })}
                   showValueBadge={false}
                 />
+                {/* Selector de columnas de premios */}
+                <div className="flex items-center justify-between pt-1 text-xs">
+                  <span className="text-slate-300">Columnas de premios:</span>
+                  <div className="flex rounded bg-slate-800 p-0.5 border border-slate-700/60">
+                    {[
+                      { id: "auto", label: `Auto (${numCols})` },
+                      { id: 2, label: "2 col" },
+                      { id: 3, label: "3 col" },
+                      { id: 4, label: "4 col" },
+                    ].map((colOpt) => {
+                      const active = (ticketConfig.prizeColumns ?? "auto") === colOpt.id;
+                      return (
+                        <button
+                          key={String(colOpt.id)}
+                          type="button"
+                          onClick={() => setTicketConfig({ prizeColumns: colOpt.id as 2 | 3 | 4 | "auto" })}
+                          className={`px-2 py-0.5 text-[10px] font-medium rounded transition-colors cursor-pointer ${
+                            active
+                              ? "bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold"
+                              : "text-slate-400 hover:text-slate-200"
+                          }`}
+                        >
+                          {colOpt.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 {isPrizesSizeAutoAdjusted ? (
-                  <p className="text-[10px] text-amber-400/90 leading-tight">
-                    💡 Con {numPrizes} premios y boleto de {printConfig.ticketHeight}mm, el sistema ajusta automáticamente a {effectivePrizesSize}px para garantizar que <strong>todos los {numPrizes} premios aparezcan completos sin cortarse</strong>.
-                  </p>
+                  <div className="space-y-1 bg-amber-950/20 border border-amber-500/30 rounded p-2">
+                    <p className="text-[10px] text-amber-400/90 leading-tight">
+                      💡 Con {numPrizes} premios en {numCols} columnas ({prizeRows} filas) y boleto de {printConfig.ticketHeight}mm, el sistema ajusta a {effectivePrizesSize}px para garantizar que <strong>aparezcan todos completos sin cortarse</strong>.
+                    </p>
+                    <div className="flex flex-wrap gap-1.5 pt-0.5">
+                      {numCols < 4 && (
+                        <button
+                          type="button"
+                          onClick={() => setTicketConfig({ prizeColumns: (numCols + 1) as 3 | 4 })}
+                          className="text-[10px] bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 px-2 py-0.5 rounded border border-amber-500/40 transition-colors cursor-pointer"
+                        >
+                          Usar {numCols + 1} columnas (letra más grande)
+                        </button>
+                      )}
+                      {printConfig.ticketHeight < 65 && (
+                        <button
+                          type="button"
+                          onClick={() => setPrintConfig({ ticketHeight: 65 })}
+                          className="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-0.5 rounded border border-slate-600 transition-colors cursor-pointer"
+                        >
+                          Aumentar alto a 65mm
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 ) : (
-                  <p className="text-[10px] text-slate-400">
-                    Todos los {numPrizes} premios caben perfectamente con este tamaño.
+                  <p className="text-[10px] text-emerald-400/90 flex items-center gap-1">
+                    ✓ Todos los {numPrizes} premios se muestran completos a {prizesSize}px en {numCols} columnas.
                   </p>
                 )}
               </div>

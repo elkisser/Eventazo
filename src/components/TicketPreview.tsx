@@ -5,7 +5,7 @@ import { Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useRifaStore } from "@/store/useRifaStore";
-import { formatTicketNumber, getDigitsNeeded, formatCurrency, formatShortDate } from "@/lib/utils";
+import { formatTicketNumber, getDigitsNeeded, formatCurrency, formatShortDate, resolvePrizeColumns } from "@/lib/utils";
 import { A4_WIDTH_PT, A4_HEIGHT_PT, MM_TO_PT } from "@/lib/constants";
 
 export function TicketPreview() {
@@ -49,16 +49,6 @@ export function TicketPreview() {
     printConfig.marginTop,
   ]);
 
-  // Prizes split: odd positions left, even positions right
-  const col1Prizes = useMemo(
-    () => ticketConfig.prizes.filter((_, i) => i % 2 === 0),
-    [ticketConfig.prizes]
-  );
-  const col2Prizes = useMemo(
-    () => ticketConfig.prizes.filter((_, i) => i % 2 === 1),
-    [ticketConfig.prizes]
-  );
-
   // Dynamic typography calculations
   const fontScale = (ticketConfig.generalFontScale ?? 100) / 100;
   const titleSize = Math.round((ticketConfig.titleFontSize ?? 14) * fontScale);
@@ -74,9 +64,22 @@ export function TicketPreview() {
   const stubPercent = (stubWidthMm / ticketWidth) * 100;
   const mainPercent = 100 - stubPercent;
 
+  // Resolve dynamic prize columns (2, 3, 4 or auto)
+  const numPrizeCols = resolvePrizeColumns(
+    ticketConfig.prizeColumns,
+    ticketConfig.prizes.length,
+    requestedPrizesSize
+  );
+
+  const prizeColumnsList = useMemo(() => {
+    return Array.from({ length: numPrizeCols }, (_, c) =>
+      ticketConfig.prizes.filter((_, i) => i % numPrizeCols === c)
+    );
+  }, [ticketConfig.prizes, numPrizeCols]);
+
   // Auto-fitting prize font size calculation:
   // Guarantees all prizes fit in the ticket height without dropping any!
-  const rowsCount = Math.max(1, Math.ceil(ticketConfig.prizes.length / 2));
+  const rowsCount = Math.max(1, Math.ceil(ticketConfig.prizes.length / numPrizeCols));
   const heightFactor = ticketHeight / 50;
   const maxFittingPrizesPx = Math.max(6, Math.floor((78 * heightFactor) / rowsCount));
   const effectivePrizesSize = Math.max(5.5, Math.min(Math.round(requestedPrizesSize * fontScale), maxFittingPrizesPx));
@@ -188,31 +191,26 @@ export function TicketPreview() {
                       </span>
                     )}
                   </div>
-                  <div className="grid grid-cols-2 gap-x-2">
-                    <div className="space-y-[1px]">
-                      {col1Prizes.map((prize) => (
-                        <p
-                          key={prize.position}
-                          className="italic leading-none truncate py-[0.5px]"
-                          style={{ color: primaryColor, fontSize: `${effectivePrizesSize}px` }}
-                          title={`${prize.label} ${prize.description}`}
-                        >
-                          <span className="font-semibold">{prize.label}</span> {prize.description}
-                        </p>
-                      ))}
-                    </div>
-                    <div className="space-y-[1px]">
-                      {col2Prizes.map((prize) => (
-                        <p
-                          key={prize.position}
-                          className="italic leading-none truncate py-[0.5px]"
-                          style={{ color: primaryColor, fontSize: `${effectivePrizesSize}px` }}
-                          title={`${prize.label} ${prize.description}`}
-                        >
-                          <span className="font-semibold">{prize.label}</span> {prize.description}
-                        </p>
-                      ))}
-                    </div>
+                  <div
+                    className="grid gap-x-2"
+                    style={{
+                      gridTemplateColumns: `repeat(${numPrizeCols}, minmax(0, 1fr))`,
+                    }}
+                  >
+                    {prizeColumnsList.map((colPrizes, colIdx) => (
+                      <div key={colIdx} className="space-y-[1px] min-w-0">
+                        {colPrizes.map((prize) => (
+                          <p
+                            key={prize.position}
+                            className="italic leading-none truncate py-[0.5px]"
+                            style={{ color: primaryColor, fontSize: `${effectivePrizesSize}px` }}
+                            title={`${prize.label} ${prize.description}`}
+                          >
+                            <span className="font-semibold">{prize.label}</span> {prize.description}
+                          </p>
+                        ))}
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
