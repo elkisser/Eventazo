@@ -49,11 +49,62 @@ body {
   }
 }
 
-/* Animaciones suaves */
-* {
-  transition-property: color, background-color, border-color, opacity;
-  transition-timing-function: ease;
-  transition-duration: 150ms;
+/* Transiciones específicas solo en elementos interactivos para máxima fluidez en PCs lentas */
+button, a, input, select, textarea, [role="switch"], [role="checkbox"] {
+  transition: color 120ms ease, background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+}
+
+/* Ocultar spinners nativos de input type=number en todos los navegadores */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Custom range slider styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  background: #334155;
+  height: 6px;
+  border-radius: 9999px;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 18px;
+  width: 18px;
+  background: #f59e0b;
+  border-radius: 50%;
+  border: 2px solid #0f172a;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+  margin-top: -6px;
+  transition: transform 100ms ease, background-color 100ms ease;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  background: #fbbf24;
+}
+input[type="range"]::-moz-range-track {
+  background: #334155;
+  height: 6px;
+  border-radius: 9999px;
+}
+input[type="range"]::-moz-range-thumb {
+  height: 18px;
+  width: 18px;
+  background: #f59e0b;
+  border-radius: 50%;
+  border: 2px solid #0f172a;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+  transition: transform 100ms ease;
 }
 
 /* Animaciones de entrada */

@@ -9,6 +9,13 @@ export interface TicketConfig {
   startNumber: number;
   contributionText: string;
   prizes: Prize[];
+  // Tipografía y tamaños de fuente
+  prizesFontSize?: number; // default: 8
+  titleFontSize?: number; // default: 14
+  subtitleFontSize?: number; // default: 13
+  generalFontScale?: number; // default: 100 (%)
+  // Color principal de acento
+  primaryColor?: string; // default: "#991b1b"
 }
 
 export interface Prize {

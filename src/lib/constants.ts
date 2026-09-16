@@ -34,7 +34,25 @@ export const DEFAULT_TICKET_CONFIG: TicketConfig = {
   startNumber: 1,
   contributionText: "Tu colaboración apoya los proyectos de nuestra comunidad educativa.",
   prizes: DEFAULT_PRIZES,
+  prizesFontSize: 8,
+  titleFontSize: 14,
+  subtitleFontSize: 12,
+  generalFontScale: 100,
+  primaryColor: "#991b1b",
 };
+
+export const COLOR_PRESETS = [
+  { name: "Rojo Carmesí", hex: "#991b1b", preview: "bg-red-800" },
+  { name: "Rojo Fuego", hex: "#dc2626", preview: "bg-red-600" },
+  { name: "Azul Real", hex: "#1d4ed8", preview: "bg-blue-700" },
+  { name: "Azul Marino", hex: "#1e3a8a", preview: "bg-blue-900" },
+  { name: "Verde Esmeralda", hex: "#047857", preview: "bg-emerald-700" },
+  { name: "Verde Bosque", hex: "#14532d", preview: "bg-green-900" },
+  { name: "Borgoña / Vino", hex: "#831843", preview: "bg-pink-900" },
+  { name: "Dorado / Ámbar", hex: "#b45309", preview: "bg-amber-700" },
+  { name: "Púrpura / Violeta", hex: "#6b21a8", preview: "bg-purple-800" },
+  { name: "Negro Carbón", hex: "#18181b", preview: "bg-zinc-900" },
+];
 
 export const DEFAULT_PRINT_CONFIG: PrintConfig = {
   ticketsPerRow: 1,

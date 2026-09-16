@@ -1,41 +1,81 @@
 "use client";
 
+import { useMemo } from "react";
 import { useRifaStore } from "@/store/useRifaStore";
 import { A4_WIDTH_PT, A4_HEIGHT_PT, MM_TO_PT } from "@/lib/constants";
 
 export function PageLayoutPreview() {
   const { printConfig, ticketConfig } = useRifaStore();
 
-  const margin = printConfig.marginTop * MM_TO_PT;
-  const gap = printConfig.gap * MM_TO_PT;
-  const tW = printConfig.ticketWidth * MM_TO_PT;
-  const tH = printConfig.ticketHeight * MM_TO_PT;
+  const {
+    rows,
+    cols,
+    horizCount,
+    sideRotatedCount,
+    canFitSide,
+    totalPerPage,
+    totalPages,
+    scale,
+    pageW,
+    pageH,
+    gridStartX,
+    gridW,
+    tW,
+    tH,
+    gap,
+    margin,
+  } = useMemo(() => {
+    const m = printConfig.marginTop * MM_TO_PT;
+    const g = printConfig.gap * MM_TO_PT;
+    const tw = printConfig.ticketWidth * MM_TO_PT;
+    const th = printConfig.ticketHeight * MM_TO_PT;
 
-  const availW = A4_WIDTH_PT - margin * 2;
-  const availH = A4_HEIGHT_PT - margin * 2;
+    const availW = A4_WIDTH_PT - m * 2;
+    const availH = A4_HEIGHT_PT - m * 2;
 
-  // Horizontal tickets
-  const cols = Math.max(1, Math.floor((availW + gap) / (tW + gap)));
-  const rows = Math.max(1, Math.floor((availH + gap) / (tH + gap)));
-  const horizCount = cols * rows;
+    const c = Math.max(1, Math.floor((availW + g) / (tw + g)));
+    const r = Math.max(1, Math.floor((availH + g) / (th + g)));
+    const hc = c * r;
 
-  const gridW = cols * tW + (cols - 1) * gap;
-  const gridStartX = margin; // left-aligned to maximize right space
+    const gw = c * tw + (c - 1) * g;
+    const sx = m;
 
-  // Side rotated tickets
-  const rightRemaining = A4_WIDTH_PT - gridStartX - gridW - gap - margin;
-  const canFitSide = rightRemaining >= tH;
-  const sideRotatedCount = canFitSide
-    ? Math.floor((availH + gap) / (tW + gap))
-    : 0;
+    const rightRemaining = A4_WIDTH_PT - sx - gw - g - m;
+    const canFitSide = rightRemaining >= th;
+    const sc = canFitSide ? Math.floor((availH + g) / (tw + g)) : 0;
 
-  const totalPerPage = horizCount + sideRotatedCount;
-  const totalPages = Math.ceil(ticketConfig.totalTickets / totalPerPage);
+    const tpp = hc + sc;
+    const tp = Math.ceil(ticketConfig.totalTickets / tpp);
 
-  // Scale for visual (fit in ~200px height)
-  const scale = 200 / A4_HEIGHT_PT;
-  const pageW = A4_WIDTH_PT * scale;
-  const pageH = A4_HEIGHT_PT * scale;
+    const s = 200 / A4_HEIGHT_PT;
+    const pw = A4_WIDTH_PT * s;
+    const ph = A4_HEIGHT_PT * s;
+
+    return {
+      rows: r,
+      cols: c,
+      horizCount: hc,
+      sideRotatedCount: sc,
+      canFitSide,
+      totalPerPage: tpp,
+      totalPages: tp,
+      scale: s,
+      pageW: pw,
+      pageH: ph,
+      gridStartX: sx,
+      gridW: gw,
+      tW: tw,
+      tH: th,
+      gap: g,
+      margin: m,
+    };
+  }, [
+    printConfig.marginTop,
+    printConfig.gap,
+    printConfig.ticketWidth,
+    printConfig.ticketHeight,
+    ticketConfig.totalTickets,
+  ]);
 
   return (
     <div className="rounded-xl border border-slate-700/50 bg-slate-800/80 p-4 space-y-3">

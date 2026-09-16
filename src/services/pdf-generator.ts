@@ -1,6 +1,6 @@
 import { PDFDocument, rgb, StandardFonts, PDFPage, PDFFont, degrees } from "pdf-lib";
 import { TicketConfig, PrintConfig } from "@/types";
-import { formatTicketNumber, getDigitsNeeded, formatCurrency } from "@/lib/utils";
+import { formatTicketNumber, getDigitsNeeded, formatCurrency, hexToRgb, formatShortDate } from "@/lib/utils";
 import { A4_WIDTH_PT, A4_HEIGHT_PT, MM_TO_PT } from "@/lib/constants";
 
 interface PDFGeneratorOptions {
@@ -10,7 +10,6 @@ interface PDFGeneratorOptions {
 }
 
 // Colores del ticket
-const DARK_RED = rgb(0.6, 0.05, 0.05);
 const BLACK = rgb(0.05, 0.05, 0.05);
 const DARK_GRAY = rgb(0.3, 0.3, 0.3);
 const MED_GRAY = rgb(0.5, 0.5, 0.5);
@@ -131,15 +130,20 @@ function drawTicket(
   ticketNumber: string, config: TicketConfig, fonts: Fonts
 ) {
   const { font, fontBold, fontItalic, fontBoldItalic, courierBold } = fonts;
-  // Factor de escala basado en la altura del ticket
+  // Factor de escala basado en la altura del ticket y configuración tipográfica
   const s = h / 160;
-  const TITLE_SIZE = Math.max(4, 9 * s);
-  const SUBTITLE_SIZE = Math.max(3.5, 8 * s);
-  const INFO_SIZE = Math.max(3, 5.5 * s);
-  const PRIZE_HEADER_SIZE = Math.max(3, 6 * s);
-  const PRIZE_SIZE = Math.max(2.8, 5 * s);
-  const PRICE_SIZE = Math.max(4, 10 * s);
-  const NUM_SIZE = Math.max(5, 13 * s);
+  const fontScale = (config.generalFontScale ?? 100) / 100;
+  const titleMultiplier = (config.titleFontSize ?? 14) / 14;
+  const subtitleMultiplier = (config.subtitleFontSize ?? 12) / 12;
+  const prizesMultiplier = (config.prizesFontSize ?? 8) / 8;
+
+  const TITLE_SIZE = Math.max(4, 9 * s * titleMultiplier * fontScale);
+  const SUBTITLE_SIZE = Math.max(3.5, 8 * s * subtitleMultiplier * fontScale);
+  const INFO_SIZE = Math.max(3, 5.5 * s * fontScale);
+  const PRIZE_HEADER_SIZE = Math.max(3, 6 * s * Math.max(0.9, prizesMultiplier) * fontScale);
+  const PRIZE_SIZE = Math.max(2.8, 5 * s * prizesMultiplier * fontScale);
+  const PRICE_SIZE = Math.max(4, 10 * s * fontScale);
+  const NUM_SIZE = Math.max(5, 13 * s * fontScale);
   const STUB_TITLE_SIZE = Math.max(3, 7 * s);
   const STUB_LABEL_SIZE = Math.max(2.8, 6 * s);
   const STUB_INFO_SIZE = Math.max(2.5, 5.5 * s);
@@ -165,11 +169,14 @@ function drawTicket(
   const bottomY = y + pad;
   let cy = y + h - pad;
 
+  const { r, g, b } = hexToRgb(config.primaryColor ?? "#991b1b");
+  const ACCENT_COLOR = rgb(r, g, b);
+
   // Encabezado del ticket
   cy -= TITLE_SIZE;
   page.drawText(config.eventName, { x: cx, y: cy, size: TITLE_SIZE, font: fontBold, color: BLACK });
   cy -= SUBTITLE_SIZE + 2 * s;
-  page.drawText(config.subtitle, { x: cx, y: cy, size: SUBTITLE_SIZE, font: fontBoldItalic, color: DARK_RED });
+  page.drawText(config.subtitle, { x: cx, y: cy, size: SUBTITLE_SIZE, font: fontBoldItalic, color: ACCENT_COLOR });
   cy -= INFO_SIZE + 3 * s;
   page.drawText(`Sorteo: ${config.drawDate}`, { x: cx, y: cy, size: INFO_SIZE, font, color: DARK_GRAY });
   cy -= INFO_SIZE + 1.5 * s;
@@ -200,14 +207,14 @@ function drawTicket(
 
   const c1 = config.prizes.filter((_, i) => i % 2 === 0);
   const c2 = config.prizes.filter((_, i) => i % 2 === 1);
-  c1.forEach((p, i) => { if (i >= maxLines) return; const t = `${p.label} ${p.description}`; const tr = t.length > maxChars ? t.substring(0, maxChars-2)+".." : t; page.drawText(tr, { x: col1X, y: prizeAreaTop - i*prizeLineH, size: PRIZE_SIZE, font: fontItalic, color: DARK_RED }); });
-  c2.forEach((p, i) => { if (i >= maxLines) return; const t = `${p.label} ${p.description}`; const tr = t.length > maxChars ? t.substring(0, maxChars-2)+".." : t; page.drawText(tr, { x: col2X, y: prizeAreaTop - i*prizeLineH, size: PRIZE_SIZE, font: fontItalic, color: DARK_RED }); });
+  c1.forEach((p, i) => { if (i >= maxLines) return; const t = `${p.label} ${p.description}`; const tr = t.length > maxChars ? t.substring(0, maxChars-2)+".." : t; page.drawText(tr, { x: col1X, y: prizeAreaTop - i*prizeLineH, size: PRIZE_SIZE, font: fontItalic, color: ACCENT_COLOR }); });
+  c2.forEach((p, i) => { if (i >= maxLines) return; const t = `${p.label} ${p.description}`; const tr = t.length > maxChars ? t.substring(0, maxChars-2)+".." : t; page.drawText(tr, { x: col2X, y: prizeAreaTop - i*prizeLineH, size: PRIZE_SIZE, font: fontItalic, color: ACCENT_COLOR }); });
 
   // Pie: VALOR a la izquierda, N° a la derecha
   page.drawText(config.priceLabel, { x: cx, y: bottomY, size: PRICE_SIZE, font: fontBold, color: BLACK });
   const numText = `N° ${ticketNumber}`;
   const numW = courierBold.widthOfTextAtSize(numText, NUM_SIZE);
-  page.drawText(numText, { x: mainRight - numW, y: bottomY, size: NUM_SIZE, font: courierBold, color: DARK_RED });
+  page.drawText(numText, { x: mainRight - numW, y: bottomY, size: NUM_SIZE, font: courierBold, color: ACCENT_COLOR });
 
   // === TALÓN DE CONTROL ===
   const sp = 4 * s;
@@ -224,9 +231,9 @@ function drawTicket(
   sy -= 3 * s;
   page.drawLine({ start: { x: scx, y: sy }, end: { x: sr, y: sy }, thickness: 0.25, color: LIGHT_GRAY });
 
-  // Fecha del sorteo
+  // Fecha del sorteo (dinámica desde la configuración)
   sy -= STUB_INFO_SIZE + 2 * s;
-  const ds = "Sorteo: 19/06/2026";
+  const ds = `Sorteo: ${formatShortDate(config.drawDate)}`;
   const dsW = font.widthOfTextAtSize(ds, STUB_INFO_SIZE);
   page.drawText(ds, { x: scx + (scW - dsW) / 2, y: sy, size: STUB_INFO_SIZE, font, color: MED_GRAY });
 
@@ -252,7 +259,7 @@ function drawTicket(
   sy -= STUB_NUM_SIZE + 3 * s;
   const sn = `N° ${ticketNumber}`;
   const snW = courierBold.widthOfTextAtSize(sn, STUB_NUM_SIZE);
-  page.drawText(sn, { x: scx + (scW - snW) / 2, y: sy, size: STUB_NUM_SIZE, font: courierBold, color: DARK_RED });
+  page.drawText(sn, { x: scx + (scW - snW) / 2, y: sy, size: STUB_NUM_SIZE, font: courierBold, color: ACCENT_COLOR });
 
   // Línea de corte horizontal debajo del ticket
   dashedLineH(page, x, y - 1, x + w, 4, 2.5, 0.2, LIGHT_GRAY);

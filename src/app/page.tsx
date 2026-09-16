@@ -71,23 +71,31 @@ export default function Home() {
           )}
           {mobileTab === "config" && (
             <>
+              <div className="sticky top-2 z-10 shadow-xl">
+                <TicketPreview />
+              </div>
               <ConfigPanel />
               <ImageUpload />
             </>
           )}
-          {mobileTab === "print" && <PrintConfigPanel />}
+          {mobileTab === "print" && (
+            <>
+              <TicketPreview />
+              <PrintConfigPanel />
+            </>
+          )}
         </div>
 
         {/* === DESKTOP: Grid de 3 columnas === */}
-        <div className="hidden lg:grid lg:grid-cols-12 gap-6">
+        <div className="hidden lg:grid lg:grid-cols-12 gap-6 items-start">
           {/* Columna izquierda - Configuración */}
           <div className="lg:col-span-4 space-y-6">
             <ConfigPanel />
             <ImageUpload />
           </div>
 
-          {/* Columna central - Vista previa */}
-          <div className="lg:col-span-5 space-y-6">
+          {/* Columna central - Vista previa persistente y pegajosa */}
+          <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-4 self-start">
             <TicketPreview />
             <PrintConfigPanel />
           </div>
