@@ -12,7 +12,8 @@ export interface TicketConfig {
   // Tipografía y tamaños de fuente
   prizesFontSize?: number; // default: 8
   titleFontSize?: number; // default: 14
-  subtitleFontSize?: number; // default: 13
+  subtitleFontSize?: number; // default: 12
+  stubFontSize?: number; // default: 10
   generalFontScale?: number; // default: 100 (%)
   // Color principal de acento
   primaryColor?: string; // default: "#991b1b"
@@ -40,6 +41,7 @@ export interface PrintConfig {
   marginRight: number;
   ticketWidth: number;
   ticketHeight: number;
+  stubWidth?: number; // mm (default: 36)
   gap: number;
 }
 

@@ -37,6 +37,7 @@ export const DEFAULT_TICKET_CONFIG: TicketConfig = {
   prizesFontSize: 8,
   titleFontSize: 14,
   subtitleFontSize: 12,
+  stubFontSize: 10,
   generalFontScale: 100,
   primaryColor: "#991b1b",
 };
@@ -65,6 +66,7 @@ export const DEFAULT_PRINT_CONFIG: PrintConfig = {
   marginRight: 3,
   ticketWidth: 130,
   ticketHeight: 50,
+  stubWidth: 36,
   gap: 2,
 };
 

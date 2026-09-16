@@ -13,6 +13,7 @@ import {
   RotateCcw,
   Palette,
   Check,
+  Scissors,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -25,22 +26,27 @@ import { COLOR_PRESETS } from "@/lib/constants";
 import { formatSpanishDate, formatShortDate } from "@/lib/utils";
 
 export function ConfigPanel() {
-  const { ticketConfig, setTicketConfig } = useRifaStore();
+  const { ticketConfig, setTicketConfig, printConfig, setPrintConfig } = useRifaStore();
   const [showTypography, setShowTypography] = useState(true);
   const [showColorPicker, setShowColorPicker] = useState(true);
+  const [showStubConfig, setShowStubConfig] = useState(true);
 
   // Defaults fallback
   const titleSize = ticketConfig.titleFontSize ?? 14;
   const subtitleSize = ticketConfig.subtitleFontSize ?? 12;
   const prizesSize = ticketConfig.prizesFontSize ?? 8;
+  const stubFontSize = ticketConfig.stubFontSize ?? 10;
   const fontScale = ticketConfig.generalFontScale ?? 100;
   const currentColor = ticketConfig.primaryColor ?? "#991b1b";
+  const stubWidth = printConfig.stubWidth ?? 36;
+  const stubPercent = Math.round((stubWidth / printConfig.ticketWidth) * 100);
 
   const handleResetTypography = () => {
     setTicketConfig({
       titleFontSize: 14,
       subtitleFontSize: 12,
       prizesFontSize: 8,
+      stubFontSize: 10,
       generalFontScale: 100,
     });
   };
@@ -427,6 +433,24 @@ export function ConfigPanel() {
                 />
               </div>
 
+              {/* Tamaño de Texto del Talón */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-200 font-medium">Tamaño de Texto del Talón:</span>
+                  <span className="font-mono text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">
+                    {stubFontSize} px
+                  </span>
+                </div>
+                <Slider
+                  min={7}
+                  max={14}
+                  step={1}
+                  value={stubFontSize}
+                  onChange={(val) => setTicketConfig({ stubFontSize: val })}
+                  showValueBadge={false}
+                />
+              </div>
+
               {/* Presets rápidos de escala */}
               <div className="pt-1 border-t border-slate-800/80 flex items-center justify-between">
                 <span className="text-[11px] text-slate-400">Escala general:</span>
@@ -442,6 +466,79 @@ export function ConfigPanel() {
                       onClick={() => setTicketConfig({ generalFontScale: preset.scale })}
                       className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors cursor-pointer ${
                         fontScale === preset.scale
+                          ? "bg-amber-500/20 text-amber-400 border border-amber-500/40"
+                          : "bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700"
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Sección: Tamaño del Talón de Control */}
+        <div className="space-y-3 pt-2 border-t border-slate-800">
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => setShowStubConfig(!showStubConfig)}
+              className="flex items-center gap-2 text-xs font-semibold text-amber-400/90 uppercase tracking-wider hover:text-amber-300 transition-colors cursor-pointer"
+            >
+              <Scissors className="h-3.5 w-3.5" />
+              <span>Tamaño del Talón de Control</span>
+              {showStubConfig ? (
+                <ChevronUp className="h-3.5 w-3.5 text-slate-400" />
+              ) : (
+                <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+              )}
+            </button>
+
+            <span className="font-mono text-xs font-bold text-amber-400 bg-slate-900/80 border border-slate-700/80 px-2 py-0.5 rounded">
+              {stubWidth} mm ({stubPercent}%)
+            </span>
+          </div>
+
+          {showStubConfig && (
+            <div className="rounded-lg border border-slate-700/80 bg-slate-900/50 p-3.5 space-y-3 shadow-inner">
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-200 font-medium">Ancho del Talón:</span>
+                  <span className="font-mono text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">
+                    {stubWidth} mm ({stubPercent}%)
+                  </span>
+                </div>
+                <Slider
+                  min={18}
+                  max={Math.max(25, Math.round(printConfig.ticketWidth * 0.48))}
+                  step={1}
+                  value={stubWidth}
+                  onChange={(val) => setPrintConfig({ stubWidth: val })}
+                  showValueBadge={false}
+                />
+                <p className="text-[10px] text-slate-400">
+                  Modifica el ancho del talón desprendible respecto al cuerpo principal del boleto.
+                </p>
+              </div>
+
+              {/* Presets rápidos */}
+              <div className="pt-1 border-t border-slate-800/80 flex items-center justify-between">
+                <span className="text-[11px] text-slate-400">Preajustes:</span>
+                <div className="flex flex-wrap gap-1">
+                  {[
+                    { label: "Estrecho (28mm)", w: 28 },
+                    { label: "Estándar (36mm)", w: 36 },
+                    { label: "Medio (42mm)", w: 42 },
+                    { label: "Amplio (48mm)", w: 48 },
+                  ].map((preset) => (
+                    <button
+                      key={preset.w}
+                      type="button"
+                      onClick={() => setPrintConfig({ stubWidth: preset.w })}
+                      className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors cursor-pointer ${
+                        stubWidth === preset.w
                           ? "bg-amber-500/20 text-amber-400 border border-amber-500/40"
                           : "bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700"
                       }`}

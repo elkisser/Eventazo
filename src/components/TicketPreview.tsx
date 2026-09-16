@@ -67,6 +67,23 @@ export function TicketPreview() {
   const prizeHeaderSize = Math.max(8, Math.round(prizesSize * 1.1));
   const primaryColor = ticketConfig.primaryColor ?? "#991b1b";
 
+  // Dynamic stub dimensions and proportion calculations
+  const ticketWidth = printConfig.ticketWidth || 130;
+  const rawStubWidth = printConfig.stubWidth ?? 36;
+  const stubWidthMm = Math.min(Math.max(15, rawStubWidth), Math.max(20, ticketWidth - 25));
+  const stubPercent = (stubWidthMm / ticketWidth) * 100;
+  const mainPercent = 100 - stubPercent;
+
+  // Stub typography calculations
+  const stubFontSizeBase = ticketConfig.stubFontSize ?? 10;
+  const stubMultiplier = stubFontSizeBase / 10;
+  const stubWidthFactor = Math.min(1.2, Math.max(0.75, stubWidthMm / 36));
+  const stubTitleSize = Math.max(8, Math.round(11 * stubMultiplier * stubWidthFactor * fontScale));
+  const stubDateSize = Math.max(7, Math.round(9 * stubMultiplier * stubWidthFactor * fontScale));
+  const stubLabelSize = Math.max(7.5, Math.round(10 * stubMultiplier * stubWidthFactor * fontScale));
+  const stubValSize = Math.max(8, Math.round(10 * stubMultiplier * stubWidthFactor * fontScale));
+  const stubNumSize = Math.max(12, Math.round(18 * stubMultiplier * stubWidthFactor * fontScale));
+
   return (
     <Card className="shadow-lg border-slate-700/80">
       <CardHeader className="pb-3">
@@ -110,9 +127,12 @@ export function TicketPreview() {
 
         {/* Ticket Visual — matches the PDF output exactly */}
         <div className="overflow-hidden rounded-lg border border-slate-600 bg-white shadow-2xl transition-none">
-          <div className="flex">
-            {/* Main ticket section (72%) */}
-            <div className="flex-[72] flex flex-col justify-between p-4 border-r-2 border-dashed border-gray-300">
+          <div className="flex w-full">
+            {/* Main ticket section */}
+            <div
+              className="flex flex-col justify-between p-3 sm:p-4 border-r-2 border-dashed border-gray-300 transition-all overflow-hidden"
+              style={{ width: `${mainPercent}%`, flex: `0 0 ${mainPercent}%` }}
+            >
               {/* Header info */}
               <div>
                 <h2
@@ -189,33 +209,55 @@ export function TicketPreview() {
               </div>
             </div>
 
-            {/* Stub section (28%) */}
-            <div className="flex-[28] flex flex-col justify-between p-3 bg-gray-50">
+            {/* Stub section */}
+            <div
+              className="flex flex-col justify-between p-2 sm:p-3 bg-gray-50 transition-all overflow-hidden"
+              style={{ width: `${stubPercent}%`, flex: `0 0 ${stubPercent}%` }}
+            >
               <div>
-                <p className="text-[11px] font-bold text-gray-900 text-center border-b border-gray-300 pb-1">
+                <p
+                  className="font-bold text-gray-900 text-center border-b border-gray-300 pb-1 truncate leading-tight"
+                  style={{ fontSize: `${stubTitleSize}px` }}
+                >
                   TALÓN DE CONTROL
                 </p>
-                <p className="text-[9px] text-gray-500 text-center mt-1">
+                <p
+                  className="text-gray-500 text-center mt-1 truncate"
+                  style={{ fontSize: `${stubDateSize}px` }}
+                >
                   Sorteo: {formatShortDate(ticketConfig.drawDate)}
                 </p>
-                <div className="mt-3 space-y-2">
+                <div className="mt-2.5 space-y-2">
                   <div>
-                    <p className="text-[10px] font-bold text-gray-800">Nombre y Apellido:</p>
-                    <div className="border-b border-gray-400 mt-1 h-3" />
+                    <p
+                      className="font-bold text-gray-800 truncate"
+                      style={{ fontSize: `${stubLabelSize}px` }}
+                    >
+                      Nombre y Apellido:
+                    </p>
+                    <div className="border-b border-gray-400 mt-1 h-2.5" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold text-gray-800">Teléfono:</p>
-                    <div className="border-b border-gray-400 mt-1 h-3" />
+                    <p
+                      className="font-bold text-gray-800 truncate"
+                      style={{ fontSize: `${stubLabelSize}px` }}
+                    >
+                      Teléfono:
+                    </p>
+                    <div className="border-b border-gray-400 mt-1 h-2.5" />
                   </div>
                 </div>
               </div>
               <div className="text-center mt-2">
-                <p className="text-[10px] font-semibold text-gray-600">
+                <p
+                  className="font-semibold text-gray-600 truncate"
+                  style={{ fontSize: `${stubValSize}px` }}
+                >
                   Valor: {formatCurrency(ticketConfig.price)}
                 </p>
                 <p
-                  className="text-lg font-bold font-mono mt-1"
-                  style={{ color: primaryColor }}
+                  className="font-bold font-mono mt-0.5 truncate"
+                  style={{ color: primaryColor, fontSize: `${stubNumSize}px` }}
                 >
                   N° {formattedNumber}
                 </p>
@@ -224,11 +266,19 @@ export function TicketPreview() {
           </div>
         </div>
 
-        {/* Cut line indicator */}
-        <div className="flex items-center gap-2 select-none">
-          <div className="flex-1 border-t-2 border-dashed border-slate-600" />
-          <span className="text-[9px] text-slate-500 uppercase tracking-wider font-mono">línea de corte</span>
-          <div className="flex-1 border-t-2 border-dashed border-slate-600" />
+        {/* Cut line indicator with live proportions */}
+        <div className="space-y-1 select-none">
+          <div className="flex items-center gap-2">
+            <div className="border-t-2 border-dashed border-slate-600" style={{ width: `${mainPercent}%` }} />
+            <span className="text-[9px] text-amber-400/90 uppercase tracking-wider font-mono shrink-0">
+              ✂ línea de corte
+            </span>
+            <div className="border-t-2 border-dashed border-slate-600" style={{ width: `${stubPercent}%` }} />
+          </div>
+          <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono px-0.5">
+            <span>Cuerpo: {Math.round(mainPercent)}% ({ticketWidth - stubWidthMm} mm)</span>
+            <span className="text-amber-300/90 font-semibold">Talón: {Math.round(stubPercent)}% ({stubWidthMm} mm)</span>
+          </div>
         </div>
       </CardContent>
     </Card>

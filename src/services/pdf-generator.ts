@@ -74,7 +74,7 @@ export async function generateRifaPDF(options: PDFGeneratorOptions): Promise<Uin
         const formatted = formatTicketNumber(ticketConfig.startNumber + idx, digits);
         const x = gridStartX + col * (tW + gap);
         const y = A4_HEIGHT_PT - margin - (row + 1) * tH - row * gap;
-        drawTicket(page, x, y, tW, tH, formatted, ticketConfig, fonts);
+        drawTicket(page, x, y, tW, tH, formatted, ticketConfig, fonts, printConfig);
         idx++;
       }
     }
@@ -97,7 +97,7 @@ export async function generateRifaPDF(options: PDFGeneratorOptions): Promise<Uin
         const tempFonts: Fonts = { font: tFont, fontBold: tFontBold, fontItalic: tFontItalic, fontBoldItalic: tFontBoldItalic, courierBold: tCourierBold };
 
         const tempPage = tempDoc.addPage([tW, tH]);
-        drawTicket(tempPage, 0, 0, tW, tH, formatted, ticketConfig, tempFonts);
+        drawTicket(tempPage, 0, 0, tW, tH, formatted, ticketConfig, tempFonts, printConfig);
 
         // Incrustar la página temporal en el documento principal
         const [embeddedPage] = await pdfDoc.embedPages([tempPage]);
@@ -127,7 +127,8 @@ export async function generateRifaPDF(options: PDFGeneratorOptions): Promise<Uin
 // Dibuja un ticket horizontal completo (sección principal + talón)
 function drawTicket(
   page: PDFPage, x: number, y: number, w: number, h: number,
-  ticketNumber: string, config: TicketConfig, fonts: Fonts
+  ticketNumber: string, config: TicketConfig, fonts: Fonts,
+  printConfig?: PrintConfig
 ) {
   const { font, fontBold, fontItalic, fontBoldItalic, courierBold } = fonts;
   // Factor de escala basado en la altura del ticket y configuración tipográfica
@@ -144,17 +145,23 @@ function drawTicket(
   const PRIZE_SIZE = Math.max(2.8, 5 * s * prizesMultiplier * fontScale);
   const PRICE_SIZE = Math.max(4, 10 * s * fontScale);
   const NUM_SIZE = Math.max(5, 13 * s * fontScale);
-  const STUB_TITLE_SIZE = Math.max(3, 7 * s);
-  const STUB_LABEL_SIZE = Math.max(2.8, 6 * s);
-  const STUB_INFO_SIZE = Math.max(2.5, 5.5 * s);
-  const STUB_NUM_SIZE = Math.max(4, 11 * s);
-  const STUB_VAL_SIZE = Math.max(2.8, 6 * s);
 
-  // Sección principal (72%) y talón de control (28%)
-  const mainW = w * 0.72;
-  const stubW = w * 0.28;
+  // Sección principal y talón de control personalizable
+  const rawStubW = (printConfig?.stubWidth ?? 36) * MM_TO_PT;
+  // Clamped entre 15mm y w - 25mm para garantizar integridad estructural
+  const stubW = Math.min(Math.max(15 * MM_TO_PT, rawStubW), Math.max(20 * MM_TO_PT, w - 25 * MM_TO_PT));
+  const mainW = w - stubW;
   const stubX = x + mainW;
   const pad = 5 * s;
+
+  // Tipografía del talón ajustada a su tamaño
+  const stubFontMultiplier = (config.stubFontSize ?? 10) / 10;
+  const stubWidthScale = Math.min(1.2, Math.max(0.7, stubW / (36 * MM_TO_PT)));
+  const STUB_TITLE_SIZE = Math.max(3, 7 * s * stubFontMultiplier * stubWidthScale * fontScale);
+  const STUB_LABEL_SIZE = Math.max(2.5, 6 * s * stubFontMultiplier * stubWidthScale * fontScale);
+  const STUB_INFO_SIZE = Math.max(2.3, 5.5 * s * stubFontMultiplier * stubWidthScale * fontScale);
+  const STUB_NUM_SIZE = Math.max(3.5, 11 * s * stubFontMultiplier * stubWidthScale * fontScale);
+  const STUB_VAL_SIZE = Math.max(2.5, 6 * s * stubFontMultiplier * stubWidthScale * fontScale);
 
   // Fondos y bordes
   page.drawRectangle({ x, y, width: w, height: h, color: rgb(1, 1, 1) });

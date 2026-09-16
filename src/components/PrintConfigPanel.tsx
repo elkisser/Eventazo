@@ -1,15 +1,19 @@
 "use client";
 
 import { useMemo } from "react";
-import { Printer, Maximize2, LayoutGrid } from "lucide-react";
+import { Printer, Maximize2, LayoutGrid, Scissors } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { NumberInput } from "@/components/ui/number-input";
+import { Slider } from "@/components/ui/slider";
 import { useRifaStore } from "@/store/useRifaStore";
 import { A4_WIDTH_PT, A4_HEIGHT_PT, MM_TO_PT } from "@/lib/constants";
 
 export function PrintConfigPanel() {
   const { printConfig, setPrintConfig, ticketConfig } = useRifaStore();
+
+  const currentStubWidth = printConfig.stubWidth ?? 36;
+  const stubPercent = Math.round((currentStubWidth / printConfig.ticketWidth) * 100);
 
   // Memoized layout calculation for fast responsiveness on low-end machines
   const { horizCount, sideCount, ticketsPerPage, totalPages } = useMemo(() => {
@@ -80,25 +84,29 @@ export function PrintConfigPanel() {
         </div>
 
         {/* Tamaño del ticket */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <Label className="flex items-center gap-1.5 text-xs text-amber-400/90 uppercase tracking-wider font-semibold">
             <LayoutGrid className="h-3.5 w-3.5" />
             <span>Dimensiones del Ticket</span>
           </Label>
-          <div className="grid grid-cols-3 gap-2.5">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             <div className="space-y-1">
-              <span className="text-[11px] text-slate-400">Ancho</span>
+              <span className="text-[11px] text-slate-400">Ancho Boleto</span>
               <NumberInput
-                min={50}
+                min={60}
                 max={210}
                 step={5}
                 suffix="mm"
                 value={printConfig.ticketWidth}
-                onChange={(val) => setPrintConfig({ ticketWidth: val })}
+                onChange={(val) => {
+                  const maxStub = Math.max(20, val - 25);
+                  const safeStub = Math.min(currentStubWidth, maxStub);
+                  setPrintConfig({ ticketWidth: val, stubWidth: safeStub });
+                }}
               />
             </div>
             <div className="space-y-1">
-              <span className="text-[11px] text-slate-400">Alto</span>
+              <span className="text-[11px] text-slate-400">Alto Boleto</span>
               <NumberInput
                 min={25}
                 max={150}
@@ -106,6 +114,22 @@ export function PrintConfigPanel() {
                 suffix="mm"
                 value={printConfig.ticketHeight}
                 onChange={(val) => setPrintConfig({ ticketHeight: val })}
+              />
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] text-slate-400">Ancho Talón</span>
+                <span className="text-[10px] text-amber-400 font-mono font-bold">
+                  {stubPercent}%
+                </span>
+              </div>
+              <NumberInput
+                min={15}
+                max={Math.max(20, printConfig.ticketWidth - 25)}
+                step={1}
+                suffix="mm"
+                value={currentStubWidth}
+                onChange={(val) => setPrintConfig({ stubWidth: val })}
               />
             </div>
             <div className="space-y-1">
@@ -118,6 +142,53 @@ export function PrintConfigPanel() {
                 value={printConfig.gap}
                 onChange={(val) => setPrintConfig({ gap: val })}
               />
+            </div>
+          </div>
+
+          {/* Control deslizante y preajustes de talón */}
+          <div className="rounded-lg bg-slate-900/50 border border-slate-700/80 p-3 space-y-2.5 shadow-inner">
+            <div className="flex items-center justify-between text-xs">
+              <span className="flex items-center gap-1.5 font-medium text-slate-300 text-[11px]">
+                <Scissors className="h-3.5 w-3.5 text-amber-400" />
+                <span>Ajuste rápido de tamaño del talón:</span>
+              </span>
+              <span className="font-mono text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">
+                {currentStubWidth} mm ({stubPercent}%)
+              </span>
+            </div>
+
+            <Slider
+              min={18}
+              max={Math.max(25, Math.round(printConfig.ticketWidth * 0.48))}
+              step={1}
+              value={currentStubWidth}
+              onChange={(val) => setPrintConfig({ stubWidth: val })}
+              showValueBadge={false}
+            />
+
+            <div className="flex flex-wrap items-center justify-between gap-1 pt-1">
+              <span className="text-[10px] text-slate-400">Preajustes rápidos:</span>
+              <div className="flex flex-wrap gap-1">
+                {[
+                  { label: "Estrecho (28mm)", w: 28 },
+                  { label: "Estándar (36mm)", w: 36 },
+                  { label: "Medio (42mm)", w: 42 },
+                  { label: "Amplio (48mm)", w: 48 },
+                ].map((preset) => (
+                  <button
+                    key={preset.w}
+                    type="button"
+                    onClick={() => setPrintConfig({ stubWidth: preset.w })}
+                    className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors cursor-pointer ${
+                      currentStubWidth === preset.w
+                        ? "bg-amber-500/20 text-amber-400 border border-amber-500/40"
+                        : "bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700"
+                    }`}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>

@@ -22,6 +22,7 @@ export function PageLayoutPreview() {
     gridW,
     tW,
     tH,
+    stubW,
     gap,
     margin,
   } = useMemo(() => {
@@ -29,6 +30,8 @@ export function PageLayoutPreview() {
     const g = printConfig.gap * MM_TO_PT;
     const tw = printConfig.ticketWidth * MM_TO_PT;
     const th = printConfig.ticketHeight * MM_TO_PT;
+    const rawStub = (printConfig.stubWidth ?? 36) * MM_TO_PT;
+    const stubW = Math.min(Math.max(15 * MM_TO_PT, rawStub), Math.max(20 * MM_TO_PT, tw - 25 * MM_TO_PT));
 
     const availW = A4_WIDTH_PT - m * 2;
     const availH = A4_HEIGHT_PT - m * 2;
@@ -66,6 +69,7 @@ export function PageLayoutPreview() {
       gridW: gw,
       tW: tw,
       tH: th,
+      stubW,
       gap: g,
       margin: m,
     };
@@ -74,6 +78,7 @@ export function PageLayoutPreview() {
     printConfig.gap,
     printConfig.ticketWidth,
     printConfig.ticketHeight,
+    printConfig.stubWidth,
     ticketConfig.totalTickets,
   ]);
 
@@ -115,7 +120,7 @@ export function PageLayoutPreview() {
               return (
                 <div
                   key={`h-${row}-${col}`}
-                  className="absolute bg-amber-100 border border-amber-400/60 rounded-[2px] flex items-center justify-center overflow-hidden"
+                  className="absolute bg-amber-100 border border-amber-400/60 rounded-[2px] flex items-center justify-between overflow-hidden"
                   style={{
                     left: `${x}px`,
                     top: `${y}px`,
@@ -123,9 +128,14 @@ export function PageLayoutPreview() {
                     height: `${tH * scale}px`,
                   }}
                 >
-                  <span className="text-[6px] text-amber-700 font-mono font-bold">
+                  <span className="flex-1 text-center text-[6px] text-amber-700 font-mono font-bold truncate">
                     {ticketIdx + 1}
                   </span>
+                  <div
+                    className="h-full border-l border-dashed border-amber-400/80 bg-amber-200/50"
+                    style={{ width: `${(stubW / tW) * 100}%` }}
+                    title="Talón"
+                  />
                 </div>
               );
             })
@@ -139,7 +149,7 @@ export function PageLayoutPreview() {
               return (
                 <div
                   key={`r-${i}`}
-                  className="absolute bg-blue-100 border border-blue-400/60 rounded-[2px] flex items-center justify-center overflow-hidden"
+                  className="absolute bg-blue-100 border border-blue-400/60 rounded-[2px] flex flex-col items-center justify-between overflow-hidden"
                   style={{
                     left: `${rx}px`,
                     top: `${ry}px`,
@@ -147,7 +157,12 @@ export function PageLayoutPreview() {
                     height: `${tW * scale}px`,
                   }}
                 >
-                  <span className="text-[6px] text-blue-700 font-mono font-bold rotate-90">
+                  <div
+                    className="w-full border-b border-dashed border-blue-400/80 bg-blue-200/50"
+                    style={{ height: `${(stubW / tW) * 100}%` }}
+                    title="Talón"
+                  />
+                  <span className="flex-1 flex items-center justify-center text-[6px] text-blue-700 font-mono font-bold rotate-90 truncate">
                     {horizCount + i + 1}
                   </span>
                 </div>
