@@ -27,7 +27,7 @@ export function TicketPreview() {
     const rows = Math.max(1, Math.floor((availH + gap) / (tH + gap)));
     const gridW = cols * tW + (cols - 1) * gap;
     const rightRem = A4_WIDTH_PT - margin - gridW - gap - margin;
-    const canFitSide = rightRem >= tH;
+    const canFitSide = (printConfig.allowSideTickets ?? true) && (rightRem >= tH);
     const sideCount = canFitSide ? Math.floor((availH + gap) / (tW + gap)) : 0;
     const tpp = cols * rows + sideCount;
     const tp = Math.ceil(ticketConfig.totalTickets / tpp);
@@ -47,6 +47,7 @@ export function TicketPreview() {
     printConfig.ticketWidth,
     printConfig.ticketHeight,
     printConfig.marginTop,
+    printConfig.allowSideTickets,
   ]);
 
   // Dynamic typography calculations

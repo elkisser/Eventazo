@@ -17,7 +17,7 @@ export function PrintConfigPanel() {
   const stubPercent = Math.round((currentStubWidth / printConfig.ticketWidth) * 100);
 
   // Memoized layout calculation for fast responsiveness on low-end machines
-  const { horizCount, sideCount, ticketsPerPage, totalPages } = useMemo(() => {
+  const { ticketsPerRow, ticketsPerCol, horizontalCount, sideCount, ticketsPerPage, totalPages } = useMemo(() => {
     const margin = printConfig.marginTop * MM_TO_PT;
     const gap = printConfig.gap * MM_TO_PT;
     const ticketWidth = printConfig.ticketWidth * MM_TO_PT;
@@ -32,23 +32,26 @@ export function PrintConfigPanel() {
 
     const gridW = cols * ticketWidth + (cols - 1) * gap;
     const rightRem = A4_WIDTH_PT - margin - gridW - gap - margin;
-    const canFitSide = Boolean(printConfig.allowSideTickets) && (rightRem >= ticketHeight);
+    const canFitSide = (printConfig.allowSideTickets ?? true) && (rightRem >= ticketHeight);
     const sc = canFitSide ? Math.floor((availableHeight + gap) / (ticketWidth + gap)) : 0;
 
     const tpp = hc + sc;
     const tp = Math.ceil(ticketConfig.totalTickets / tpp);
 
     return {
-      horizCount: hc,
-      sideCount: sc,
+      ticketsPerRow: cols,
+      ticketsPerCol: rows,
       ticketsPerPage: tpp,
       totalPages: tp,
+      horizontalCount: hc,
+      sideCount: sc,
+      canFitSide,
     };
   }, [
-    printConfig.marginTop,
-    printConfig.gap,
     printConfig.ticketWidth,
     printConfig.ticketHeight,
+    printConfig.gap,
+    printConfig.marginTop,
     printConfig.allowSideTickets,
     ticketConfig.totalTickets,
   ]);
@@ -63,25 +66,28 @@ export function PrintConfigPanel() {
       </CardHeader>
 
       <CardContent className="space-y-4 pt-4">
-        {/* Resumen de distribución */}
-        <div className="rounded-lg bg-slate-900/60 border border-slate-700/80 p-3 shadow-inner">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
-            <div className="bg-slate-800/40 p-1.5 rounded border border-slate-800">
-              <p className="text-[11px] text-slate-400">Por Página</p>
-              <p className="text-base font-bold font-mono text-amber-400">{ticketsPerPage}</p>
-            </div>
-            <div className="bg-slate-800/40 p-1.5 rounded border border-slate-800">
-              <p className="text-[11px] text-slate-400">Horizontales</p>
-              <p className="text-base font-bold font-mono text-amber-300">{horizCount}</p>
-            </div>
-            <div className="bg-slate-800/40 p-1.5 rounded border border-slate-800">
-              <p className="text-[11px] text-slate-400">Verticales</p>
-              <p className="text-base font-bold font-mono text-blue-400">{sideCount}</p>
-            </div>
-            <div className="bg-slate-800/40 p-1.5 rounded border border-slate-800">
-              <p className="text-[11px] text-slate-400">Hojas Total</p>
-              <p className="text-base font-bold font-mono text-emerald-400">{totalPages}</p>
-            </div>
+        {/* Resumen de imposición */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          <div className="rounded-lg bg-slate-900/80 border border-slate-700/80 p-3 text-center">
+            <span className="text-[11px] text-slate-400">Por Página</span>
+            <p className="text-xl font-bold font-mono text-amber-400">{ticketsPerPage}</p>
+            {sideCount > 0 && (
+              <span className="text-[9px] text-amber-500/80 block mt-0.5">
+                ({horizontalCount} horiz. + {sideCount} vert.)
+              </span>
+            )}
+          </div>
+          <div className="rounded-lg bg-slate-900/80 border border-slate-700/80 p-3 text-center">
+            <span className="text-[11px] text-slate-400">Total Páginas</span>
+            <p className="text-xl font-bold font-mono text-amber-400">{totalPages}</p>
+          </div>
+          <div className="rounded-lg bg-slate-900/80 border border-slate-700/80 p-3 text-center">
+            <span className="text-[11px] text-slate-400">Columnas</span>
+            <p className="text-xl font-bold font-mono text-slate-200">{ticketsPerRow}</p>
+          </div>
+          <div className="rounded-lg bg-slate-900/80 border border-slate-700/80 p-3 text-center">
+            <span className="text-[11px] text-slate-400">Filas</span>
+            <p className="text-xl font-bold font-mono text-slate-200">{ticketsPerCol}</p>
           </div>
         </div>
 
@@ -89,10 +95,10 @@ export function PrintConfigPanel() {
         <div className="rounded-lg bg-slate-900/60 border border-slate-700/80 p-3 shadow-inner">
           <Switch
             id="allowSideTickets"
-            checked={Boolean(printConfig.allowSideTickets)}
+            checked={printConfig.allowSideTickets ?? true}
             onCheckedChange={(checked) => setPrintConfig({ allowSideTickets: checked })}
             label="Aprovechar margen derecho con boletos verticales"
-            description="Desactivado: boletos horizontales uniformes de corte limpio. Activado: agrega boletos rotados 90° en el lateral para ahorrar papel."
+            description="Activado: aprovecha el espacio lateral de la hoja A4 colocando boletos verticales rotados 90°. Desactívalo si prefieres solo boletos horizontales."
           />
         </div>
 

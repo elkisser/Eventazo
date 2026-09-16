@@ -57,7 +57,7 @@ export async function generateRifaPDF(options: PDFGeneratorOptions): Promise<Uin
 
   // Columna lateral derecha: tickets verticales (rotados 90°)
   const rightRem = A4_WIDTH_PT - gridStartX - gridW - gap - margin;
-  const canFitSide = Boolean(printConfig.allowSideTickets) && (rightRem >= tH);
+  const canFitSide = (printConfig.allowSideTickets ?? true) && (rightRem >= tH);
   // Cada ticket rotado: ancho en página = tH, alto en página = tW
   const sideCount = canFitSide ? Math.floor((availH + gap) / (tW + gap)) : 0;
   const totalPerPage = horizPerPage + sideCount;
