@@ -67,6 +67,7 @@ export const DEFAULT_PRINT_CONFIG: PrintConfig = {
   ticketWidth: 130,
   ticketHeight: 50,
   stubWidth: 36,
+  allowSideTickets: false,
   gap: 2,
 };
 

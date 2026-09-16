@@ -41,6 +41,14 @@ export function ConfigPanel() {
   const stubWidth = printConfig.stubWidth ?? 36;
   const stubPercent = Math.round((stubWidth / printConfig.ticketWidth) * 100);
 
+  // Auto-fitting prize font size calculation for guidance in UI
+  const numPrizes = ticketConfig.prizes.length;
+  const prizeRows = Math.max(1, Math.ceil(numPrizes / 2));
+  const heightFactor = (printConfig.ticketHeight || 50) / 50;
+  const maxFittingPrizesPx = Math.max(6, Math.floor((78 * heightFactor) / prizeRows));
+  const effectivePrizesSize = Math.max(5.5, Math.min(prizesSize, maxFittingPrizesPx));
+  const isPrizesSizeAutoAdjusted = prizesSize > effectivePrizesSize;
+
   const handleResetTypography = () => {
     setTicketConfig({
       titleFontSize: 14,
@@ -380,9 +388,16 @@ export function ConfigPanel() {
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-200 font-medium">Tamaño de Premios:</span>
-                  <span className="font-mono text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">
-                    {prizesSize} px
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    {isPrizesSizeAutoAdjusted && (
+                      <span className="text-[10px] text-amber-400 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded font-mono">
+                        Auto: {effectivePrizesSize} px
+                      </span>
+                    )}
+                    <span className="font-mono text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">
+                      {prizesSize} px
+                    </span>
+                  </div>
                 </div>
                 <Slider
                   min={6}
@@ -392,9 +407,15 @@ export function ConfigPanel() {
                   onChange={(val) => setTicketConfig({ prizesFontSize: val })}
                   showValueBadge={false}
                 />
-                <p className="text-[10px] text-slate-400">
-                  Reduce el tamaño si tienes 15-20 premios, o auméntalo si tienes pocos premios.
-                </p>
+                {isPrizesSizeAutoAdjusted ? (
+                  <p className="text-[10px] text-amber-400/90 leading-tight">
+                    💡 Con {numPrizes} premios y boleto de {printConfig.ticketHeight}mm, el sistema ajusta automáticamente a {effectivePrizesSize}px para garantizar que <strong>todos los {numPrizes} premios aparezcan completos sin cortarse</strong>.
+                  </p>
+                ) : (
+                  <p className="text-[10px] text-slate-400">
+                    Todos los {numPrizes} premios caben perfectamente con este tamaño.
+                  </p>
+                )}
               </div>
 
               {/* Tamaño del Título */}

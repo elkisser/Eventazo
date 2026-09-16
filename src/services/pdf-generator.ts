@@ -57,7 +57,7 @@ export async function generateRifaPDF(options: PDFGeneratorOptions): Promise<Uin
 
   // Columna lateral derecha: tickets verticales (rotados 90°)
   const rightRem = A4_WIDTH_PT - gridStartX - gridW - gap - margin;
-  const canFitSide = rightRem >= tH;
+  const canFitSide = Boolean(printConfig.allowSideTickets) && (rightRem >= tH);
   // Cada ticket rotado: ancho en página = tH, alto en página = tW
   const sideCount = canFitSide ? Math.floor((availH + gap) / (tW + gap)) : 0;
   const totalPerPage = horizPerPage + sideCount;
@@ -136,15 +136,12 @@ function drawTicket(
   const fontScale = (config.generalFontScale ?? 100) / 100;
   const titleMultiplier = (config.titleFontSize ?? 14) / 14;
   const subtitleMultiplier = (config.subtitleFontSize ?? 12) / 12;
-  const prizesMultiplier = (config.prizesFontSize ?? 8) / 8;
 
-  const TITLE_SIZE = Math.max(4, 9 * s * titleMultiplier * fontScale);
-  const SUBTITLE_SIZE = Math.max(3.5, 8 * s * subtitleMultiplier * fontScale);
-  const INFO_SIZE = Math.max(3, 5.5 * s * fontScale);
-  const PRIZE_HEADER_SIZE = Math.max(3, 6 * s * Math.max(0.9, prizesMultiplier) * fontScale);
-  const PRIZE_SIZE = Math.max(2.8, 5 * s * prizesMultiplier * fontScale);
-  const PRICE_SIZE = Math.max(4, 10 * s * fontScale);
-  const NUM_SIZE = Math.max(5, 13 * s * fontScale);
+  const TITLE_SIZE = Math.max(4, 8.5 * s * titleMultiplier * fontScale);
+  const SUBTITLE_SIZE = Math.max(3.5, 7.5 * s * subtitleMultiplier * fontScale);
+  const INFO_SIZE = Math.max(3, 4.8 * s * fontScale);
+  const PRICE_SIZE = Math.max(4, 9 * s * fontScale);
+  const NUM_SIZE = Math.max(5, 12 * s * fontScale);
 
   // Sección principal y talón de control personalizable
   const rawStubW = (printConfig?.stubWidth ?? 36) * MM_TO_PT;
@@ -152,16 +149,16 @@ function drawTicket(
   const stubW = Math.min(Math.max(15 * MM_TO_PT, rawStubW), Math.max(20 * MM_TO_PT, w - 25 * MM_TO_PT));
   const mainW = w - stubW;
   const stubX = x + mainW;
-  const pad = 5 * s;
+  const pad = 4.5 * s;
 
   // Tipografía del talón ajustada a su tamaño
   const stubFontMultiplier = (config.stubFontSize ?? 10) / 10;
   const stubWidthScale = Math.min(1.2, Math.max(0.7, stubW / (36 * MM_TO_PT)));
   const STUB_TITLE_SIZE = Math.max(3, 7 * s * stubFontMultiplier * stubWidthScale * fontScale);
-  const STUB_LABEL_SIZE = Math.max(2.5, 6 * s * stubFontMultiplier * stubWidthScale * fontScale);
-  const STUB_INFO_SIZE = Math.max(2.3, 5.5 * s * stubFontMultiplier * stubWidthScale * fontScale);
-  const STUB_NUM_SIZE = Math.max(3.5, 11 * s * stubFontMultiplier * stubWidthScale * fontScale);
-  const STUB_VAL_SIZE = Math.max(2.5, 6 * s * stubFontMultiplier * stubWidthScale * fontScale);
+  const STUB_LABEL_SIZE = Math.max(2.5, 5.8 * s * stubFontMultiplier * stubWidthScale * fontScale);
+  const STUB_INFO_SIZE = Math.max(2.3, 5.2 * s * stubFontMultiplier * stubWidthScale * fontScale);
+  const STUB_NUM_SIZE = Math.max(3.5, 10.5 * s * stubFontMultiplier * stubWidthScale * fontScale);
+  const STUB_VAL_SIZE = Math.max(2.5, 5.8 * s * stubFontMultiplier * stubWidthScale * fontScale);
 
   // Fondos y bordes
   page.drawRectangle({ x, y, width: w, height: h, color: rgb(1, 1, 1) });
@@ -182,40 +179,69 @@ function drawTicket(
   // Encabezado del ticket
   cy -= TITLE_SIZE;
   page.drawText(config.eventName, { x: cx, y: cy, size: TITLE_SIZE, font: fontBold, color: BLACK });
-  cy -= SUBTITLE_SIZE + 2 * s;
+  cy -= SUBTITLE_SIZE + 1.8 * s;
   page.drawText(config.subtitle, { x: cx, y: cy, size: SUBTITLE_SIZE, font: fontBoldItalic, color: ACCENT_COLOR });
-  cy -= INFO_SIZE + 3 * s;
+  cy -= INFO_SIZE + 2 * s;
   page.drawText(`Sorteo: ${config.drawDate}`, { x: cx, y: cy, size: INFO_SIZE, font, color: DARK_GRAY });
-  cy -= INFO_SIZE + 1.5 * s;
+  cy -= INFO_SIZE + 1.2 * s;
   const contText = `Contribución: ${config.contributionText}`;
   const maxCont = Math.floor(mainContentW / (INFO_SIZE * 0.52));
   const ct = contText.length > maxCont ? contText.substring(0, maxCont - 1) + "…" : contText;
   page.drawText(ct, { x: cx, y: cy, size: INFO_SIZE, font, color: DARK_GRAY });
 
   // Caja de premios
-  cy -= 4 * s;
+  cy -= 2.5 * s;
   const prizesTop = cy;
-  const prizesBottom = bottomY + PRICE_SIZE + pad + 2;
-  const prizesBoxH = prizesTop - prizesBottom;
+  const prizesBottom = bottomY + Math.max(PRICE_SIZE, NUM_SIZE) + pad + 1.5 * s;
+  const prizesBoxH = Math.max(20, prizesTop - prizesBottom);
   page.drawRectangle({ x: cx, y: prizesBottom, width: mainContentW, height: prizesBoxH, borderColor: LIGHT_GRAY, borderWidth: 0.3 });
 
-  const phY = prizesTop - PRIZE_HEADER_SIZE - 2 * s;
+  // Cabecera de la caja de premios
+  const PRIZE_HEADER_SIZE = Math.max(3.5, Math.min(6.5 * s * fontScale, prizesBoxH * 0.16));
+  const phY = prizesTop - PRIZE_HEADER_SIZE - 1.5 * s;
   page.drawText("LISTA DE PREMIOS:", { x: cx + 3, y: phY, size: PRIZE_HEADER_SIZE, font: fontBold, color: BLACK });
 
-  // Premios en 2 columnas (impares izq, pares der)
-  const prizeLineH = PRIZE_SIZE + 1.2 * s;
-  const prizeAreaTop = phY - PRIZE_HEADER_SIZE - 1;
-  const prizeAreaH = prizeAreaTop - prizesBottom - 2;
-  const maxLines = Math.min(Math.floor(prizeAreaH / prizeLineH), 10);
+  // Cálculo para garantizar que NINGÚN premio sea omitido o cortado
+  const c1 = config.prizes.filter((_, i) => i % 2 === 0);
+  const c2 = config.prizes.filter((_, i) => i % 2 === 1);
+  const rowsCount = Math.max(1, Math.max(c1.length, c2.length));
+  const prizeAreaTop = phY - PRIZE_HEADER_SIZE - 1.5 * s;
+  const availablePrizeH = Math.max(10, prizeAreaTop - prizesBottom - 1 * s);
+  const actualLineH = availablePrizeH / rowsCount;
+
+  // Ajuste inteligente de tamaño de fuente para que entren TODOS los premios en el alto disponible
+  const desiredPrizePt = 5 * s * ((config.prizesFontSize ?? 8) / 8) * fontScale;
+  const actualPrizeFontSize = Math.max(2.4, Math.min(desiredPrizePt, actualLineH * 0.82));
+
   const col1X = cx + 3;
   const col2X = cx + mainContentW * 0.5;
   const colW = mainContentW * 0.47;
-  const maxChars = Math.floor(colW / (PRIZE_SIZE * 0.5));
+  const maxChars = Math.floor(colW / (actualPrizeFontSize * 0.5));
 
-  const c1 = config.prizes.filter((_, i) => i % 2 === 0);
-  const c2 = config.prizes.filter((_, i) => i % 2 === 1);
-  c1.forEach((p, i) => { if (i >= maxLines) return; const t = `${p.label} ${p.description}`; const tr = t.length > maxChars ? t.substring(0, maxChars-2)+".." : t; page.drawText(tr, { x: col1X, y: prizeAreaTop - i*prizeLineH, size: PRIZE_SIZE, font: fontItalic, color: ACCENT_COLOR }); });
-  c2.forEach((p, i) => { if (i >= maxLines) return; const t = `${p.label} ${p.description}`; const tr = t.length > maxChars ? t.substring(0, maxChars-2)+".." : t; page.drawText(tr, { x: col2X, y: prizeAreaTop - i*prizeLineH, size: PRIZE_SIZE, font: fontItalic, color: ACCENT_COLOR }); });
+  // Renderizar TODOS los premios de ambas columnas
+  c1.forEach((p, i) => {
+    const t = `${p.label} ${p.description}`;
+    const tr = t.length > maxChars ? t.substring(0, maxChars - 2) + ".." : t;
+    page.drawText(tr, {
+      x: col1X,
+      y: prizeAreaTop - (i + 0.85) * actualLineH,
+      size: actualPrizeFontSize,
+      font: fontItalic,
+      color: ACCENT_COLOR,
+    });
+  });
+
+  c2.forEach((p, i) => {
+    const t = `${p.label} ${p.description}`;
+    const tr = t.length > maxChars ? t.substring(0, maxChars - 2) + ".." : t;
+    page.drawText(tr, {
+      x: col2X,
+      y: prizeAreaTop - (i + 0.85) * actualLineH,
+      size: actualPrizeFontSize,
+      font: fontItalic,
+      color: ACCENT_COLOR,
+    });
+  });
 
   // Pie: VALOR a la izquierda, N° a la derecha
   page.drawText(config.priceLabel, { x: cx, y: bottomY, size: PRICE_SIZE, font: fontBold, color: BLACK });

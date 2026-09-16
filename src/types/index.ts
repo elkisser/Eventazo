@@ -42,6 +42,7 @@ export interface PrintConfig {
   ticketWidth: number;
   ticketHeight: number;
   stubWidth?: number; // mm (default: 36)
+  allowSideTickets?: boolean; // default: false (solo horizontales para corte limpio)
   gap: number;
 }
 

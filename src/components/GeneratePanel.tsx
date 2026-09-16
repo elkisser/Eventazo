@@ -23,7 +23,7 @@ export function GeneratePanel() {
   const rows = Math.max(1, Math.floor((availH + gap) / (tH + gap)));
   const gridW = cols * tW + (cols - 1) * gap;
   const rightRem = A4_WIDTH_PT - margin - gridW - gap - margin;
-  const canFitSide = rightRem >= tH;
+  const canFitSide = Boolean(printConfig.allowSideTickets) && (rightRem >= tH);
   const sideCount = canFitSide ? Math.floor((availH + gap) / (tW + gap)) : 0;
   const ticketsPerPage = cols * rows + sideCount;
   const totalPages = Math.ceil(ticketConfig.totalTickets / ticketsPerPage);

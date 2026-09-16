@@ -44,7 +44,7 @@ export function PageLayoutPreview() {
     const sx = m;
 
     const rightRemaining = A4_WIDTH_PT - sx - gw - g - m;
-    const canFitSide = rightRemaining >= th;
+    const canFitSide = Boolean(printConfig.allowSideTickets) && (rightRemaining >= th);
     const sc = canFitSide ? Math.floor((availH + g) / (tw + g)) : 0;
 
     const tpp = hc + sc;
@@ -79,6 +79,7 @@ export function PageLayoutPreview() {
     printConfig.ticketWidth,
     printConfig.ticketHeight,
     printConfig.stubWidth,
+    printConfig.allowSideTickets,
     ticketConfig.totalTickets,
   ]);
 

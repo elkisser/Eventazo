@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { NumberInput } from "@/components/ui/number-input";
 import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 import { useRifaStore } from "@/store/useRifaStore";
 import { A4_WIDTH_PT, A4_HEIGHT_PT, MM_TO_PT } from "@/lib/constants";
 
@@ -31,7 +32,7 @@ export function PrintConfigPanel() {
 
     const gridW = cols * ticketWidth + (cols - 1) * gap;
     const rightRem = A4_WIDTH_PT - margin - gridW - gap - margin;
-    const canFitSide = rightRem >= ticketHeight;
+    const canFitSide = Boolean(printConfig.allowSideTickets) && (rightRem >= ticketHeight);
     const sc = canFitSide ? Math.floor((availableHeight + gap) / (ticketWidth + gap)) : 0;
 
     const tpp = hc + sc;
@@ -48,6 +49,7 @@ export function PrintConfigPanel() {
     printConfig.gap,
     printConfig.ticketWidth,
     printConfig.ticketHeight,
+    printConfig.allowSideTickets,
     ticketConfig.totalTickets,
   ]);
 
@@ -81,6 +83,17 @@ export function PrintConfigPanel() {
               <p className="text-base font-bold font-mono text-emerald-400">{totalPages}</p>
             </div>
           </div>
+        </div>
+
+        {/* Disposición: Boletos verticales en el margen */}
+        <div className="rounded-lg bg-slate-900/60 border border-slate-700/80 p-3 shadow-inner">
+          <Switch
+            id="allowSideTickets"
+            checked={Boolean(printConfig.allowSideTickets)}
+            onCheckedChange={(checked) => setPrintConfig({ allowSideTickets: checked })}
+            label="Aprovechar margen derecho con boletos verticales"
+            description="Desactivado: boletos horizontales uniformes de corte limpio. Activado: agrega boletos rotados 90° en el lateral para ahorrar papel."
+          />
         </div>
 
         {/* Tamaño del ticket */}
