@@ -26,15 +26,32 @@ import { saveTicketDesign, getSavedTickets } from "@/services/tickets-service";
 export function Header() {
   const pathname = usePathname();
   const isEditor = pathname === "/editor";
-  const { user, signOut } = useAuth();
+  const {
+    user,
+    loading,
+    signOut,
+    initAuth,
+    isAuthModalOpen,
+    openAuthModal,
+    closeAuthModal,
+    isProfileModalOpen,
+    openProfileModal,
+    closeProfileModal,
+    isDrawerOpen,
+    openDrawer,
+    closeDrawer,
+  } = useAuth();
   const { ticketConfig, printConfig } = useRifaStore();
 
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [savedCount, setSavedCount] = useState(0);
+
+  // Inicializar listener de Supabase
+  useEffect(() => {
+    const unsub = initAuth();
+    return () => unsub?.();
+  }, [initAuth]);
 
   // Cargar cantidad de boletos guardados
   const refreshCount = async () => {
@@ -52,7 +69,7 @@ export function Header() {
 
   const handleSave = async () => {
     if (!user) {
-      setIsAuthOpen(true);
+      openAuthModal();
       return;
     }
 
@@ -72,6 +89,7 @@ export function Header() {
       setSaving(false);
     }
   };
+
 
   return (
     <>
@@ -160,7 +178,7 @@ export function Header() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setIsDrawerOpen(true)}
+              onClick={() => openDrawer()}
               className="border border-slate-800 bg-slate-900/80 hover:bg-slate-800 hover:border-amber-500/40 text-slate-200 hover:text-amber-400 text-xs h-9 px-3 rounded-xl gap-1.5 shadow-sm"
             >
               <FolderOpen className="h-3.5 w-3.5 text-amber-400" />
@@ -210,11 +228,15 @@ export function Header() {
             )}
 
             {/* Usuario / Login */}
-            {user ? (
+            {loading ? (
+              <div className="flex items-center justify-center h-9 w-9">
+                <span className="h-4 w-4 rounded-full border-2 border-amber-400/30 border-t-amber-400 animate-spin" />
+              </div>
+            ) : user ? (
               <div className="flex items-center gap-1.5 sm:gap-2 pl-1 border-l border-slate-800">
                 <button
                   type="button"
-                  onClick={() => setIsProfileOpen(true)}
+                  onClick={() => openProfileModal()}
                   className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/40 transition-colors text-left group"
                   title="Ver y editar mi perfil"
                 >
@@ -245,7 +267,7 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setIsAuthOpen(true)}
+                onClick={() => openAuthModal()}
                 className="h-9 px-3 text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-900 border border-slate-800/80 rounded-xl gap-1.5"
               >
                 <LogIn className="h-3.5 w-3.5" />
@@ -258,8 +280,8 @@ export function Header() {
 
       {/* Modal de Autenticación */}
       <AuthModal
-        isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
+        isOpen={isAuthModalOpen}
+        onClose={closeAuthModal}
         onSuccess={() => {
           refreshCount();
         }}
@@ -267,18 +289,18 @@ export function Header() {
 
       {/* Modal de Perfil de Usuario */}
       <ProfileModal
-        isOpen={isProfileOpen}
-        onClose={() => setIsProfileOpen(false)}
+        isOpen={isProfileModalOpen}
+        onClose={closeProfileModal}
       />
 
       {/* Cajón de Rifas Guardadas */}
       <SavedTicketsDrawer
         isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
+        onClose={closeDrawer}
         onSelectTicket={() => {
           refreshCount();
         }}
-        onOpenAuth={() => setIsAuthOpen(true)}
+        onOpenAuth={() => openAuthModal()}
       />
     </>
   );

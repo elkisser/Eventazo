@@ -15,18 +15,12 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useRifaStore } from "@/store/useRifaStore";
 import { saveTicketDesign, getSavedTickets } from "@/services/tickets-service";
-import { AuthModal } from "@/components/auth/AuthModal";
-import { ProfileModal } from "@/components/auth/ProfileModal";
-import { SavedTicketsDrawer } from "@/components/SavedTicketsDrawer";
 
 export function MobileBottomNav() {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, openAuthModal, openProfileModal, openDrawer } = useAuth();
   const { ticketConfig, printConfig } = useRifaStore();
 
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [savedCount, setSavedCount] = useState(0);
@@ -44,7 +38,7 @@ export function MobileBottomNav() {
 
   const handleSave = async () => {
     if (!user) {
-      setIsAuthOpen(true);
+      openAuthModal();
       return;
     }
 
@@ -67,9 +61,9 @@ export function MobileBottomNav() {
 
   const handleProfileClick = () => {
     if (user) {
-      setIsProfileOpen(true);
+      openProfileModal();
     } else {
-      setIsAuthOpen(true);
+      openAuthModal();
     }
   };
 
@@ -144,7 +138,7 @@ export function MobileBottomNav() {
 
           {/* 4. Mis Rifas */}
           <button
-            onClick={() => setIsDrawerOpen(true)}
+            onClick={() => openDrawer()}
             className="flex flex-col items-center gap-1 py-1 px-2 rounded-xl text-slate-400 hover:text-slate-200 relative transition-colors"
           >
             <FolderOpen className="h-5 w-5" />
@@ -172,23 +166,6 @@ export function MobileBottomNav() {
           </button>
         </div>
       </nav>
-
-      {/* Modales */}
-      <AuthModal
-        isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
-        onSuccess={() => refreshCount()}
-      />
-      <ProfileModal
-        isOpen={isProfileOpen}
-        onClose={() => setIsProfileOpen(false)}
-      />
-      <SavedTicketsDrawer
-        isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
-        onSelectTicket={() => refreshCount()}
-        onOpenAuth={() => setIsAuthOpen(true)}
-      />
     </>
   );
 }

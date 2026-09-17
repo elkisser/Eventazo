@@ -12,7 +12,8 @@ import {
   Sparkles,
   Database,
   Ticket,
-  KeyRound
+  KeyRound,
+  Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -195,10 +196,11 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
             <input
               type="email"
               required
+              disabled={profileLoading}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="tu@email.com"
-              className="w-full px-3 py-2 bg-slate-800/90 border border-slate-700 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500"
+              className="w-full px-3 py-2 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 disabled:opacity-50"
             />
           </div>
 
@@ -206,9 +208,16 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
             type="submit"
             disabled={profileLoading}
             size="sm"
-            className="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-amber-300 text-xs font-semibold h-9 rounded-xl transition-all"
+            className="w-full bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 hover:text-amber-300 text-xs font-semibold h-9 rounded-xl transition-all flex items-center justify-center gap-2"
           >
-            {profileLoading ? "Guardando..." : "Guardar Cambios de Perfil"}
+            {profileLoading ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-amber-400" />
+                <span>Guardando cambios...</span>
+              </>
+            ) : (
+              <span>Guardar Cambios de Perfil</span>
+            )}
           </Button>
         </form>
 
@@ -229,10 +238,11 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
             <input
               type="password"
               minLength={6}
+              disabled={passwordLoading}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="Mínimo 6 caracteres"
-              className="w-full px-3 py-2 bg-slate-800/90 border border-slate-700 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500"
+              className="w-full px-3 py-2 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 disabled:opacity-50"
             />
           </div>
 
@@ -243,10 +253,11 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
             <input
               type="password"
               minLength={6}
+              disabled={passwordLoading}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Repite la nueva contraseña"
-              className="w-full px-3 py-2 bg-slate-800/90 border border-slate-700 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500"
+              className="w-full px-3 py-2 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 disabled:opacity-50"
             />
           </div>
 
@@ -254,9 +265,16 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
             type="submit"
             disabled={passwordLoading || !newPassword}
             size="sm"
-            className="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-amber-300 text-xs font-semibold h-9 rounded-xl transition-all"
+            className="w-full bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 hover:text-amber-300 text-xs font-semibold h-9 rounded-xl transition-all flex items-center justify-center gap-2"
           >
-            {passwordLoading ? "Actualizando..." : "Actualizar Contraseña"}
+            {passwordLoading ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-amber-400" />
+                <span>Actualizando contraseña...</span>
+              </>
+            ) : (
+              <span>Actualizar Contraseña</span>
+            )}
           </Button>
         </form>
 

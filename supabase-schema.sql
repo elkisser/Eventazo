@@ -101,3 +101,55 @@ create policy "Los usuarios pueden eliminar sus propios boletos"
 create index if not exists idx_saved_tickets_user_id on public.saved_tickets(user_id);
 create index if not exists idx_saved_tickets_updated_at on public.saved_tickets(updated_at desc);
 create index if not exists idx_profiles_email on public.profiles(email);
+
+-- ================================================================
+-- 4. Confirmación automática de emails (Desarrollo y SaaS sin SMTP)
+-- ================================================================
+
+-- Confirmar inmediatamente andreaarceguet@gmail.com
+UPDATE auth.users
+SET email_confirmed_at = COALESCE(email_confirmed_at, NOW()),
+    confirmed_at = COALESCE(confirmed_at, NOW()),
+    last_sign_in_at = NOW()
+WHERE email = 'andreaarceguet@gmail.com';
+
+-- Confirmar cualquier usuario pendiente
+UPDATE auth.users
+SET email_confirmed_at = COALESCE(email_confirmed_at, NOW()),
+    confirmed_at = COALESCE(confirmed_at, NOW())
+WHERE email_confirmed_at IS NULL;
+
+-- Función RPC para confirmar email desde el frontend
+CREATE OR REPLACE FUNCTION public.confirm_user(email_to_confirm text)
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  UPDATE auth.users
+  SET email_confirmed_at = NOW(),
+      confirmed_at = NOW()
+  WHERE email = LOWER(TRIM(email_to_confirm));
+  RETURN true;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.confirm_user(text) TO anon, authenticated;
+
+-- Trigger para auto-confirmar emails en futuros registros
+CREATE OR REPLACE FUNCTION public.handle_auto_confirm_email()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.email_confirmed_at = COALESCE(NEW.email_confirmed_at, NOW());
+  NEW.confirmed_at = COALESCE(NEW.confirmed_at, NOW());
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_auto_confirm ON auth.users;
+CREATE TRIGGER on_auth_user_auto_confirm
+BEFORE INSERT ON auth.users
+FOR EACH ROW
+EXECUTE FUNCTION public.handle_auto_confirm_email();
+

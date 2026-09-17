@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { create } from "zustand";
 import { getSupabase, isSupabaseConfigured } from "@/lib/supabase";
-import { User } from "@supabase/supabase-js";
 
 export interface AppUser {
   id: string;
@@ -15,42 +14,79 @@ export interface AppUser {
 
 const DEMO_USER_KEY = "eventazo_demo_user";
 
-export function useAuth() {
-  const [user, setUser] = useState<AppUser | null>(null);
-  const [loading, setLoading] = useState(true);
-  const isConfigured = isSupabaseConfigured();
+// Traducir mensajes de error comunes de Supabase Auth
+export function translateAuthError(errorMsg: string): string {
+  const lower = errorMsg.toLowerCase();
+  if (lower.includes("email not confirmed")) {
+    return "Tu correo no ha sido confirmado aún en Supabase.";
+  }
+  if (lower.includes("invalid login credentials") || lower.includes("invalid_credentials")) {
+    return "Correo o contraseña incorrectos. Verifica tus datos.";
+  }
+  if (lower.includes("user already registered")) {
+    return "Ya existe una cuenta con este correo electrónico.";
+  }
+  if (lower.includes("password should be at least")) {
+    return "La contraseña debe tener al menos 6 caracteres.";
+  }
+  if (lower.includes("rate limit") || lower.includes("too many requests")) {
+    return "Demasiados intentos. Por favor espera unos minutos.";
+  }
+  return errorMsg;
+}
 
-  // Cargar datos extendidos desde public.profiles
-  const syncProfile = useCallback(async (baseUser: AppUser) => {
-    const supabase = getSupabase();
-    if (!supabase || baseUser.isDemo) return baseUser;
+interface AuthState {
+  user: AppUser | null;
+  loading: boolean;
+  isConfigured: boolean;
+  isAuthModalOpen: boolean;
+  isProfileModalOpen: boolean;
+  isDrawerOpen: boolean;
 
-    try {
-      const { data } = await supabase
-        .from("profiles")
-        .select("full_name, plan, is_pro")
-        .eq("id", baseUser.id)
-        .single();
+  // Acciones de UI
+  openAuthModal: () => void;
+  closeAuthModal: () => void;
+  openProfileModal: () => void;
+  closeProfileModal: () => void;
+  openDrawer: () => void;
+  closeDrawer: () => void;
 
-      if (data) {
-        return {
-          ...baseUser,
-          name: data.full_name || baseUser.name,
-          plan: data.plan || "free",
-          isPro: data.is_pro || false,
-        };
-      }
-    } catch {
-      // Ignorar fallback silencioso
-    }
-    return baseUser;
-  }, []);
+  // Acciones de autenticación
+  setUser: (user: AppUser | null) => void;
+  setLoading: (loading: boolean) => void;
+  initAuth: () => () => void;
+  signIn: (email: string, password: string) => Promise<{ error: string | null; isUnconfirmed?: boolean }>;
+  signUp: (email: string, password: string) => Promise<{ error: string | null; message?: string }>;
+  confirmEmailAndLogin: (email: string, password: string) => Promise<{ error: string | null }>;
+  signInDemo: () => void;
+  updateProfile: (newName: string, newEmail?: string) => Promise<{ error: string | null; message?: string }>;
+  updatePassword: (newPassword: string) => Promise<{ error: string | null }>;
+  signOut: () => Promise<void>;
+}
 
-  // Escuchar cambios de sesión de Supabase o cargar usuario demo local
-  useEffect(() => {
+export const useAuthStore = create<AuthState>((set, get) => ({
+  user: null,
+  loading: true,
+  isConfigured: isSupabaseConfigured(),
+  isAuthModalOpen: false,
+  isProfileModalOpen: false,
+  isDrawerOpen: false,
+
+  openAuthModal: () => set({ isAuthModalOpen: true }),
+  closeAuthModal: () => set({ isAuthModalOpen: false }),
+  openProfileModal: () => set({ isProfileModalOpen: true }),
+  closeProfileModal: () => set({ isProfileModalOpen: false }),
+  openDrawer: () => set({ isDrawerOpen: true }),
+  closeDrawer: () => set({ isDrawerOpen: false }),
+
+  setUser: (user) => set({ user }),
+  setLoading: (loading) => set({ loading }),
+
+  initAuth: () => {
     const supabase = getSupabase();
 
     if (supabase) {
+      // 1. Obtener sesión activa inicial
       supabase.auth.getSession().then(async ({ data: { session } }) => {
         if (session?.user) {
           const base: AppUser = {
@@ -58,12 +94,40 @@ export function useAuth() {
             email: session.user.email || "",
             name: session.user.user_metadata?.full_name || session.user.email?.split("@")[0],
           };
-          const full = await syncProfile(base);
-          setUser(full);
+
+          try {
+            const { data } = await supabase
+              .from("profiles")
+              .select("full_name, plan, is_pro")
+              .eq("id", base.id)
+              .single();
+
+            if (data) {
+              base.name = data.full_name || base.name;
+              base.plan = data.plan || "free";
+              base.isPro = data.is_pro || false;
+            }
+          } catch {
+            // Ignorar fallback
+          }
+
+          set({ user: base, loading: false });
+        } else {
+          // Verificar si hay demo activo
+          if (typeof window !== "undefined") {
+            const demo = localStorage.getItem(DEMO_USER_KEY);
+            if (demo) {
+              try {
+                set({ user: JSON.parse(demo), loading: false });
+                return;
+              } catch {}
+            }
+          }
+          set({ user: null, loading: false });
         }
-        setLoading(false);
       });
 
+      // 2. Escuchar cambios de autenticación
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
         async (_event, session) => {
           if (session?.user) {
@@ -72,18 +136,34 @@ export function useAuth() {
               email: session.user.email || "",
               name: session.user.user_metadata?.full_name || session.user.email?.split("@")[0],
             };
-            const full = await syncProfile(base);
-            setUser(full);
+
+            try {
+              const { data } = await supabase
+                .from("profiles")
+                .select("full_name, plan, is_pro")
+                .eq("id", base.id)
+                .single();
+
+              if (data) {
+                base.name = data.full_name || base.name;
+                base.plan = data.plan || "free";
+                base.isPro = data.is_pro || false;
+              }
+            } catch {}
+
+            set({ user: base, loading: false });
           } else {
-            // Verificar si hay usuario demo
-            const demo = localStorage.getItem(DEMO_USER_KEY);
-            if (demo) {
-              setUser(JSON.parse(demo));
-            } else {
-              setUser(null);
+            if (typeof window !== "undefined") {
+              const demo = localStorage.getItem(DEMO_USER_KEY);
+              if (demo) {
+                try {
+                  set({ user: JSON.parse(demo), loading: false });
+                  return;
+                } catch {}
+              }
             }
+            set({ user: null, loading: false });
           }
-          setLoading(false);
         }
       );
 
@@ -91,95 +171,192 @@ export function useAuth() {
         subscription.unsubscribe();
       };
     } else {
-      // Modo local / demo
+      // Modo local/demo
       if (typeof window !== "undefined") {
         const demo = localStorage.getItem(DEMO_USER_KEY);
         if (demo) {
-          setUser(JSON.parse(demo));
+          try {
+            set({ user: JSON.parse(demo), loading: false });
+            return () => {};
+          } catch {}
         }
       }
-      setLoading(false);
+      set({ user: null, loading: false });
+      return () => {};
     }
-  }, []);
+  },
 
-  const signIn = useCallback(async (email: string, password: string): Promise<{ error: string | null }> => {
+  signIn: async (email, password) => {
     const supabase = getSupabase();
+    const cleanEmail = email.trim().toLowerCase();
 
     if (!supabase) {
-      // Si Supabase no está configurado, loguear como demo
       const demoUser: AppUser = {
         id: "demo-user-123",
-        email,
-        name: email.split("@")[0],
+        email: cleanEmail,
+        name: cleanEmail.split("@")[0],
         isDemo: true,
       };
-      localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser));
-      setUser(demoUser);
+      if (typeof window !== "undefined") {
+        localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser));
+      }
+      set({ user: demoUser });
       return { error: null };
     }
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) return { error: error.message };
-      if (data.user) {
-        setUser({
-          id: data.user.id,
-          email: data.user.email || "",
-          name: data.user.user_metadata?.full_name || data.user.email?.split("@")[0],
-        });
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: cleanEmail,
+        password,
+      });
+
+      if (error) {
+        if (error.message.toLowerCase().includes("email not confirmed")) {
+          // Intentar auto-confirmar si la función confirm_user está disponible en Supabase
+          try {
+            const { data: rpcRes, error: rpcErr } = await supabase.rpc("confirm_user", {
+              email_to_confirm: cleanEmail,
+            });
+            if (!rpcErr && rpcRes) {
+              // Reintentar login inmediatamente
+              const retry = await supabase.auth.signInWithPassword({
+                email: cleanEmail,
+                password,
+              });
+              if (!retry.error && retry.data.user) {
+                const u: AppUser = {
+                  id: retry.data.user.id,
+                  email: retry.data.user.email || cleanEmail,
+                  name: retry.data.user.user_metadata?.full_name || cleanEmail.split("@")[0],
+                };
+                set({ user: u });
+                return { error: null };
+              }
+            }
+          } catch {}
+
+          return {
+            error: translateAuthError(error.message),
+            isUnconfirmed: true,
+          };
+        }
+        return { error: translateAuthError(error.message) };
       }
+
+      if (data.user) {
+        const u: AppUser = {
+          id: data.user.id,
+          email: data.user.email || cleanEmail,
+          name: data.user.user_metadata?.full_name || cleanEmail.split("@")[0],
+        };
+        set({ user: u });
+      }
+
       return { error: null };
     } catch (e) {
       return { error: e instanceof Error ? e.message : "Error al iniciar sesión" };
     }
-  }, []);
+  },
 
-  const signUp = useCallback(async (email: string, password: string): Promise<{ error: string | null; message?: string }> => {
+  confirmEmailAndLogin: async (email, password) => {
     const supabase = getSupabase();
+    if (!supabase) return { error: null };
+
+    const cleanEmail = email.trim().toLowerCase();
+    try {
+      const { error: rpcErr } = await supabase.rpc("confirm_user", {
+        email_to_confirm: cleanEmail,
+      });
+
+      if (rpcErr) {
+        return { error: "Aún no se ha creado la función confirm_user en Supabase SQL Editor." };
+      }
+
+      // Reintentar login
+      const retry = await supabase.auth.signInWithPassword({
+        email: cleanEmail,
+        password,
+      });
+
+      if (retry.error) {
+        return { error: translateAuthError(retry.error.message) };
+      }
+
+      if (retry.data.user) {
+        const u: AppUser = {
+          id: retry.data.user.id,
+          email: retry.data.user.email || cleanEmail,
+          name: retry.data.user.user_metadata?.full_name || cleanEmail.split("@")[0],
+        };
+        set({ user: u });
+      }
+      return { error: null };
+    } catch (e) {
+      return { error: e instanceof Error ? e.message : "Error al confirmar" };
+    }
+  },
+
+  signUp: async (email, password) => {
+    const supabase = getSupabase();
+    const cleanEmail = email.trim().toLowerCase();
 
     if (!supabase) {
       const demoUser: AppUser = {
         id: "demo-user-123",
-        email,
-        name: email.split("@")[0],
+        email: cleanEmail,
+        name: cleanEmail.split("@")[0],
         isDemo: true,
       };
-      localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser));
-      setUser(demoUser);
+      if (typeof window !== "undefined") {
+        localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser));
+      }
+      set({ user: demoUser });
       return { error: null, message: "Cuenta demo creada exitosamente" };
     }
 
     try {
       const { data, error } = await supabase.auth.signUp({
-        email,
+        email: cleanEmail,
         password,
       });
-      if (error) return { error: error.message };
+
+      if (error) return { error: translateAuthError(error.message) };
+
       if (data.user) {
-        setUser({
+        // Intentar auto-confirmar
+        try {
+          await supabase.rpc("confirm_user", { email_to_confirm: cleanEmail });
+        } catch {}
+
+        const u: AppUser = {
           id: data.user.id,
-          email: data.user.email || "",
-          name: data.user.user_metadata?.full_name || data.user.email?.split("@")[0],
-        });
+          email: data.user.email || cleanEmail,
+          name: data.user.user_metadata?.full_name || cleanEmail.split("@")[0],
+        };
+        set({ user: u });
       }
-      return { error: null, message: "Revisa tu correo para confirmar tu cuenta si es requerido" };
+
+      return { error: null, message: "¡Cuenta creada exitosamente!" };
     } catch (e) {
       return { error: e instanceof Error ? e.message : "Error al registrarse" };
     }
-  }, []);
+  },
 
-  const signInDemo = useCallback(() => {
+  signInDemo: () => {
     const demoUser: AppUser = {
       id: "demo-pro-user",
       email: "demo@eventazo.pro",
       name: "Usuario Pro (Demo)",
       isDemo: true,
     };
-    localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser));
-    setUser(demoUser);
-  }, []);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser));
+    }
+    set({ user: demoUser });
+  },
 
-  const updateProfile = useCallback(async (newName: string, newEmail?: string): Promise<{ error: string | null; message?: string }> => {
+  updateProfile: async (newName, newEmail) => {
+    const { user } = get();
     const supabase = getSupabase();
 
     if (!supabase || user?.isDemo) {
@@ -189,8 +366,10 @@ export function useAuth() {
         name: newName,
         isDemo: true,
       };
-      localStorage.setItem(DEMO_USER_KEY, JSON.stringify(updated));
-      setUser(updated);
+      if (typeof window !== "undefined") {
+        localStorage.setItem(DEMO_USER_KEY, JSON.stringify(updated));
+      }
+      set({ user: updated });
       return { error: null, message: "Perfil actualizado exitosamente" };
     }
 
@@ -203,9 +382,8 @@ export function useAuth() {
       }
 
       const { data, error } = await supabase.auth.updateUser(updateData);
-      if (error) return { error: error.message };
+      if (error) return { error: translateAuthError(error.message) };
 
-      // Actualizar también la tabla pública profiles
       try {
         const targetId = user?.id || data.user.id;
         if (targetId) {
@@ -218,34 +396,29 @@ export function useAuth() {
             })
             .eq("id", targetId);
         }
-      } catch (e) {
-        console.warn("No se pudo actualizar profiles:", e);
-      }
+      } catch {}
 
       if (data.user) {
-        setUser((prev) =>
-          prev
-            ? {
-                ...prev,
-                email: data.user.email || prev.email,
-                name: data.user.user_metadata?.full_name || newName,
-              }
-            : null
-        );
+        set({
+          user: {
+            ...user!,
+            email: data.user.email || user!.email,
+            name: data.user.user_metadata?.full_name || newName,
+          },
+        });
       }
 
       return {
         error: null,
-        message: newEmail && newEmail !== user?.email
-          ? "Perfil actualizado. Se envió un correo de confirmación al nuevo email."
-          : "Perfil actualizado exitosamente",
+        message: "Perfil actualizado exitosamente",
       };
     } catch (e) {
       return { error: e instanceof Error ? e.message : "Error al actualizar perfil" };
     }
-  }, [user]);
+  },
 
-  const updatePassword = useCallback(async (newPassword: string): Promise<{ error: string | null }> => {
+  updatePassword: async (newPassword) => {
+    const { user } = get();
     const supabase = getSupabase();
 
     if (!supabase || user?.isDemo) {
@@ -254,31 +427,30 @@ export function useAuth() {
 
     try {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
-      if (error) return { error: error.message };
+      if (error) return { error: translateAuthError(error.message) };
       return { error: null };
     } catch (e) {
       return { error: e instanceof Error ? e.message : "Error al cambiar contraseña" };
     }
-  }, [user]);
+  },
 
-  const signOut = useCallback(async () => {
+  signOut: async () => {
     const supabase = getSupabase();
     if (supabase) {
-      await supabase.auth.signOut();
+      try {
+        await supabase.auth.signOut();
+      } catch {}
     }
-    localStorage.removeItem(DEMO_USER_KEY);
-    setUser(null);
-  }, []);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(DEMO_USER_KEY);
+    }
+    set({ user: null });
+  },
+}));
 
-  return {
-    user,
-    loading,
-    isConfigured,
-    signIn,
-    signUp,
-    signInDemo,
-    updateProfile,
-    updatePassword,
-    signOut,
-  };
+// Hook compatible que expone el store reactivo
+export function useAuth() {
+  const store = useAuthStore();
+  return store;
 }
+
