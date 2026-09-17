@@ -84,7 +84,7 @@ export function PageLayoutPreview() {
   ]);
 
   return (
-    <div className="rounded-xl border border-slate-700/50 bg-slate-800/80 p-4 space-y-3">
+    <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 backdrop-blur-sm p-4 space-y-3 shadow-lg">
       <h4 className="text-sm font-semibold text-slate-200">
         Distribución en Página A4
       </h4>

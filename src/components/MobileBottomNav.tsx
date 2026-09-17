@@ -104,29 +104,43 @@ export function MobileBottomNav() {
             <span className="text-[10px]">Editor</span>
           </Link>
 
-          {/* 3. Guardar Rifa (Acción central destacada) */}
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="flex flex-col items-center -mt-4 group"
-          >
-            <div
-              className={`w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg transition-all ${
-                saveSuccess
-                  ? "bg-emerald-500 text-white shadow-emerald-500/30 scale-105"
-                  : "bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 shadow-amber-500/30 group-active:scale-95"
-              }`}
+          {/* 3. Acción central destacada según contexto */}
+          {pathname === "/editor" ? (
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex flex-col items-center -mt-4 group"
             >
-              {saveSuccess ? (
-                <Check className="h-5 w-5" />
-              ) : (
-                <Save className="h-5 w-5" />
-              )}
-            </div>
-            <span className="text-[10px] font-bold text-amber-400 mt-1">
-              {saveSuccess ? "¡Listo!" : saving ? "..." : "Guardar"}
-            </span>
-          </button>
+              <div
+                className={`w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg transition-all ${
+                  saveSuccess
+                    ? "bg-emerald-500 text-white shadow-emerald-500/30 scale-105"
+                    : "bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-slate-950 shadow-lg shadow-amber-500/25 group-active:scale-95"
+                }`}
+              >
+                {saveSuccess ? (
+                  <Check className="h-5 w-5" />
+                ) : (
+                  <Save className="h-5 w-5" />
+                )}
+              </div>
+              <span className="text-[10px] font-bold text-amber-400 mt-1">
+                {saveSuccess ? "¡Listo!" : saving ? "..." : "Guardar"}
+              </span>
+            </button>
+          ) : (
+            <Link
+              href="/editor"
+              className="flex flex-col items-center -mt-4 group"
+            >
+              <div className="w-11 h-11 rounded-2xl flex items-center justify-center bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-slate-950 shadow-lg shadow-amber-500/25 group-active:scale-95 transition-transform">
+                <Sparkles className="h-5 w-5" />
+              </div>
+              <span className="text-[10px] font-bold text-amber-400 mt-1">
+                Crear
+              </span>
+            </Link>
+          )}
 
           {/* 4. Mis Rifas */}
           <button
@@ -136,7 +150,7 @@ export function MobileBottomNav() {
             <FolderOpen className="h-5 w-5" />
             <span className="text-[10px]">Mis Rifas</span>
             {savedCount > 0 && (
-              <span className="absolute top-0 right-2 w-4 h-4 rounded-full bg-amber-500 text-slate-950 text-[9px] font-mono font-black flex items-center justify-center">
+              <span className="absolute top-0 right-2 w-4 h-4 rounded-full bg-amber-500 text-slate-950 text-[9px] font-mono font-black flex items-center justify-center shadow-sm">
                 {savedCount}
               </span>
             )}

@@ -82,7 +82,7 @@ export function ConfigPanel() {
   };
 
   return (
-    <Card className="shadow-lg border-slate-700/80">
+    <Card className="shadow-xl border-slate-800/80">
       <CardHeader className="pb-3 border-b border-slate-800">
         <div className="flex items-center justify-between gap-2">
           <CardTitle className="flex items-center gap-2">

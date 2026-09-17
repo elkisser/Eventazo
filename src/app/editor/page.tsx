@@ -49,7 +49,7 @@ export default function EditorPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowPresets(!showPresets)}
-              className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-800 hover:border-amber-500/40 text-slate-200 hover:text-amber-300 transition-all flex items-center gap-1.5"
+              className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-900/80 hover:bg-slate-800 hover:border-amber-500/40 text-slate-200 hover:text-amber-300 transition-all flex items-center gap-1.5 shadow-sm"
             >
               <Sparkles className="h-3.5 w-3.5 text-amber-400" />
               <span>{showPresets ? "Ocultar Plantillas" : "Cargar Plantilla"}</span>
@@ -59,14 +59,14 @@ export default function EditorPage() {
 
         {/* Desplegable de plantillas */}
         {showPresets && (
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4 shadow-xl animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="rounded-2xl border border-slate-800 bg-slate-900/90 backdrop-blur-md p-4 shadow-xl animate-in fade-in slide-in-from-top-2 duration-200">
             <PresetSelector onSelect={() => setShowPresets(false)} />
           </div>
         )}
 
         {/* === MOBILE: Tabs de navegación === */}
         <div className="lg:hidden">
-          <div className="flex rounded-xl bg-slate-800/80 border border-slate-700/50 p-1 gap-1">
+          <div className="flex rounded-2xl bg-slate-900/80 border border-slate-800/80 p-1 gap-1 backdrop-blur-sm shadow-md">
             <TabButton
               active={mobileTab === "preview"}
               onClick={() => setMobileTab("preview")}
@@ -139,7 +139,7 @@ export default function EditorPage() {
             <GeneratePanel />
 
             {/* Info rápida */}
-            <div className="rounded-xl border border-slate-700/50 bg-slate-800/80 p-4 space-y-3">
+            <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 backdrop-blur-sm p-4 space-y-3 shadow-lg">
               <h4 className="text-sm font-semibold text-slate-200">Garantías del Sistema</h4>
               <div className="space-y-2 text-xs">
                 <div className="flex items-center gap-2">

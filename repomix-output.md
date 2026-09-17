@@ -146,7 +146,7 @@ tsconfig.json
  49:           <div className="flex items-center gap-2">
  50:             <button
  51:               onClick={() => setShowPresets(!showPresets)}
- 52:               className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-800 hover:border-amber-500/40 text-slate-200 hover:text-amber-300 transition-all flex items-center gap-1.5"
+ 52:               className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-900/80 hover:bg-slate-800 hover:border-amber-500/40 text-slate-200 hover:text-amber-300 transition-all flex items-center gap-1.5 shadow-sm"
  53:             >
  54:               <Sparkles className="h-3.5 w-3.5 text-amber-400" />
  55:               <span>{showPresets ? "Ocultar Plantillas" : "Cargar Plantilla"}</span>
@@ -156,14 +156,14 @@ tsconfig.json
  59: 
  60:         {/* Desplegable de plantillas */}
  61:         {showPresets && (
- 62:           <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4 shadow-xl animate-in fade-in slide-in-from-top-2 duration-200">
+ 62:           <div className="rounded-2xl border border-slate-800 bg-slate-900/90 backdrop-blur-md p-4 shadow-xl animate-in fade-in slide-in-from-top-2 duration-200">
  63:             <PresetSelector onSelect={() => setShowPresets(false)} />
  64:           </div>
  65:         )}
  66: 
  67:         {/* === MOBILE: Tabs de navegación === */}
  68:         <div className="lg:hidden">
- 69:           <div className="flex rounded-xl bg-slate-800/80 border border-slate-700/50 p-1 gap-1">
+ 69:           <div className="flex rounded-2xl bg-slate-900/80 border border-slate-800/80 p-1 gap-1 backdrop-blur-sm shadow-md">
  70:             <TabButton
  71:               active={mobileTab === "preview"}
  72:               onClick={() => setMobileTab("preview")}
@@ -236,7 +236,7 @@ tsconfig.json
 139:             <GeneratePanel />
 140: 
 141:             {/* Info rápida */}
-142:             <div className="rounded-xl border border-slate-700/50 bg-slate-800/80 p-4 space-y-3">
+142:             <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 backdrop-blur-sm p-4 space-y-3 shadow-lg">
 143:               <h4 className="text-sm font-semibold text-slate-200">Garantías del Sistema</h4>
 144:               <div className="space-y-2 text-xs">
 145:                 <div className="flex items-center gap-2">
@@ -872,20 +872,20 @@ tsconfig.json
  3: import { cn } from "@/lib/utils";
  4: 
  5: const buttonVariants = cva(
- 6:   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
+ 6:   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
  7:   {
  8:     variants: {
  9:       variant: {
 10:         default:
-11:           "bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-md hover:from-amber-600 hover:to-amber-700 hover:shadow-lg",
+11:           "bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold shadow-lg shadow-amber-500/20 active:scale-[0.98]",
 12:         destructive:
-13:           "bg-red-600 text-white shadow-sm hover:bg-red-700",
+13:           "bg-rose-600 text-white shadow-sm hover:bg-rose-700 active:scale-[0.98]",
 14:         outline:
-15:           "border border-slate-600 bg-transparent text-slate-200 hover:bg-slate-800 hover:border-slate-500",
+15:           "border border-slate-800 bg-slate-900/80 text-slate-200 hover:bg-slate-800 hover:border-amber-500/40 hover:text-amber-400 shadow-sm active:scale-[0.98]",
 16:         secondary:
-17:           "bg-slate-700 text-slate-100 shadow-sm hover:bg-slate-600",
+17:           "bg-slate-900/90 border border-slate-800 text-slate-200 shadow-sm hover:bg-slate-800 hover:border-amber-500/30 active:scale-[0.98]",
 18:         ghost:
-19:           "text-slate-300 hover:bg-slate-800 hover:text-slate-100",
+19:           "text-slate-300 hover:bg-slate-900 hover:text-amber-400",
 20:         link: "text-amber-400 underline-offset-4 hover:underline",
 21:       },
 22:       size: {
@@ -932,7 +932,7 @@ tsconfig.json
  6:     <div
  7:       ref={ref}
  8:       className={cn(
- 9:         "rounded-xl border border-slate-700/50 bg-slate-800/80 backdrop-blur-sm shadow-xl",
+ 9:         "rounded-2xl border border-slate-800/80 bg-slate-900/60 backdrop-blur-sm shadow-xl",
 10:         className
 11:       )}
 12:       {...props}
@@ -1174,7 +1174,7 @@ tsconfig.json
  90:     return (
  91:       <div
  92:         className={cn(
- 93:           "group relative flex items-center h-10 w-full rounded-lg border border-slate-700 bg-slate-800/60 p-0.5 focus-within:border-amber-500/80 focus-within:ring-2 focus-within:ring-amber-500/20 hover:border-slate-600 transition-all shadow-inner",
+ 93:           "group relative flex items-center h-10 w-full rounded-xl border border-slate-800 bg-slate-900/80 p-0.5 focus-within:border-amber-500/80 focus-within:ring-2 focus-within:ring-amber-500/20 hover:border-slate-700 transition-all shadow-inner",
  94:           disabled && "opacity-50 pointer-events-none",
  95:           className
  96:         )}
@@ -1300,7 +1300,7 @@ tsconfig.json
 24:             id={id}
 25:             ref={ref}
 26:             className={cn(
-27:               "flex h-10 w-full appearance-none rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 pr-9 text-sm text-slate-100 placeholder:text-slate-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 hover:border-slate-600 transition-colors disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer",
+27:               "flex h-10 w-full appearance-none rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-2 pr-9 text-sm text-slate-100 placeholder:text-slate-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 hover:border-slate-700 transition-colors disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer shadow-inner",
 28:               className
 29:             )}
 30:             {...props}
@@ -1582,190 +1582,6 @@ tsconfig.json
 109: }
 ````
 
-## File: src/components/MobileBottomNav.tsx
-````typescript
-  1: "use client";
-  2: 
-  3: import { useState, useEffect } from "react";
-  4: import Link from "next/link";
-  5: import { usePathname } from "next/navigation";
-  6: import {
-  7:   Home,
-  8:   Sliders,
-  9:   FolderOpen,
- 10:   Save,
- 11:   User,
- 12:   Check,
- 13:   Sparkles
- 14: } from "lucide-react";
- 15: import { useAuth } from "@/hooks/useAuth";
- 16: import { useRifaStore } from "@/store/useRifaStore";
- 17: import { saveTicketDesign, getSavedTickets } from "@/services/tickets-service";
- 18: import { AuthModal } from "@/components/auth/AuthModal";
- 19: import { ProfileModal } from "@/components/auth/ProfileModal";
- 20: import { SavedTicketsDrawer } from "@/components/SavedTicketsDrawer";
- 21: 
- 22: export function MobileBottomNav() {
- 23:   const pathname = usePathname();
- 24:   const { user } = useAuth();
- 25:   const { ticketConfig, printConfig } = useRifaStore();
- 26: 
- 27:   const [isAuthOpen, setIsAuthOpen] = useState(false);
- 28:   const [isProfileOpen, setIsProfileOpen] = useState(false);
- 29:   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
- 30:   const [saving, setSaving] = useState(false);
- 31:   const [saveSuccess, setSaveSuccess] = useState(false);
- 32:   const [savedCount, setSavedCount] = useState(0);
- 33: 
- 34:   const refreshCount = async () => {
- 35:     try {
- 36:       const list = await getSavedTickets();
- 37:       setSavedCount(list.length);
- 38:     } catch {}
- 39:   };
- 40: 
- 41:   useEffect(() => {
- 42:     refreshCount();
- 43:   }, [user]);
- 44: 
- 45:   const handleSave = async () => {
- 46:     if (!user) {
- 47:       setIsAuthOpen(true);
- 48:       return;
- 49:     }
- 50: 
- 51:     setSaving(true);
- 52:     try {
- 53:       await saveTicketDesign(
- 54:         ticketConfig.eventName || "Mi Rifa",
- 55:         ticketConfig,
- 56:         printConfig
- 57:       );
- 58:       setSaveSuccess(true);
- 59:       refreshCount();
- 60:       setTimeout(() => setSaveSuccess(false), 2500);
- 61:     } catch (e) {
- 62:       console.error(e);
- 63:     } finally {
- 64:       setSaving(false);
- 65:     }
- 66:   };
- 67: 
- 68:   const handleProfileClick = () => {
- 69:     if (user) {
- 70:       setIsProfileOpen(true);
- 71:     } else {
- 72:       setIsAuthOpen(true);
- 73:     }
- 74:   };
- 75: 
- 76:   return (
- 77:     <>
- 78:       {/* Barra de navegación inferior fija estilo Native App */}
- 79:       <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800/80 px-2 py-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-2xl">
- 80:         <div className="grid grid-cols-5 items-center justify-items-center">
- 81:           {/* 1. Inicio / Landing */}
- 82:           <Link
- 83:             href="/"
- 84:             className={`flex flex-col items-center gap-1 py-1 px-2 rounded-xl transition-colors ${
- 85:               pathname === "/"
- 86:                 ? "text-amber-400 font-bold"
- 87:                 : "text-slate-400 hover:text-slate-200"
- 88:             }`}
- 89:           >
- 90:             <Home className="h-5 w-5" />
- 91:             <span className="text-[10px]">Inicio</span>
- 92:           </Link>
- 93: 
- 94:           {/* 2. Editor */}
- 95:           <Link
- 96:             href="/editor"
- 97:             className={`flex flex-col items-center gap-1 py-1 px-2 rounded-xl transition-colors ${
- 98:               pathname === "/editor"
- 99:                 ? "text-amber-400 font-bold"
-100:                 : "text-slate-400 hover:text-slate-200"
-101:             }`}
-102:           >
-103:             <Sliders className="h-5 w-5" />
-104:             <span className="text-[10px]">Editor</span>
-105:           </Link>
-106: 
-107:           {/* 3. Guardar Rifa (Acción central destacada) */}
-108:           <button
-109:             onClick={handleSave}
-110:             disabled={saving}
-111:             className="flex flex-col items-center -mt-4 group"
-112:           >
-113:             <div
-114:               className={`w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg transition-all ${
-115:                 saveSuccess
-116:                   ? "bg-emerald-500 text-white shadow-emerald-500/30 scale-105"
-117:                   : "bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 shadow-amber-500/30 group-active:scale-95"
-118:               }`}
-119:             >
-120:               {saveSuccess ? (
-121:                 <Check className="h-5 w-5" />
-122:               ) : (
-123:                 <Save className="h-5 w-5" />
-124:               )}
-125:             </div>
-126:             <span className="text-[10px] font-bold text-amber-400 mt-1">
-127:               {saveSuccess ? "¡Listo!" : saving ? "..." : "Guardar"}
-128:             </span>
-129:           </button>
-130: 
-131:           {/* 4. Mis Rifas */}
-132:           <button
-133:             onClick={() => setIsDrawerOpen(true)}
-134:             className="flex flex-col items-center gap-1 py-1 px-2 rounded-xl text-slate-400 hover:text-slate-200 relative transition-colors"
-135:           >
-136:             <FolderOpen className="h-5 w-5" />
-137:             <span className="text-[10px]">Mis Rifas</span>
-138:             {savedCount > 0 && (
-139:               <span className="absolute top-0 right-2 w-4 h-4 rounded-full bg-amber-500 text-slate-950 text-[9px] font-mono font-black flex items-center justify-center">
-140:                 {savedCount}
-141:               </span>
-142:             )}
-143:           </button>
-144: 
-145:           {/* 5. Perfil / Cuenta */}
-146:           <button
-147:             onClick={handleProfileClick}
-148:             className="flex flex-col items-center gap-1 py-1 px-2 rounded-xl text-slate-400 hover:text-slate-200 transition-colors"
-149:           >
-150:             {user ? (
-151:               <div className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px] font-bold border border-amber-500/40">
-152:                 {user.name ? user.name[0].toUpperCase() : user.email[0].toUpperCase()}
-153:               </div>
-154:             ) : (
-155:               <User className="h-5 w-5" />
-156:             )}
-157:             <span className="text-[10px]">{user ? "Perfil" : "Entrar"}</span>
-158:           </button>
-159:         </div>
-160:       </nav>
-161: 
-162:       {/* Modales */}
-163:       <AuthModal
-164:         isOpen={isAuthOpen}
-165:         onClose={() => setIsAuthOpen(false)}
-166:         onSuccess={() => refreshCount()}
-167:       />
-168:       <ProfileModal
-169:         isOpen={isProfileOpen}
-170:         onClose={() => setIsProfileOpen(false)}
-171:       />
-172:       <SavedTicketsDrawer
-173:         isOpen={isDrawerOpen}
-174:         onClose={() => setIsDrawerOpen(false)}
-175:         onSelectTicket={() => refreshCount()}
-176:         onOpenAuth={() => setIsAuthOpen(true)}
-177:       />
-178:     </>
-179:   );
-180: }
-````
-
 ## File: src/components/PresetSelector.tsx
 ````typescript
   1: "use client";
@@ -1910,7 +1726,7 @@ tsconfig.json
 140:             key={preset.id}
 141:             type="button"
 142:             onClick={() => handleApplyPreset(preset)}
-143:             className="flex flex-col items-start p-2.5 rounded-xl border border-slate-700/60 bg-slate-800/60 hover:bg-slate-800 hover:border-amber-500/50 transition-all text-left group"
+143:             className="flex flex-col items-start p-2.5 rounded-xl border border-slate-800 bg-slate-900/80 hover:bg-slate-800 hover:border-amber-500/50 transition-all text-left group shadow-sm"
 144:           >
 145:             <div className="p-1.5 rounded-lg bg-slate-900/80 mb-2 group-hover:scale-105 transition-transform">
 146:               {preset.icon}
@@ -1927,268 +1743,6 @@ tsconfig.json
 157:     </div>
 158:   );
 159: }
-````
-
-## File: src/components/SavedTicketsDrawer.tsx
-````typescript
-  1: "use client";
-  2: 
-  3: import { useState, useEffect } from "react";
-  4: import {
-  5:   X,
-  6:   FolderOpen,
-  7:   Trash2,
-  8:   Copy,
-  9:   Calendar,
- 10:   Ticket,
- 11:   Trophy,
- 12:   ArrowRight,
- 13:   RefreshCw,
- 14:   Search,
- 15:   Sparkles,
- 16:   Lock,
- 17:   LogIn
- 18: } from "lucide-react";
- 19: import { Button } from "@/components/ui/button";
- 20: import { SavedTicket, getSavedTickets, deleteSavedTicket, duplicateSavedTicket } from "@/services/tickets-service";
- 21: import { useRifaStore } from "@/store/useRifaStore";
- 22: import { useAuth } from "@/hooks/useAuth";
- 23: import { formatCurrency } from "@/lib/utils";
- 24: 
- 25: interface SavedTicketsDrawerProps {
- 26:   isOpen: boolean;
- 27:   onClose: () => void;
- 28:   onSelectTicket?: (ticket: SavedTicket) => void;
- 29:   onOpenAuth?: () => void;
- 30: }
- 31: 
- 32: export function SavedTicketsDrawer({ isOpen, onClose, onSelectTicket, onOpenAuth }: SavedTicketsDrawerProps) {
- 33:   const { user } = useAuth();
- 34:   const [tickets, setTickets] = useState<SavedTicket[]>([]);
- 35:   const [loading, setLoading] = useState(true);
- 36:   const [search, setSearch] = useState("");
- 37:   const [activeDeleteId, setActiveDeleteId] = useState<string | null>(null);
- 38: 
- 39:   const { setTicketConfig, setPrintConfig } = useRifaStore();
- 40: 
- 41:   const fetchTickets = async () => {
- 42:     if (!user) {
- 43:       setTickets([]);
- 44:       setLoading(false);
- 45:       return;
- 46:     }
- 47:     setLoading(true);
- 48:     try {
- 49:       const data = await getSavedTickets();
- 50:       setTickets(data);
- 51:     } finally {
- 52:       setLoading(false);
- 53:     }
- 54:   };
- 55: 
- 56:   useEffect(() => {
- 57:     if (isOpen) {
- 58:       fetchTickets();
- 59:     }
- 60:   }, [isOpen, user]);
- 61: 
- 62: 
- 63:   if (!isOpen) return null;
- 64: 
- 65:   const handleLoad = (ticket: SavedTicket) => {
- 66:     setTicketConfig(ticket.ticket_config);
- 67:     setPrintConfig(ticket.print_config);
- 68:     onSelectTicket?.(ticket);
- 69:     onClose();
- 70:   };
- 71: 
- 72:   const handleDelete = async (id: string, e: React.MouseEvent) => {
- 73:     e.stopPropagation();
- 74:     setActiveDeleteId(id);
- 75:     try {
- 76:       await deleteSavedTicket(id);
- 77:       setTickets((prev) => prev.filter((t) => t.id !== id));
- 78:     } finally {
- 79:       setActiveDeleteId(null);
- 80:     }
- 81:   };
- 82: 
- 83:   const handleDuplicate = async (ticket: SavedTicket, e: React.MouseEvent) => {
- 84:     e.stopPropagation();
- 85:     const duplicated = await duplicateSavedTicket(ticket);
- 86:     setTickets((prev) => [duplicated, ...prev]);
- 87:   };
- 88: 
- 89:   const filtered = tickets.filter((t) =>
- 90:     t.title.toLowerCase().includes(search.toLowerCase()) ||
- 91:     t.ticket_config.eventName.toLowerCase().includes(search.toLowerCase())
- 92:   );
- 93: 
- 94:   return (
- 95:     <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
- 96:       <div className="relative w-full max-w-md h-full bg-slate-900 border-l border-slate-700/80 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
- 97:         {/* Cabecera */}
- 98:         <div className="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-900/90">
- 99:           <div className="flex items-center gap-2.5">
-100:             <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
-101:               <FolderOpen className="h-4 w-4" />
-102:             </div>
-103:             <div>
-104:               <h3 className="text-sm font-bold text-slate-100">Mis Rifas Guardadas</h3>
-105:               <p className="text-[10px] text-slate-400">
-106:                 {tickets.length} {tickets.length === 1 ? "diseño disponible" : "diseños disponibles"}
-107:               </p>
-108:             </div>
-109:           </div>
-110: 
-111:           <div className="flex items-center gap-1">
-112:             <button
-113:               onClick={fetchTickets}
-114:               title="Recargar"
-115:               className="text-slate-400 hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
-116:             >
-117:               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin text-amber-400" : ""}`} />
-118:             </button>
-119:             <button
-120:               onClick={onClose}
-121:               className="text-slate-400 hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
-122:             >
-123:               <X className="h-5 w-5" />
-124:             </button>
-125:           </div>
-126:         </div>
-127: 
-128:         {/* Buscador */}
-129:         <div className="p-3 border-b border-slate-800/80 bg-slate-900/50">
-130:           <div className="relative">
-131:             <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-500" />
-132:             <input
-133:               type="text"
-134:               value={search}
-135:               onChange={(e) => setSearch(e.target.value)}
-136:               placeholder="Buscar rifa por nombre..."
-137:               className="w-full pl-8 pr-3 py-1.5 bg-slate-800/80 border border-slate-700 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500"
-138:             />
-139:           </div>
-140:         </div>
-141: 
-142:         {/* Lista de diseños */}
-143:         <div className="flex-1 overflow-y-auto p-4 space-y-3">
-144:           {!user ? (
-145:             <div className="flex flex-col items-center justify-center h-80 text-center p-6 rounded-2xl border border-slate-800 bg-slate-900/60">
-146:               <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-4 shadow-lg shadow-amber-500/5">
-147:                 <Lock className="h-7 w-7" />
-148:               </div>
-149:               <h4 className="text-base font-bold text-slate-100 mb-1">
-150:                 Tus rifas son privadas
-151:               </h4>
-152:               <p className="text-xs text-slate-400 max-w-[280px] mb-5 leading-relaxed">
-153:                 Cada usuario tiene su propio historial y diseños guardados. Inicia sesión o regístrate para acceder a tus rifas.
-154:               </p>
-155:               {onOpenAuth && (
-156:                 <Button
-157:                   onClick={() => {
-158:                     onClose();
-159:                     onOpenAuth();
-160:                   }}
-161:                   className="bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-amber-500/20 gap-2"
-162:                 >
-163:                   <LogIn className="h-4 w-4" />
-164:                   <span>Iniciar Sesión / Registrarse</span>
-165:                 </Button>
-166:               )}
-167:             </div>
-168:           ) : loading ? (
-169:             <div className="flex flex-col items-center justify-center h-48 text-slate-500 space-y-2">
-170:               <RefreshCw className="h-6 w-6 animate-spin text-amber-400" />
-171:               <p className="text-xs">Cargando tus rifas...</p>
-172:             </div>
-173:           ) : filtered.length === 0 ? (
-174:             <div className="flex flex-col items-center justify-center h-64 text-center p-6 rounded-2xl border border-dashed border-slate-800 bg-slate-900/40">
-175:               <Sparkles className="h-8 w-8 text-slate-600 mb-2" />
-176:               <p className="text-sm font-semibold text-slate-300">No hay rifas guardadas</p>
-177:               <p className="text-xs text-slate-500 mt-1 max-w-[240px]">
-178:                 {search ? "No se encontraron rifas con ese término." : "Crea tu diseño y haz clic en 'Guardar' para almacenarlo en tu cuenta."}
-179:               </p>
-180:             </div>
-181:           ) : (
-182: 
-183:             filtered.map((ticket) => (
-184:               <div
-185:                 key={ticket.id}
-186:                 onClick={() => handleLoad(ticket)}
-187:                 className="group relative rounded-xl border border-slate-800 bg-slate-800/50 hover:bg-slate-800 hover:border-amber-500/50 p-3.5 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-lg hover:shadow-amber-500/5"
-188:               >
-189:                 <div className="flex items-start justify-between gap-2">
-190:                   <div className="flex-1 min-w-0">
-191:                     <h4 className="text-xs font-bold text-slate-100 group-hover:text-amber-300 truncate transition-colors">
-192:                       {ticket.title}
-193:                     </h4>
-194:                     <p className="text-[11px] text-slate-400 truncate mt-0.5">
-195:                       {ticket.ticket_config.subtitle || ticket.ticket_config.eventName}
-196:                     </p>
-197:                   </div>
-198: 
-199:                   {/* Acciones */}
-200:                   <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
-201:                     <button
-202:                       onClick={(e) => handleDuplicate(ticket, e)}
-203:                       title="Duplicar"
-204:                       className="text-slate-400 hover:text-amber-400 p-1 rounded hover:bg-slate-700/60"
-205:                     >
-206:                       <Copy className="h-3.5 w-3.5" />
-207:                     </button>
-208:                     <button
-209:                       onClick={(e) => handleDelete(ticket.id, e)}
-210:                       title="Eliminar"
-211:                       disabled={activeDeleteId === ticket.id}
-212:                       className="text-slate-400 hover:text-rose-400 p-1 rounded hover:bg-slate-700/60"
-213:                     >
-214:                       <Trash2 className="h-3.5 w-3.5" />
-215:                     </button>
-216:                   </div>
-217:                 </div>
-218: 
-219:                 {/* Metadata pills */}
-220:                 <div className="grid grid-cols-3 gap-2 mt-3 pt-2.5 border-t border-slate-700/40 text-[10px] text-slate-400">
-221:                   <div className="flex items-center gap-1 truncate">
-222:                     <Ticket className="h-3 w-3 text-amber-400 shrink-0" />
-223:                     <span>{ticket.ticket_config.totalTickets} tks</span>
-224:                   </div>
-225:                   <div className="flex items-center gap-1 truncate">
-226:                     <Trophy className="h-3 w-3 text-amber-400 shrink-0" />
-227:                     <span>{ticket.ticket_config.prizes?.length || 0} premios</span>
-228:                   </div>
-229:                   <div className="flex items-center gap-1 truncate font-mono text-amber-300 font-semibold">
-230:                     <span>{formatCurrency(ticket.ticket_config.price || 0)}</span>
-231:                   </div>
-232:                 </div>
-233: 
-234:                 {/* Botón Cargar */}
-235:                 <div className="mt-2.5 flex items-center justify-between text-[10px] text-slate-500 group-hover:text-amber-400 transition-colors">
-236:                   <span className="flex items-center gap-1">
-237:                     <Calendar className="h-2.5 w-2.5" />
-238:                     {new Date(ticket.updated_at).toLocaleDateString()}
-239:                   </span>
-240:                   <span className="flex items-center gap-0.5 font-medium">
-241:                     Cargar diseño <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
-242:                   </span>
-243:                 </div>
-244:               </div>
-245:             ))
-246:           )}
-247:         </div>
-248: 
-249:         {/* Footer */}
-250:         <div className="p-3 border-t border-slate-800 bg-slate-900/90 text-center">
-251:           <p className="text-[10px] text-slate-500">
-252:             Los cambios se sincronizan en la nube y quedan disponibles en tu cuenta.
-253:           </p>
-254:         </div>
-255:       </div>
-256:     </div>
-257:   );
-258: }
 ````
 
 ## File: src/hooks/usePdfGeneration.ts
@@ -2304,340 +1858,6 @@ tsconfig.json
 30: 
 31:   return supabaseInstance;
 32: };
-````
-
-## File: src/services/tickets-service.ts
-````typescript
-  1: import { getSupabase } from "@/lib/supabase";
-  2: import { TicketConfig, PrintConfig } from "@/types";
-  3: 
-  4: export interface SavedTicket {
-  5:   id: string;
-  6:   user_id?: string;
-  7:   title: string;
-  8:   ticket_config: TicketConfig;
-  9:   print_config: PrintConfig;
- 10:   created_at: string;
- 11:   updated_at: string;
- 12: }
- 13: 
- 14: // Obtener el ID del usuario actualmente autenticado (Supabase o Demo)
- 15: async function getCurrentUserId(): Promise<string | null> {
- 16:   const supabase = getSupabase();
- 17:   if (supabase) {
- 18:     try {
- 19:       const { data: { user } } = await supabase.auth.getUser();
- 20:       if (user?.id) return user.id;
- 21:     } catch (e) {
- 22:       console.warn("Error al verificar usuario en Supabase:", e);
- 23:     }
- 24:   }
- 25: 
- 26:   // Fallback solo para usuario demo explícitamente logueado
- 27:   if (typeof window !== "undefined") {
- 28:     try {
- 29:       const demo = localStorage.getItem("eventazo_demo_user");
- 30:       if (demo) {
- 31:         const parsed = JSON.parse(demo);
- 32:         return parsed.id || null;
- 33:       }
- 34:     } catch {
- 35:       return null;
- 36:     }
- 37:   }
- 38: 
- 39:   return null;
- 40: }
- 41: 
- 42: // Almacenamiento local aislado estrictamente por ID de usuario (solo para modo demo offline)
- 43: function getUserScopedLocalKey(userId: string): string {
- 44:   return `eventazo_saved_tickets_${userId}`;
- 45: }
- 46: 
- 47: function getLocalUserTickets(userId: string): SavedTicket[] {
- 48:   if (typeof window === "undefined") return [];
- 49:   try {
- 50:     const raw = localStorage.getItem(getUserScopedLocalKey(userId));
- 51:     return raw ? JSON.parse(raw) : [];
- 52:   } catch {
- 53:     return [];
- 54:   }
- 55: }
- 56: 
- 57: function saveLocalUserTickets(userId: string, tickets: SavedTicket[]) {
- 58:   if (typeof window === "undefined") return;
- 59:   try {
- 60:     localStorage.setItem(getUserScopedLocalKey(userId), JSON.stringify(tickets));
- 61:   } catch (e) {
- 62:     console.error("Error al persistir rifas locales:", e);
- 63:   }
- 64: }
- 65: 
- 66: /**
- 67:  * Obtener las rifas guardadas del usuario autenticado.
- 68:  * Si NO hay sesión activa, retorna siempre [] (las rifas son privadas y por usuario).
- 69:  */
- 70: export async function getSavedTickets(): Promise<SavedTicket[]> {
- 71:   const supabase = getSupabase();
- 72:   const userId = await getCurrentUserId();
- 73: 
- 74:   // Si no está autenticado, no hay rifas para mostrar (aislamiento por usuario)
- 75:   if (!userId) {
- 76:     return [];
- 77:   }
- 78: 
- 79:   if (supabase && !userId.startsWith("demo-")) {
- 80:     try {
- 81:       const { data, error } = await supabase
- 82:         .from("saved_tickets")
- 83:         .select("*")
- 84:         .eq("user_id", userId)
- 85:         .order("updated_at", { ascending: false });
- 86: 
- 87:       if (!error && data) {
- 88:         return data as SavedTicket[];
- 89:       }
- 90:       if (error) {
- 91:         console.error("Error al consultar rifas de Supabase:", error.message);
- 92:       }
- 93:     } catch (e) {
- 94:       console.warn("Excepción al consultar Supabase:", e);
- 95:     }
- 96:   }
- 97: 
- 98:   // Fallback aislado estrictamente a este usuario específico
- 99:   return getLocalUserTickets(userId);
-100: }
-101: 
-102: /**
-103:  * Guardar o actualizar una rifa en la cuenta del usuario autenticado.
-104:  * Requiere estrictamente que el usuario esté logueado.
-105:  */
-106: export async function saveTicketDesign(
-107:   title: string,
-108:   ticketConfig: TicketConfig,
-109:   printConfig: PrintConfig,
-110:   existingId?: string
-111: ): Promise<SavedTicket> {
-112:   const supabase = getSupabase();
-113:   const userId = await getCurrentUserId();
-114: 
-115:   if (!userId) {
-116:     throw new Error("Debes iniciar sesión para guardar tus rifas en tu cuenta.");
-117:   }
-118: 
-119:   const now = new Date().toISOString();
-120: 
-121:   if (supabase && !userId.startsWith("demo-")) {
-122:     try {
-123:       if (existingId) {
-124:         const { data, error } = await supabase
-125:           .from("saved_tickets")
-126:           .update({
-127:             title,
-128:             ticket_config: ticketConfig,
-129:             print_config: printConfig,
-130:             updated_at: now,
-131:           })
-132:           .eq("id", existingId)
-133:           .eq("user_id", userId)
-134:           .select()
-135:           .single();
-136: 
-137:         if (error) throw error;
-138:         if (data) return data as SavedTicket;
-139:       } else {
-140:         const { data, error } = await supabase
-141:           .from("saved_tickets")
-142:           .insert({
-143:             user_id: userId,
-144:             title,
-145:             ticket_config: ticketConfig,
-146:             print_config: printConfig,
-147:             created_at: now,
-148:             updated_at: now,
-149:           })
-150:           .select()
-151:           .single();
-152: 
-153:         if (error) throw error;
-154:         if (data) return data as SavedTicket;
-155:       }
-156:     } catch (e) {
-157:       console.error("Error guardando en Supabase:", e);
-158:       throw e;
-159:     }
-160:   }
-161: 
-162:   // Fallback demo aislado
-163:   const current = getLocalUserTickets(userId);
-164:   if (existingId) {
-165:     const idx = current.findIndex((t) => t.id === existingId);
-166:     if (idx !== -1) {
-167:       const updated: SavedTicket = {
-168:         ...current[idx],
-169:         title,
-170:         ticket_config: ticketConfig,
-171:         print_config: printConfig,
-172:         updated_at: now,
-173:       };
-174:       current[idx] = updated;
-175:       saveLocalUserTickets(userId, current);
-176:       return updated;
-177:     }
-178:   }
-179: 
-180:   const newTicket: SavedTicket = {
-181:     id: `ticket-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-182:     user_id: userId,
-183:     title,
-184:     ticket_config: ticketConfig,
-185:     print_config: printConfig,
-186:     created_at: now,
-187:     updated_at: now,
-188:   };
-189:   current.unshift(newTicket);
-190:   saveLocalUserTickets(userId, current);
-191:   return newTicket;
-192: }
-193: 
-194: /**
-195:  * Eliminar una rifa guardada perteneciente al usuario autenticado.
-196:  */
-197: export async function deleteSavedTicket(id: string): Promise<boolean> {
-198:   const supabase = getSupabase();
-199:   const userId = await getCurrentUserId();
-200: 
-201:   if (!userId) return false;
-202: 
-203:   if (supabase && !userId.startsWith("demo-")) {
-204:     try {
-205:       const { error } = await supabase
-206:         .from("saved_tickets")
-207:         .delete()
-208:         .eq("id", id)
-209:         .eq("user_id", userId);
-210: 
-211:       if (!error) return true;
-212:     } catch (e) {
-213:       console.error("Error eliminando en Supabase:", e);
-214:     }
-215:   }
-216: 
-217:   const current = getLocalUserTickets(userId).filter((t) => t.id !== id);
-218:   saveLocalUserTickets(userId, current);
-219:   return true;
-220: }
-221: 
-222: /**
-223:  * Duplicar una rifa guardada del usuario autenticado.
-224:  */
-225: export async function duplicateSavedTicket(ticket: SavedTicket): Promise<SavedTicket> {
-226:   const newTitle = `${ticket.title} (Copia)`;
-227:   return saveTicketDesign(newTitle, ticket.ticket_config, ticket.print_config);
-228: }
-````
-
-## File: src/store/useRifaStore.ts
-````typescript
- 1: import { create } from "zustand";
- 2: import { TicketConfig, PrintConfig, GenerationProgress, TemplateImage } from "@/types";
- 3: import { DEFAULT_TICKET_CONFIG, DEFAULT_PRINT_CONFIG, EMPTY_TICKET_CONFIG } from "@/lib/constants";
- 4: 
- 5: interface RifaState {
- 6:   // Config
- 7:   ticketConfig: TicketConfig;
- 8:   printConfig: PrintConfig;
- 9:   templateImage: TemplateImage | null;
-10: 
-11:   // Generation
-12:   progress: GenerationProgress;
-13:   generatedPdfUrl: string | null;
-14:   isGenerating: boolean;
-15: 
-16:   // UI
-17:   darkMode: boolean;
-18:   previewTicketNumber: number;
-19:   activeTab: "config" | "preview" | "generate";
-20: 
-21:   // Actions
-22:   setTicketConfig: (config: Partial<TicketConfig>) => void;
-23:   setPrintConfig: (config: Partial<PrintConfig>) => void;
-24:   setTemplateImage: (image: TemplateImage | null) => void;
-25:   setProgress: (progress: Partial<GenerationProgress>) => void;
-26:   setGeneratedPdfUrl: (url: string | null) => void;
-27:   setIsGenerating: (generating: boolean) => void;
-28:   setDarkMode: (dark: boolean) => void;
-29:   setPreviewTicketNumber: (num: number) => void;
-30:   setActiveTab: (tab: "config" | "preview" | "generate") => void;
-31:   resetConfig: () => void;
-32:   clearConfig: () => void;
-33: }
-34: 
-35: export const useRifaStore = create<RifaState>((set) => ({
-36:   ticketConfig: DEFAULT_TICKET_CONFIG,
-37:   printConfig: DEFAULT_PRINT_CONFIG,
-38:   templateImage: null,
-39: 
-40:   progress: {
-41:     current: 0,
-42:     total: 0,
-43:     percentage: 0,
-44:     status: "idle",
-45:     message: "",
-46:   },
-47:   generatedPdfUrl: null,
-48:   isGenerating: false,
-49: 
-50:   darkMode: true,
-51:   previewTicketNumber: 1,
-52:   activeTab: "config",
-53: 
-54:   setTicketConfig: (config) =>
-55:     set((state) => ({
-56:       ticketConfig: { ...state.ticketConfig, ...config },
-57:     })),
-58: 
-59:   setPrintConfig: (config) =>
-60:     set((state) => ({
-61:       printConfig: { ...state.printConfig, ...config },
-62:     })),
-63: 
-64:   setTemplateImage: (image) => set({ templateImage: image }),
-65: 
-66:   setProgress: (progress) =>
-67:     set((state) => ({
-68:       progress: { ...state.progress, ...progress },
-69:     })),
-70: 
-71:   setGeneratedPdfUrl: (url) => set({ generatedPdfUrl: url }),
-72:   setIsGenerating: (generating) => set({ isGenerating: generating }),
-73:   setDarkMode: (dark) => set({ darkMode: dark }),
-74:   setPreviewTicketNumber: (num) => set({ previewTicketNumber: num }),
-75:   setActiveTab: (tab) => set({ activeTab: tab }),
-76: 
-77:   resetConfig: () =>
-78:     set({
-79:       ticketConfig: DEFAULT_TICKET_CONFIG,
-80:       printConfig: DEFAULT_PRINT_CONFIG,
-81:       templateImage: null,
-82:       progress: {
-83:         current: 0,
-84:         total: 0,
-85:         percentage: 0,
-86:         status: "idle",
-87:         message: "",
-88:       },
-89:       generatedPdfUrl: null,
-90:     }),
-91: 
-92:   clearConfig: () =>
-93:     set({
-94:       ticketConfig: EMPTY_TICKET_CONFIG,
-95:       templateImage: null,
-96:       generatedPdfUrl: null,
-97:     }),
-98: }));
 ````
 
 ## File: README.md
@@ -2885,7 +2105,7 @@ tsconfig.json
  7:       <input
  8:         type={type}
  9:         className={cn(
-10:           "flex h-10 w-full rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 hover:border-slate-600 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 shadow-inner transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50",
+10:           "flex h-10 w-full rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 hover:border-slate-700 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 shadow-inner transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50",
 11:           className
 12:         )}
 13:         ref={ref}
@@ -2897,6 +2117,204 @@ tsconfig.json
 19: Input.displayName = "Input";
 20: 
 21: export { Input };
+````
+
+## File: src/components/MobileBottomNav.tsx
+````typescript
+  1: "use client";
+  2: 
+  3: import { useState, useEffect } from "react";
+  4: import Link from "next/link";
+  5: import { usePathname } from "next/navigation";
+  6: import {
+  7:   Home,
+  8:   Sliders,
+  9:   FolderOpen,
+ 10:   Save,
+ 11:   User,
+ 12:   Check,
+ 13:   Sparkles
+ 14: } from "lucide-react";
+ 15: import { useAuth } from "@/hooks/useAuth";
+ 16: import { useRifaStore } from "@/store/useRifaStore";
+ 17: import { saveTicketDesign, getSavedTickets } from "@/services/tickets-service";
+ 18: import { AuthModal } from "@/components/auth/AuthModal";
+ 19: import { ProfileModal } from "@/components/auth/ProfileModal";
+ 20: import { SavedTicketsDrawer } from "@/components/SavedTicketsDrawer";
+ 21: 
+ 22: export function MobileBottomNav() {
+ 23:   const pathname = usePathname();
+ 24:   const { user } = useAuth();
+ 25:   const { ticketConfig, printConfig } = useRifaStore();
+ 26: 
+ 27:   const [isAuthOpen, setIsAuthOpen] = useState(false);
+ 28:   const [isProfileOpen, setIsProfileOpen] = useState(false);
+ 29:   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+ 30:   const [saving, setSaving] = useState(false);
+ 31:   const [saveSuccess, setSaveSuccess] = useState(false);
+ 32:   const [savedCount, setSavedCount] = useState(0);
+ 33: 
+ 34:   const refreshCount = async () => {
+ 35:     try {
+ 36:       const list = await getSavedTickets();
+ 37:       setSavedCount(list.length);
+ 38:     } catch {}
+ 39:   };
+ 40: 
+ 41:   useEffect(() => {
+ 42:     refreshCount();
+ 43:   }, [user]);
+ 44: 
+ 45:   const handleSave = async () => {
+ 46:     if (!user) {
+ 47:       setIsAuthOpen(true);
+ 48:       return;
+ 49:     }
+ 50: 
+ 51:     setSaving(true);
+ 52:     try {
+ 53:       await saveTicketDesign(
+ 54:         ticketConfig.eventName || "Mi Rifa",
+ 55:         ticketConfig,
+ 56:         printConfig
+ 57:       );
+ 58:       setSaveSuccess(true);
+ 59:       refreshCount();
+ 60:       setTimeout(() => setSaveSuccess(false), 2500);
+ 61:     } catch (e) {
+ 62:       console.error(e);
+ 63:     } finally {
+ 64:       setSaving(false);
+ 65:     }
+ 66:   };
+ 67: 
+ 68:   const handleProfileClick = () => {
+ 69:     if (user) {
+ 70:       setIsProfileOpen(true);
+ 71:     } else {
+ 72:       setIsAuthOpen(true);
+ 73:     }
+ 74:   };
+ 75: 
+ 76:   return (
+ 77:     <>
+ 78:       {/* Barra de navegación inferior fija estilo Native App */}
+ 79:       <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800/80 px-2 py-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-2xl">
+ 80:         <div className="grid grid-cols-5 items-center justify-items-center">
+ 81:           {/* 1. Inicio / Landing */}
+ 82:           <Link
+ 83:             href="/"
+ 84:             className={`flex flex-col items-center gap-1 py-1 px-2 rounded-xl transition-colors ${
+ 85:               pathname === "/"
+ 86:                 ? "text-amber-400 font-bold"
+ 87:                 : "text-slate-400 hover:text-slate-200"
+ 88:             }`}
+ 89:           >
+ 90:             <Home className="h-5 w-5" />
+ 91:             <span className="text-[10px]">Inicio</span>
+ 92:           </Link>
+ 93: 
+ 94:           {/* 2. Editor */}
+ 95:           <Link
+ 96:             href="/editor"
+ 97:             className={`flex flex-col items-center gap-1 py-1 px-2 rounded-xl transition-colors ${
+ 98:               pathname === "/editor"
+ 99:                 ? "text-amber-400 font-bold"
+100:                 : "text-slate-400 hover:text-slate-200"
+101:             }`}
+102:           >
+103:             <Sliders className="h-5 w-5" />
+104:             <span className="text-[10px]">Editor</span>
+105:           </Link>
+106: 
+107:           {/* 3. Acción central destacada según contexto */}
+108:           {pathname === "/editor" ? (
+109:             <button
+110:               onClick={handleSave}
+111:               disabled={saving}
+112:               className="flex flex-col items-center -mt-4 group"
+113:             >
+114:               <div
+115:                 className={`w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg transition-all ${
+116:                   saveSuccess
+117:                     ? "bg-emerald-500 text-white shadow-emerald-500/30 scale-105"
+118:                     : "bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-slate-950 shadow-lg shadow-amber-500/25 group-active:scale-95"
+119:                 }`}
+120:               >
+121:                 {saveSuccess ? (
+122:                   <Check className="h-5 w-5" />
+123:                 ) : (
+124:                   <Save className="h-5 w-5" />
+125:                 )}
+126:               </div>
+127:               <span className="text-[10px] font-bold text-amber-400 mt-1">
+128:                 {saveSuccess ? "¡Listo!" : saving ? "..." : "Guardar"}
+129:               </span>
+130:             </button>
+131:           ) : (
+132:             <Link
+133:               href="/editor"
+134:               className="flex flex-col items-center -mt-4 group"
+135:             >
+136:               <div className="w-11 h-11 rounded-2xl flex items-center justify-center bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-slate-950 shadow-lg shadow-amber-500/25 group-active:scale-95 transition-transform">
+137:                 <Sparkles className="h-5 w-5" />
+138:               </div>
+139:               <span className="text-[10px] font-bold text-amber-400 mt-1">
+140:                 Crear
+141:               </span>
+142:             </Link>
+143:           )}
+144: 
+145:           {/* 4. Mis Rifas */}
+146:           <button
+147:             onClick={() => setIsDrawerOpen(true)}
+148:             className="flex flex-col items-center gap-1 py-1 px-2 rounded-xl text-slate-400 hover:text-slate-200 relative transition-colors"
+149:           >
+150:             <FolderOpen className="h-5 w-5" />
+151:             <span className="text-[10px]">Mis Rifas</span>
+152:             {savedCount > 0 && (
+153:               <span className="absolute top-0 right-2 w-4 h-4 rounded-full bg-amber-500 text-slate-950 text-[9px] font-mono font-black flex items-center justify-center shadow-sm">
+154:                 {savedCount}
+155:               </span>
+156:             )}
+157:           </button>
+158: 
+159:           {/* 5. Perfil / Cuenta */}
+160:           <button
+161:             onClick={handleProfileClick}
+162:             className="flex flex-col items-center gap-1 py-1 px-2 rounded-xl text-slate-400 hover:text-slate-200 transition-colors"
+163:           >
+164:             {user ? (
+165:               <div className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px] font-bold border border-amber-500/40">
+166:                 {user.name ? user.name[0].toUpperCase() : user.email[0].toUpperCase()}
+167:               </div>
+168:             ) : (
+169:               <User className="h-5 w-5" />
+170:             )}
+171:             <span className="text-[10px]">{user ? "Perfil" : "Entrar"}</span>
+172:           </button>
+173:         </div>
+174:       </nav>
+175: 
+176:       {/* Modales */}
+177:       <AuthModal
+178:         isOpen={isAuthOpen}
+179:         onClose={() => setIsAuthOpen(false)}
+180:         onSuccess={() => refreshCount()}
+181:       />
+182:       <ProfileModal
+183:         isOpen={isProfileOpen}
+184:         onClose={() => setIsProfileOpen(false)}
+185:       />
+186:       <SavedTicketsDrawer
+187:         isOpen={isDrawerOpen}
+188:         onClose={() => setIsDrawerOpen(false)}
+189:         onSelectTicket={() => refreshCount()}
+190:         onOpenAuth={() => setIsAuthOpen(true)}
+191:       />
+192:     </>
+193:   );
+194: }
 ````
 
 ## File: src/components/PrizeEditor.tsx
@@ -3287,292 +2705,600 @@ tsconfig.json
 384: }
 ````
 
-## File: src/hooks/useAuth.ts
+## File: src/components/SavedTicketsDrawer.tsx
 ````typescript
   1: "use client";
   2: 
-  3: import { useState, useEffect, useCallback } from "react";
-  4: import { getSupabase, isSupabaseConfigured } from "@/lib/supabase";
-  5: import { User } from "@supabase/supabase-js";
-  6: 
-  7: export interface AppUser {
-  8:   id: string;
-  9:   email: string;
- 10:   name?: string;
- 11:   isDemo?: boolean;
- 12:   plan?: string;
- 13:   isPro?: boolean;
- 14: }
- 15: 
- 16: const DEMO_USER_KEY = "eventazo_demo_user";
- 17: 
- 18: export function useAuth() {
- 19:   const [user, setUser] = useState<AppUser | null>(null);
- 20:   const [loading, setLoading] = useState(true);
- 21:   const isConfigured = isSupabaseConfigured();
- 22: 
- 23:   // Cargar datos extendidos desde public.profiles
- 24:   const syncProfile = useCallback(async (baseUser: AppUser) => {
- 25:     const supabase = getSupabase();
- 26:     if (!supabase || baseUser.isDemo) return baseUser;
- 27: 
+  3: import { useState, useEffect } from "react";
+  4: import {
+  5:   X,
+  6:   FolderOpen,
+  7:   Trash2,
+  8:   Copy,
+  9:   Calendar,
+ 10:   Ticket,
+ 11:   Trophy,
+ 12:   ArrowRight,
+ 13:   RefreshCw,
+ 14:   Search,
+ 15:   Sparkles,
+ 16:   Lock,
+ 17:   LogIn
+ 18: } from "lucide-react";
+ 19: import { Button } from "@/components/ui/button";
+ 20: import { SavedTicket, getSavedTickets, deleteSavedTicket, duplicateSavedTicket } from "@/services/tickets-service";
+ 21: import { useRifaStore } from "@/store/useRifaStore";
+ 22: import { useAuth } from "@/hooks/useAuth";
+ 23: import { formatCurrency } from "@/lib/utils";
+ 24: 
+ 25: interface SavedTicketsDrawerProps {
+ 26:   isOpen: boolean;
+ 27:   onClose: () => void;
+ 28:   onSelectTicket?: (ticket: SavedTicket) => void;
+ 29:   onOpenAuth?: () => void;
+ 30: }
+ 31: 
+ 32: export function SavedTicketsDrawer({ isOpen, onClose, onSelectTicket, onOpenAuth }: SavedTicketsDrawerProps) {
+ 33:   const { user } = useAuth();
+ 34:   const [tickets, setTickets] = useState<SavedTicket[]>([]);
+ 35:   const [loading, setLoading] = useState(true);
+ 36:   const [search, setSearch] = useState("");
+ 37:   const [activeDeleteId, setActiveDeleteId] = useState<string | null>(null);
+ 38: 
+ 39:   const { setTicketConfig, setPrintConfig } = useRifaStore();
+ 40: 
+ 41:   const fetchTickets = async () => {
+ 42:     if (!user) {
+ 43:       setTickets([]);
+ 44:       setLoading(false);
+ 45:       return;
+ 46:     }
+ 47:     setLoading(true);
+ 48:     try {
+ 49:       const data = await getSavedTickets();
+ 50:       setTickets(data);
+ 51:     } finally {
+ 52:       setLoading(false);
+ 53:     }
+ 54:   };
+ 55: 
+ 56:   useEffect(() => {
+ 57:     if (isOpen) {
+ 58:       fetchTickets();
+ 59:     }
+ 60:   }, [isOpen, user]);
+ 61: 
+ 62: 
+ 63:   if (!isOpen) return null;
+ 64: 
+ 65:   const handleLoad = (ticket: SavedTicket) => {
+ 66:     setTicketConfig(ticket.ticket_config);
+ 67:     setPrintConfig(ticket.print_config);
+ 68:     onSelectTicket?.(ticket);
+ 69:     onClose();
+ 70:   };
+ 71: 
+ 72:   const handleDelete = async (id: string, e: React.MouseEvent) => {
+ 73:     e.stopPropagation();
+ 74:     setActiveDeleteId(id);
+ 75:     try {
+ 76:       await deleteSavedTicket(id);
+ 77:       setTickets((prev) => prev.filter((t) => t.id !== id));
+ 78:     } finally {
+ 79:       setActiveDeleteId(null);
+ 80:     }
+ 81:   };
+ 82: 
+ 83:   const handleDuplicate = async (ticket: SavedTicket, e: React.MouseEvent) => {
+ 84:     e.stopPropagation();
+ 85:     const duplicated = await duplicateSavedTicket(ticket);
+ 86:     setTickets((prev) => [duplicated, ...prev]);
+ 87:   };
+ 88: 
+ 89:   const filtered = tickets.filter((t) =>
+ 90:     t.title.toLowerCase().includes(search.toLowerCase()) ||
+ 91:     t.ticket_config.eventName.toLowerCase().includes(search.toLowerCase())
+ 92:   );
+ 93: 
+ 94:   return (
+ 95:     <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+ 96:       <div className="relative w-full max-w-md h-full bg-slate-900 border-l border-slate-700/80 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+ 97:         {/* Cabecera */}
+ 98:         <div className="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-900/90">
+ 99:           <div className="flex items-center gap-2.5">
+100:             <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
+101:               <FolderOpen className="h-4 w-4" />
+102:             </div>
+103:             <div>
+104:               <h3 className="text-sm font-bold text-slate-100">Mis Rifas Guardadas</h3>
+105:               <p className="text-[10px] text-slate-400">
+106:                 {tickets.length} {tickets.length === 1 ? "diseño disponible" : "diseños disponibles"}
+107:               </p>
+108:             </div>
+109:           </div>
+110: 
+111:           <div className="flex items-center gap-1">
+112:             <button
+113:               onClick={fetchTickets}
+114:               title="Recargar"
+115:               className="text-slate-400 hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
+116:             >
+117:               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin text-amber-400" : ""}`} />
+118:             </button>
+119:             <button
+120:               onClick={onClose}
+121:               className="text-slate-400 hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
+122:             >
+123:               <X className="h-5 w-5" />
+124:             </button>
+125:           </div>
+126:         </div>
+127: 
+128:         {/* Buscador */}
+129:         <div className="p-3 border-b border-slate-800/80 bg-slate-900/50">
+130:           <div className="relative">
+131:             <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-500" />
+132:             <input
+133:               type="text"
+134:               value={search}
+135:               onChange={(e) => setSearch(e.target.value)}
+136:               placeholder="Buscar rifa por nombre..."
+137:               className="w-full pl-8 pr-3 py-1.5 bg-slate-800/80 border border-slate-700 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500"
+138:             />
+139:           </div>
+140:         </div>
+141: 
+142:         {/* Lista de diseños */}
+143:         <div className="flex-1 overflow-y-auto p-4 space-y-3">
+144:           {!user ? (
+145:             <div className="flex flex-col items-center justify-center h-80 text-center p-6 rounded-2xl border border-slate-800 bg-slate-900/60">
+146:               <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-4 shadow-lg shadow-amber-500/5">
+147:                 <Lock className="h-7 w-7" />
+148:               </div>
+149:               <h4 className="text-base font-bold text-slate-100 mb-1">
+150:                 Tus rifas son privadas
+151:               </h4>
+152:               <p className="text-xs text-slate-400 max-w-[280px] mb-5 leading-relaxed">
+153:                 Cada usuario tiene su propio historial y diseños guardados. Inicia sesión o regístrate para acceder a tus rifas.
+154:               </p>
+155:               {onOpenAuth && (
+156:                 <Button
+157:                   onClick={() => {
+158:                     onClose();
+159:                     onOpenAuth();
+160:                   }}
+161:                   className="bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-amber-500/20 gap-2"
+162:                 >
+163:                   <LogIn className="h-4 w-4" />
+164:                   <span>Iniciar Sesión / Registrarse</span>
+165:                 </Button>
+166:               )}
+167:             </div>
+168:           ) : loading ? (
+169:             <div className="flex flex-col items-center justify-center h-48 text-slate-500 space-y-2">
+170:               <RefreshCw className="h-6 w-6 animate-spin text-amber-400" />
+171:               <p className="text-xs">Cargando tus rifas...</p>
+172:             </div>
+173:           ) : filtered.length === 0 ? (
+174:             <div className="flex flex-col items-center justify-center h-64 text-center p-6 rounded-2xl border border-dashed border-slate-800 bg-slate-900/40">
+175:               <Sparkles className="h-8 w-8 text-slate-600 mb-2" />
+176:               <p className="text-sm font-semibold text-slate-300">No hay rifas guardadas</p>
+177:               <p className="text-xs text-slate-500 mt-1 max-w-[240px]">
+178:                 {search ? "No se encontraron rifas con ese término." : "Crea tu diseño y haz clic en 'Guardar' para almacenarlo en tu cuenta."}
+179:               </p>
+180:             </div>
+181:           ) : (
+182: 
+183:             filtered.map((ticket) => (
+184:               <div
+185:                 key={ticket.id}
+186:                 onClick={() => handleLoad(ticket)}
+187:                 className="group relative rounded-xl border border-slate-800 bg-slate-800/50 hover:bg-slate-800 hover:border-amber-500/50 p-3.5 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-lg hover:shadow-amber-500/5"
+188:               >
+189:                 <div className="flex items-start justify-between gap-2">
+190:                   <div className="flex-1 min-w-0">
+191:                     <h4 className="text-xs font-bold text-slate-100 group-hover:text-amber-300 truncate transition-colors">
+192:                       {ticket.title}
+193:                     </h4>
+194:                     <p className="text-[11px] text-slate-400 truncate mt-0.5">
+195:                       {ticket.ticket_config.subtitle || ticket.ticket_config.eventName}
+196:                     </p>
+197:                   </div>
+198: 
+199:                   {/* Acciones */}
+200:                   <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+201:                     <button
+202:                       onClick={(e) => handleDuplicate(ticket, e)}
+203:                       title="Duplicar"
+204:                       className="text-slate-400 hover:text-amber-400 p-1 rounded hover:bg-slate-700/60"
+205:                     >
+206:                       <Copy className="h-3.5 w-3.5" />
+207:                     </button>
+208:                     <button
+209:                       onClick={(e) => handleDelete(ticket.id, e)}
+210:                       title="Eliminar"
+211:                       disabled={activeDeleteId === ticket.id}
+212:                       className="text-slate-400 hover:text-rose-400 p-1 rounded hover:bg-slate-700/60"
+213:                     >
+214:                       <Trash2 className="h-3.5 w-3.5" />
+215:                     </button>
+216:                   </div>
+217:                 </div>
+218: 
+219:                 {/* Metadata pills */}
+220:                 <div className="grid grid-cols-3 gap-2 mt-3 pt-2.5 border-t border-slate-700/40 text-[10px] text-slate-400">
+221:                   <div className="flex items-center gap-1 truncate">
+222:                     <Ticket className="h-3 w-3 text-amber-400 shrink-0" />
+223:                     <span>{ticket.ticket_config.totalTickets} tks</span>
+224:                   </div>
+225:                   <div className="flex items-center gap-1 truncate">
+226:                     <Trophy className="h-3 w-3 text-amber-400 shrink-0" />
+227:                     <span>{ticket.ticket_config.prizes?.length || 0} premios</span>
+228:                   </div>
+229:                   <div className="flex items-center gap-1 truncate font-mono text-amber-300 font-semibold">
+230:                     <span>{formatCurrency(ticket.ticket_config.price || 0)}</span>
+231:                   </div>
+232:                 </div>
+233: 
+234:                 {/* Botón Cargar */}
+235:                 <div className="mt-2.5 flex items-center justify-between text-[10px] text-slate-500 group-hover:text-amber-400 transition-colors">
+236:                   <span className="flex items-center gap-1">
+237:                     <Calendar className="h-2.5 w-2.5" />
+238:                     {new Date(ticket.updated_at).toLocaleDateString()}
+239:                   </span>
+240:                   <span className="flex items-center gap-0.5 font-medium">
+241:                     Cargar diseño <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+242:                   </span>
+243:                 </div>
+244:               </div>
+245:             ))
+246:           )}
+247:         </div>
+248: 
+249:         {/* Footer */}
+250:         <div className="p-3 border-t border-slate-800 bg-slate-900/90 text-center">
+251:           <p className="text-[10px] text-slate-500">
+252:             Los cambios se sincronizan en la nube y quedan disponibles en tu cuenta.
+253:           </p>
+254:         </div>
+255:       </div>
+256:     </div>
+257:   );
+258: }
+````
+
+## File: src/services/tickets-service.ts
+````typescript
+  1: import { getSupabase } from "@/lib/supabase";
+  2: import { TicketConfig, PrintConfig } from "@/types";
+  3: 
+  4: export interface SavedTicket {
+  5:   id: string;
+  6:   user_id?: string;
+  7:   title: string;
+  8:   ticket_config: TicketConfig;
+  9:   print_config: PrintConfig;
+ 10:   created_at: string;
+ 11:   updated_at: string;
+ 12: }
+ 13: 
+ 14: // Obtener el ID del usuario actualmente autenticado (Supabase o Demo)
+ 15: async function getCurrentUserId(): Promise<string | null> {
+ 16:   const supabase = getSupabase();
+ 17:   if (supabase) {
+ 18:     try {
+ 19:       const { data: { user } } = await supabase.auth.getUser();
+ 20:       if (user?.id) return user.id;
+ 21:     } catch (e) {
+ 22:       console.warn("Error al verificar usuario en Supabase:", e);
+ 23:     }
+ 24:   }
+ 25: 
+ 26:   // Fallback solo para usuario demo explícitamente logueado
+ 27:   if (typeof window !== "undefined") {
  28:     try {
- 29:       const { data } = await supabase
- 30:         .from("profiles")
- 31:         .select("full_name, plan, is_pro")
- 32:         .eq("id", baseUser.id)
- 33:         .single();
- 34: 
- 35:       if (data) {
- 36:         return {
- 37:           ...baseUser,
- 38:           name: data.full_name || baseUser.name,
- 39:           plan: data.plan || "free",
- 40:           isPro: data.is_pro || false,
- 41:         };
- 42:       }
- 43:     } catch {
- 44:       // Ignorar fallback silencioso
- 45:     }
- 46:     return baseUser;
- 47:   }, []);
- 48: 
- 49:   // Escuchar cambios de sesión de Supabase o cargar usuario demo local
- 50:   useEffect(() => {
- 51:     const supabase = getSupabase();
- 52: 
- 53:     if (supabase) {
- 54:       supabase.auth.getSession().then(async ({ data: { session } }) => {
- 55:         if (session?.user) {
- 56:           const base: AppUser = {
- 57:             id: session.user.id,
- 58:             email: session.user.email || "",
- 59:             name: session.user.user_metadata?.full_name || session.user.email?.split("@")[0],
- 60:           };
- 61:           const full = await syncProfile(base);
- 62:           setUser(full);
- 63:         }
- 64:         setLoading(false);
- 65:       });
- 66: 
- 67:       const { data: { subscription } } = supabase.auth.onAuthStateChange(
- 68:         async (_event, session) => {
- 69:           if (session?.user) {
- 70:             const base: AppUser = {
- 71:               id: session.user.id,
- 72:               email: session.user.email || "",
- 73:               name: session.user.user_metadata?.full_name || session.user.email?.split("@")[0],
- 74:             };
- 75:             const full = await syncProfile(base);
- 76:             setUser(full);
- 77:           } else {
- 78:             // Verificar si hay usuario demo
- 79:             const demo = localStorage.getItem(DEMO_USER_KEY);
- 80:             if (demo) {
- 81:               setUser(JSON.parse(demo));
- 82:             } else {
- 83:               setUser(null);
- 84:             }
- 85:           }
- 86:           setLoading(false);
- 87:         }
- 88:       );
- 89: 
- 90:       return () => {
- 91:         subscription.unsubscribe();
- 92:       };
- 93:     } else {
- 94:       // Modo local / demo
- 95:       if (typeof window !== "undefined") {
- 96:         const demo = localStorage.getItem(DEMO_USER_KEY);
- 97:         if (demo) {
- 98:           setUser(JSON.parse(demo));
- 99:         }
-100:       }
-101:       setLoading(false);
-102:     }
-103:   }, []);
-104: 
-105:   const signIn = useCallback(async (email: string, password: string): Promise<{ error: string | null }> => {
-106:     const supabase = getSupabase();
-107: 
-108:     if (!supabase) {
-109:       // Si Supabase no está configurado, loguear como demo
-110:       const demoUser: AppUser = {
-111:         id: "demo-user-123",
-112:         email,
-113:         name: email.split("@")[0],
-114:         isDemo: true,
-115:       };
-116:       localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser));
-117:       setUser(demoUser);
-118:       return { error: null };
-119:     }
+ 29:       const demo = localStorage.getItem("eventazo_demo_user");
+ 30:       if (demo) {
+ 31:         const parsed = JSON.parse(demo);
+ 32:         return parsed.id || null;
+ 33:       }
+ 34:     } catch {
+ 35:       return null;
+ 36:     }
+ 37:   }
+ 38: 
+ 39:   return null;
+ 40: }
+ 41: 
+ 42: // Almacenamiento local aislado estrictamente por ID de usuario (solo para modo demo offline)
+ 43: function getUserScopedLocalKey(userId: string): string {
+ 44:   return `eventazo_saved_tickets_${userId}`;
+ 45: }
+ 46: 
+ 47: function getLocalUserTickets(userId: string): SavedTicket[] {
+ 48:   if (typeof window === "undefined") return [];
+ 49:   try {
+ 50:     const raw = localStorage.getItem(getUserScopedLocalKey(userId));
+ 51:     return raw ? JSON.parse(raw) : [];
+ 52:   } catch {
+ 53:     return [];
+ 54:   }
+ 55: }
+ 56: 
+ 57: function saveLocalUserTickets(userId: string, tickets: SavedTicket[]) {
+ 58:   if (typeof window === "undefined") return;
+ 59:   try {
+ 60:     localStorage.setItem(getUserScopedLocalKey(userId), JSON.stringify(tickets));
+ 61:   } catch (e) {
+ 62:     console.error("Error al persistir rifas locales:", e);
+ 63:   }
+ 64: }
+ 65: 
+ 66: /**
+ 67:  * Obtener las rifas guardadas del usuario autenticado.
+ 68:  * Si NO hay sesión activa, retorna siempre [] (las rifas son privadas y por usuario).
+ 69:  */
+ 70: export async function getSavedTickets(): Promise<SavedTicket[]> {
+ 71:   const supabase = getSupabase();
+ 72:   const userId = await getCurrentUserId();
+ 73: 
+ 74:   // Si no está autenticado, no hay rifas para mostrar (aislamiento por usuario)
+ 75:   if (!userId) {
+ 76:     return [];
+ 77:   }
+ 78: 
+ 79:   if (supabase && !userId.startsWith("demo-")) {
+ 80:     try {
+ 81:       const { data, error } = await supabase
+ 82:         .from("saved_tickets")
+ 83:         .select("*")
+ 84:         .eq("user_id", userId)
+ 85:         .order("updated_at", { ascending: false });
+ 86: 
+ 87:       if (!error && data) {
+ 88:         return data as SavedTicket[];
+ 89:       }
+ 90:       if (error) {
+ 91:         console.error("Error al consultar rifas de Supabase:", error.message);
+ 92:       }
+ 93:     } catch (e) {
+ 94:       console.warn("Excepción al consultar Supabase:", e);
+ 95:     }
+ 96:   }
+ 97: 
+ 98:   // Fallback aislado estrictamente a este usuario específico
+ 99:   return getLocalUserTickets(userId);
+100: }
+101: 
+102: /**
+103:  * Guardar o actualizar una rifa en la cuenta del usuario autenticado.
+104:  * Requiere estrictamente que el usuario esté logueado.
+105:  */
+106: export async function saveTicketDesign(
+107:   title: string,
+108:   ticketConfig: TicketConfig,
+109:   printConfig: PrintConfig,
+110:   existingId?: string
+111: ): Promise<SavedTicket> {
+112:   const supabase = getSupabase();
+113:   const userId = await getCurrentUserId();
+114: 
+115:   if (!userId) {
+116:     throw new Error("Debes iniciar sesión para guardar tus rifas en tu cuenta.");
+117:   }
+118: 
+119:   const now = new Date().toISOString();
 120: 
-121:     try {
-122:       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-123:       if (error) return { error: error.message };
-124:       if (data.user) {
-125:         setUser({
-126:           id: data.user.id,
-127:           email: data.user.email || "",
-128:           name: data.user.user_metadata?.full_name || data.user.email?.split("@")[0],
-129:         });
-130:       }
-131:       return { error: null };
-132:     } catch (e) {
-133:       return { error: e instanceof Error ? e.message : "Error al iniciar sesión" };
-134:     }
-135:   }, []);
+121:   if (supabase && !userId.startsWith("demo-")) {
+122:     try {
+123:       if (existingId) {
+124:         const { data, error } = await supabase
+125:           .from("saved_tickets")
+126:           .update({
+127:             title,
+128:             ticket_config: ticketConfig,
+129:             print_config: printConfig,
+130:             updated_at: now,
+131:           })
+132:           .eq("id", existingId)
+133:           .eq("user_id", userId)
+134:           .select()
+135:           .single();
 136: 
-137:   const signUp = useCallback(async (email: string, password: string): Promise<{ error: string | null; message?: string }> => {
-138:     const supabase = getSupabase();
-139: 
-140:     if (!supabase) {
-141:       const demoUser: AppUser = {
-142:         id: "demo-user-123",
-143:         email,
-144:         name: email.split("@")[0],
-145:         isDemo: true,
-146:       };
-147:       localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser));
-148:       setUser(demoUser);
-149:       return { error: null, message: "Cuenta demo creada exitosamente" };
-150:     }
-151: 
-152:     try {
-153:       const { data, error } = await supabase.auth.signUp({
-154:         email,
-155:         password,
-156:       });
-157:       if (error) return { error: error.message };
-158:       if (data.user) {
-159:         setUser({
-160:           id: data.user.id,
-161:           email: data.user.email || "",
-162:           name: data.user.user_metadata?.full_name || data.user.email?.split("@")[0],
-163:         });
-164:       }
-165:       return { error: null, message: "Revisa tu correo para confirmar tu cuenta si es requerido" };
-166:     } catch (e) {
-167:       return { error: e instanceof Error ? e.message : "Error al registrarse" };
-168:     }
-169:   }, []);
-170: 
-171:   const signInDemo = useCallback(() => {
-172:     const demoUser: AppUser = {
-173:       id: "demo-pro-user",
-174:       email: "demo@eventazo.pro",
-175:       name: "Usuario Pro (Demo)",
-176:       isDemo: true,
-177:     };
-178:     localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser));
-179:     setUser(demoUser);
-180:   }, []);
-181: 
-182:   const updateProfile = useCallback(async (newName: string, newEmail?: string): Promise<{ error: string | null; message?: string }> => {
-183:     const supabase = getSupabase();
-184: 
-185:     if (!supabase || user?.isDemo) {
-186:       const updated: AppUser = {
-187:         id: user?.id || "demo-user",
-188:         email: newEmail || user?.email || "",
-189:         name: newName,
-190:         isDemo: true,
-191:       };
-192:       localStorage.setItem(DEMO_USER_KEY, JSON.stringify(updated));
-193:       setUser(updated);
-194:       return { error: null, message: "Perfil actualizado exitosamente" };
-195:     }
-196: 
-197:     try {
-198:       const updateData: { data?: { full_name: string }; email?: string } = {
-199:         data: { full_name: newName },
-200:       };
-201:       if (newEmail && newEmail !== user?.email) {
-202:         updateData.email = newEmail;
-203:       }
-204: 
-205:       const { data, error } = await supabase.auth.updateUser(updateData);
-206:       if (error) return { error: error.message };
-207: 
-208:       // Actualizar también la tabla pública profiles
-209:       try {
-210:         const targetId = user?.id || data.user.id;
-211:         if (targetId) {
-212:           await supabase
-213:             .from("profiles")
-214:             .update({
-215:               full_name: newName,
-216:               ...(newEmail ? { email: newEmail } : {}),
-217:               updated_at: new Date().toISOString(),
-218:             })
-219:             .eq("id", targetId);
-220:         }
-221:       } catch (e) {
-222:         console.warn("No se pudo actualizar profiles:", e);
-223:       }
-224: 
-225:       if (data.user) {
-226:         setUser((prev) =>
-227:           prev
-228:             ? {
-229:                 ...prev,
-230:                 email: data.user.email || prev.email,
-231:                 name: data.user.user_metadata?.full_name || newName,
-232:               }
-233:             : null
-234:         );
-235:       }
-236: 
-237:       return {
-238:         error: null,
-239:         message: newEmail && newEmail !== user?.email
-240:           ? "Perfil actualizado. Se envió un correo de confirmación al nuevo email."
-241:           : "Perfil actualizado exitosamente",
-242:       };
-243:     } catch (e) {
-244:       return { error: e instanceof Error ? e.message : "Error al actualizar perfil" };
-245:     }
-246:   }, [user]);
-247: 
-248:   const updatePassword = useCallback(async (newPassword: string): Promise<{ error: string | null }> => {
-249:     const supabase = getSupabase();
-250: 
-251:     if (!supabase || user?.isDemo) {
-252:       return { error: null };
-253:     }
-254: 
-255:     try {
-256:       const { error } = await supabase.auth.updateUser({ password: newPassword });
-257:       if (error) return { error: error.message };
-258:       return { error: null };
-259:     } catch (e) {
-260:       return { error: e instanceof Error ? e.message : "Error al cambiar contraseña" };
-261:     }
-262:   }, [user]);
-263: 
-264:   const signOut = useCallback(async () => {
-265:     const supabase = getSupabase();
-266:     if (supabase) {
-267:       await supabase.auth.signOut();
-268:     }
-269:     localStorage.removeItem(DEMO_USER_KEY);
-270:     setUser(null);
-271:   }, []);
-272: 
-273:   return {
-274:     user,
-275:     loading,
-276:     isConfigured,
-277:     signIn,
-278:     signUp,
-279:     signInDemo,
-280:     updateProfile,
-281:     updatePassword,
-282:     signOut,
-283:   };
-284: }
+137:         if (error) throw error;
+138:         if (data) return data as SavedTicket;
+139:       } else {
+140:         const { data, error } = await supabase
+141:           .from("saved_tickets")
+142:           .insert({
+143:             user_id: userId,
+144:             title,
+145:             ticket_config: ticketConfig,
+146:             print_config: printConfig,
+147:             created_at: now,
+148:             updated_at: now,
+149:           })
+150:           .select()
+151:           .single();
+152: 
+153:         if (error) throw error;
+154:         if (data) return data as SavedTicket;
+155:       }
+156:     } catch (e) {
+157:       console.error("Error guardando en Supabase:", e);
+158:       throw e;
+159:     }
+160:   }
+161: 
+162:   // Fallback demo aislado
+163:   const current = getLocalUserTickets(userId);
+164:   if (existingId) {
+165:     const idx = current.findIndex((t) => t.id === existingId);
+166:     if (idx !== -1) {
+167:       const updated: SavedTicket = {
+168:         ...current[idx],
+169:         title,
+170:         ticket_config: ticketConfig,
+171:         print_config: printConfig,
+172:         updated_at: now,
+173:       };
+174:       current[idx] = updated;
+175:       saveLocalUserTickets(userId, current);
+176:       return updated;
+177:     }
+178:   }
+179: 
+180:   const newTicket: SavedTicket = {
+181:     id: `ticket-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+182:     user_id: userId,
+183:     title,
+184:     ticket_config: ticketConfig,
+185:     print_config: printConfig,
+186:     created_at: now,
+187:     updated_at: now,
+188:   };
+189:   current.unshift(newTicket);
+190:   saveLocalUserTickets(userId, current);
+191:   return newTicket;
+192: }
+193: 
+194: /**
+195:  * Eliminar una rifa guardada perteneciente al usuario autenticado.
+196:  */
+197: export async function deleteSavedTicket(id: string): Promise<boolean> {
+198:   const supabase = getSupabase();
+199:   const userId = await getCurrentUserId();
+200: 
+201:   if (!userId) return false;
+202: 
+203:   if (supabase && !userId.startsWith("demo-")) {
+204:     try {
+205:       const { error } = await supabase
+206:         .from("saved_tickets")
+207:         .delete()
+208:         .eq("id", id)
+209:         .eq("user_id", userId);
+210: 
+211:       if (!error) return true;
+212:     } catch (e) {
+213:       console.error("Error eliminando en Supabase:", e);
+214:     }
+215:   }
+216: 
+217:   const current = getLocalUserTickets(userId).filter((t) => t.id !== id);
+218:   saveLocalUserTickets(userId, current);
+219:   return true;
+220: }
+221: 
+222: /**
+223:  * Duplicar una rifa guardada del usuario autenticado.
+224:  */
+225: export async function duplicateSavedTicket(ticket: SavedTicket): Promise<SavedTicket> {
+226:   const newTitle = `${ticket.title} (Copia)`;
+227:   return saveTicketDesign(newTitle, ticket.ticket_config, ticket.print_config);
+228: }
+````
+
+## File: src/store/useRifaStore.ts
+````typescript
+ 1: import { create } from "zustand";
+ 2: import { TicketConfig, PrintConfig, GenerationProgress, TemplateImage } from "@/types";
+ 3: import { DEFAULT_TICKET_CONFIG, DEFAULT_PRINT_CONFIG, EMPTY_TICKET_CONFIG } from "@/lib/constants";
+ 4: 
+ 5: interface RifaState {
+ 6:   // Config
+ 7:   ticketConfig: TicketConfig;
+ 8:   printConfig: PrintConfig;
+ 9:   templateImage: TemplateImage | null;
+10: 
+11:   // Generation
+12:   progress: GenerationProgress;
+13:   generatedPdfUrl: string | null;
+14:   isGenerating: boolean;
+15: 
+16:   // UI
+17:   darkMode: boolean;
+18:   previewTicketNumber: number;
+19:   activeTab: "config" | "preview" | "generate";
+20: 
+21:   // Actions
+22:   setTicketConfig: (config: Partial<TicketConfig>) => void;
+23:   setPrintConfig: (config: Partial<PrintConfig>) => void;
+24:   setTemplateImage: (image: TemplateImage | null) => void;
+25:   setProgress: (progress: Partial<GenerationProgress>) => void;
+26:   setGeneratedPdfUrl: (url: string | null) => void;
+27:   setIsGenerating: (generating: boolean) => void;
+28:   setDarkMode: (dark: boolean) => void;
+29:   setPreviewTicketNumber: (num: number) => void;
+30:   setActiveTab: (tab: "config" | "preview" | "generate") => void;
+31:   resetConfig: () => void;
+32:   clearConfig: () => void;
+33: }
+34: 
+35: export const useRifaStore = create<RifaState>((set) => ({
+36:   ticketConfig: DEFAULT_TICKET_CONFIG,
+37:   printConfig: DEFAULT_PRINT_CONFIG,
+38:   templateImage: null,
+39: 
+40:   progress: {
+41:     current: 0,
+42:     total: 0,
+43:     percentage: 0,
+44:     status: "idle",
+45:     message: "",
+46:   },
+47:   generatedPdfUrl: null,
+48:   isGenerating: false,
+49: 
+50:   darkMode: true,
+51:   previewTicketNumber: 1,
+52:   activeTab: "config",
+53: 
+54:   setTicketConfig: (config) =>
+55:     set((state) => ({
+56:       ticketConfig: { ...state.ticketConfig, ...config },
+57:     })),
+58: 
+59:   setPrintConfig: (config) =>
+60:     set((state) => ({
+61:       printConfig: { ...state.printConfig, ...config },
+62:     })),
+63: 
+64:   setTemplateImage: (image) => set({ templateImage: image }),
+65: 
+66:   setProgress: (progress) =>
+67:     set((state) => ({
+68:       progress: { ...state.progress, ...progress },
+69:     })),
+70: 
+71:   setGeneratedPdfUrl: (url) => set({ generatedPdfUrl: url }),
+72:   setIsGenerating: (generating) => set({ isGenerating: generating }),
+73:   setDarkMode: (dark) => set({ darkMode: dark }),
+74:   setPreviewTicketNumber: (num) => set({ previewTicketNumber: num }),
+75:   setActiveTab: (tab) => set({ activeTab: tab }),
+76: 
+77:   resetConfig: () =>
+78:     set({
+79:       ticketConfig: DEFAULT_TICKET_CONFIG,
+80:       printConfig: DEFAULT_PRINT_CONFIG,
+81:       templateImage: null,
+82:       progress: {
+83:         current: 0,
+84:         total: 0,
+85:         percentage: 0,
+86:         status: "idle",
+87:         message: "",
+88:       },
+89:       generatedPdfUrl: null,
+90:     }),
+91: 
+92:   clearConfig: () =>
+93:     set({
+94:       ticketConfig: EMPTY_TICKET_CONFIG,
+95:       templateImage: null,
+96:       generatedPdfUrl: null,
+97:     }),
+98: }));
 ````
 
 ## File: package.json
@@ -3992,6 +3718,294 @@ tsconfig.json
 148: }
 ````
 
+## File: src/hooks/useAuth.ts
+````typescript
+  1: "use client";
+  2: 
+  3: import { useState, useEffect, useCallback } from "react";
+  4: import { getSupabase, isSupabaseConfigured } from "@/lib/supabase";
+  5: import { User } from "@supabase/supabase-js";
+  6: 
+  7: export interface AppUser {
+  8:   id: string;
+  9:   email: string;
+ 10:   name?: string;
+ 11:   isDemo?: boolean;
+ 12:   plan?: string;
+ 13:   isPro?: boolean;
+ 14: }
+ 15: 
+ 16: const DEMO_USER_KEY = "eventazo_demo_user";
+ 17: 
+ 18: export function useAuth() {
+ 19:   const [user, setUser] = useState<AppUser | null>(null);
+ 20:   const [loading, setLoading] = useState(true);
+ 21:   const isConfigured = isSupabaseConfigured();
+ 22: 
+ 23:   // Cargar datos extendidos desde public.profiles
+ 24:   const syncProfile = useCallback(async (baseUser: AppUser) => {
+ 25:     const supabase = getSupabase();
+ 26:     if (!supabase || baseUser.isDemo) return baseUser;
+ 27: 
+ 28:     try {
+ 29:       const { data } = await supabase
+ 30:         .from("profiles")
+ 31:         .select("full_name, plan, is_pro")
+ 32:         .eq("id", baseUser.id)
+ 33:         .single();
+ 34: 
+ 35:       if (data) {
+ 36:         return {
+ 37:           ...baseUser,
+ 38:           name: data.full_name || baseUser.name,
+ 39:           plan: data.plan || "free",
+ 40:           isPro: data.is_pro || false,
+ 41:         };
+ 42:       }
+ 43:     } catch {
+ 44:       // Ignorar fallback silencioso
+ 45:     }
+ 46:     return baseUser;
+ 47:   }, []);
+ 48: 
+ 49:   // Escuchar cambios de sesión de Supabase o cargar usuario demo local
+ 50:   useEffect(() => {
+ 51:     const supabase = getSupabase();
+ 52: 
+ 53:     if (supabase) {
+ 54:       supabase.auth.getSession().then(async ({ data: { session } }) => {
+ 55:         if (session?.user) {
+ 56:           const base: AppUser = {
+ 57:             id: session.user.id,
+ 58:             email: session.user.email || "",
+ 59:             name: session.user.user_metadata?.full_name || session.user.email?.split("@")[0],
+ 60:           };
+ 61:           const full = await syncProfile(base);
+ 62:           setUser(full);
+ 63:         }
+ 64:         setLoading(false);
+ 65:       });
+ 66: 
+ 67:       const { data: { subscription } } = supabase.auth.onAuthStateChange(
+ 68:         async (_event, session) => {
+ 69:           if (session?.user) {
+ 70:             const base: AppUser = {
+ 71:               id: session.user.id,
+ 72:               email: session.user.email || "",
+ 73:               name: session.user.user_metadata?.full_name || session.user.email?.split("@")[0],
+ 74:             };
+ 75:             const full = await syncProfile(base);
+ 76:             setUser(full);
+ 77:           } else {
+ 78:             // Verificar si hay usuario demo
+ 79:             const demo = localStorage.getItem(DEMO_USER_KEY);
+ 80:             if (demo) {
+ 81:               setUser(JSON.parse(demo));
+ 82:             } else {
+ 83:               setUser(null);
+ 84:             }
+ 85:           }
+ 86:           setLoading(false);
+ 87:         }
+ 88:       );
+ 89: 
+ 90:       return () => {
+ 91:         subscription.unsubscribe();
+ 92:       };
+ 93:     } else {
+ 94:       // Modo local / demo
+ 95:       if (typeof window !== "undefined") {
+ 96:         const demo = localStorage.getItem(DEMO_USER_KEY);
+ 97:         if (demo) {
+ 98:           setUser(JSON.parse(demo));
+ 99:         }
+100:       }
+101:       setLoading(false);
+102:     }
+103:   }, []);
+104: 
+105:   const signIn = useCallback(async (email: string, password: string): Promise<{ error: string | null }> => {
+106:     const supabase = getSupabase();
+107: 
+108:     if (!supabase) {
+109:       // Si Supabase no está configurado, loguear como demo
+110:       const demoUser: AppUser = {
+111:         id: "demo-user-123",
+112:         email,
+113:         name: email.split("@")[0],
+114:         isDemo: true,
+115:       };
+116:       localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser));
+117:       setUser(demoUser);
+118:       return { error: null };
+119:     }
+120: 
+121:     try {
+122:       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+123:       if (error) return { error: error.message };
+124:       if (data.user) {
+125:         setUser({
+126:           id: data.user.id,
+127:           email: data.user.email || "",
+128:           name: data.user.user_metadata?.full_name || data.user.email?.split("@")[0],
+129:         });
+130:       }
+131:       return { error: null };
+132:     } catch (e) {
+133:       return { error: e instanceof Error ? e.message : "Error al iniciar sesión" };
+134:     }
+135:   }, []);
+136: 
+137:   const signUp = useCallback(async (email: string, password: string): Promise<{ error: string | null; message?: string }> => {
+138:     const supabase = getSupabase();
+139: 
+140:     if (!supabase) {
+141:       const demoUser: AppUser = {
+142:         id: "demo-user-123",
+143:         email,
+144:         name: email.split("@")[0],
+145:         isDemo: true,
+146:       };
+147:       localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser));
+148:       setUser(demoUser);
+149:       return { error: null, message: "Cuenta demo creada exitosamente" };
+150:     }
+151: 
+152:     try {
+153:       const { data, error } = await supabase.auth.signUp({
+154:         email,
+155:         password,
+156:       });
+157:       if (error) return { error: error.message };
+158:       if (data.user) {
+159:         setUser({
+160:           id: data.user.id,
+161:           email: data.user.email || "",
+162:           name: data.user.user_metadata?.full_name || data.user.email?.split("@")[0],
+163:         });
+164:       }
+165:       return { error: null, message: "Revisa tu correo para confirmar tu cuenta si es requerido" };
+166:     } catch (e) {
+167:       return { error: e instanceof Error ? e.message : "Error al registrarse" };
+168:     }
+169:   }, []);
+170: 
+171:   const signInDemo = useCallback(() => {
+172:     const demoUser: AppUser = {
+173:       id: "demo-pro-user",
+174:       email: "demo@eventazo.pro",
+175:       name: "Usuario Pro (Demo)",
+176:       isDemo: true,
+177:     };
+178:     localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser));
+179:     setUser(demoUser);
+180:   }, []);
+181: 
+182:   const updateProfile = useCallback(async (newName: string, newEmail?: string): Promise<{ error: string | null; message?: string }> => {
+183:     const supabase = getSupabase();
+184: 
+185:     if (!supabase || user?.isDemo) {
+186:       const updated: AppUser = {
+187:         id: user?.id || "demo-user",
+188:         email: newEmail || user?.email || "",
+189:         name: newName,
+190:         isDemo: true,
+191:       };
+192:       localStorage.setItem(DEMO_USER_KEY, JSON.stringify(updated));
+193:       setUser(updated);
+194:       return { error: null, message: "Perfil actualizado exitosamente" };
+195:     }
+196: 
+197:     try {
+198:       const updateData: { data?: { full_name: string }; email?: string } = {
+199:         data: { full_name: newName },
+200:       };
+201:       if (newEmail && newEmail !== user?.email) {
+202:         updateData.email = newEmail;
+203:       }
+204: 
+205:       const { data, error } = await supabase.auth.updateUser(updateData);
+206:       if (error) return { error: error.message };
+207: 
+208:       // Actualizar también la tabla pública profiles
+209:       try {
+210:         const targetId = user?.id || data.user.id;
+211:         if (targetId) {
+212:           await supabase
+213:             .from("profiles")
+214:             .update({
+215:               full_name: newName,
+216:               ...(newEmail ? { email: newEmail } : {}),
+217:               updated_at: new Date().toISOString(),
+218:             })
+219:             .eq("id", targetId);
+220:         }
+221:       } catch (e) {
+222:         console.warn("No se pudo actualizar profiles:", e);
+223:       }
+224: 
+225:       if (data.user) {
+226:         setUser((prev) =>
+227:           prev
+228:             ? {
+229:                 ...prev,
+230:                 email: data.user.email || prev.email,
+231:                 name: data.user.user_metadata?.full_name || newName,
+232:               }
+233:             : null
+234:         );
+235:       }
+236: 
+237:       return {
+238:         error: null,
+239:         message: newEmail && newEmail !== user?.email
+240:           ? "Perfil actualizado. Se envió un correo de confirmación al nuevo email."
+241:           : "Perfil actualizado exitosamente",
+242:       };
+243:     } catch (e) {
+244:       return { error: e instanceof Error ? e.message : "Error al actualizar perfil" };
+245:     }
+246:   }, [user]);
+247: 
+248:   const updatePassword = useCallback(async (newPassword: string): Promise<{ error: string | null }> => {
+249:     const supabase = getSupabase();
+250: 
+251:     if (!supabase || user?.isDemo) {
+252:       return { error: null };
+253:     }
+254: 
+255:     try {
+256:       const { error } = await supabase.auth.updateUser({ password: newPassword });
+257:       if (error) return { error: error.message };
+258:       return { error: null };
+259:     } catch (e) {
+260:       return { error: e instanceof Error ? e.message : "Error al cambiar contraseña" };
+261:     }
+262:   }, [user]);
+263: 
+264:   const signOut = useCallback(async () => {
+265:     const supabase = getSupabase();
+266:     if (supabase) {
+267:       await supabase.auth.signOut();
+268:     }
+269:     localStorage.removeItem(DEMO_USER_KEY);
+270:     setUser(null);
+271:   }, []);
+272: 
+273:   return {
+274:     user,
+275:     loading,
+276:     isConfigured,
+277:     signIn,
+278:     signUp,
+279:     signInDemo,
+280:     updateProfile,
+281:     updatePassword,
+282:     signOut,
+283:   };
+284: }
+````
+
 ## File: src/lib/utils.ts
 ````typescript
   1: import { type ClassValue, clsx } from "clsx";
@@ -4156,727 +4170,1114 @@ tsconfig.json
  25:   Scissors
  26: } from "lucide-react";
  27: import { Button } from "@/components/ui/button";
- 28: import { AuthModal } from "@/components/auth/AuthModal";
- 29: import { useAuth } from "@/hooks/useAuth";
- 30: import { formatCurrency } from "@/lib/utils";
- 31: 
- 32: export default function LandingPage() {
- 33:   const [isAuthOpen, setIsAuthOpen] = useState(false);
- 34:   const { user } = useAuth();
+ 28: import { Header } from "@/components/Header";
+ 29: import { formatCurrency } from "@/lib/utils";
+ 30: 
+ 31: export default function LandingPage() {
+ 32:   // Estados de la Calculadora de Recaudación y Ahorro
+ 33:   const [calcTickets, setCalcTickets] = useState(600);
+ 34:   const [calcPrice, setCalcPrice] = useState(2500);
  35: 
- 36:   // Estados de la Calculadora de Recaudación y Ahorro
- 37:   const [calcTickets, setCalcTickets] = useState(600);
- 38:   const [calcPrice, setCalcPrice] = useState(2500);
- 39: 
- 40:   // Cálculos matemáticos transparentes y 100% reales
- 41:   const { totalRaised, standardSheets, eventazoSheets, sheetsSaved, percentSaved } = useMemo(() => {
- 42:     const raised = calcTickets * calcPrice;
- 43:     // En A4 horizontal estándar entran 5 tickets por hoja (1 columna de 5 filas de 130x50mm)
- 44:     // Con Eventazo lateral vertical entran 5 horizontales + 2 verticales = 7 tickets por hoja
- 45:     const stdSheets = Math.ceil(calcTickets / 5);
- 46:     const evSheets = Math.ceil(calcTickets / 7);
- 47:     const saved = Math.max(0, stdSheets - evSheets);
- 48:     const percent = stdSheets > 0 ? Math.round((saved / stdSheets) * 100) : 0;
+ 36:   // Cálculos matemáticos transparentes y 100% reales
+ 37:   const { totalRaised, standardSheets, eventazoSheets, sheetsSaved, percentSaved } = useMemo(() => {
+ 38:     const raised = calcTickets * calcPrice;
+ 39:     // En A4 horizontal estándar entran 5 tickets por hoja (1 columna de 5 filas de 130x50mm)
+ 40:     // Con Eventazo lateral vertical entran 5 horizontales + 2 verticales = 7 tickets por hoja
+ 41:     const stdSheets = Math.ceil(calcTickets / 5);
+ 42:     const evSheets = Math.ceil(calcTickets / 7);
+ 43:     const saved = Math.max(0, stdSheets - evSheets);
+ 44:     const percent = stdSheets > 0 ? Math.round((saved / stdSheets) * 100) : 0;
+ 45: 
+ 46:     return {
+ 47:       totalRaised: raised,
+ 48:       standardSheets: stdSheets,
+ 49:       eventazoSheets: evSheets,
+ 50:       sheetsSaved: saved,
+ 51:       percentSaved: percent,
+ 52:     };
+ 53:   }, [calcTickets, calcPrice]);
+ 54: 
+ 55:   return (
+ 56:     <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-amber-500 selection:text-slate-950">
+ 57:       {/* 1. NAVBAR UNIVERSAL UNIFICADA */}
+ 58:       <Header />
+ 59: 
+ 60: 
+ 61:       {/* ============================================================ */}
+ 62:       {/* 2. HERO SECTION CON ALTO IMPACTO                            */}
+ 63:       {/* ============================================================ */}
+ 64:       <section className="relative overflow-hidden pt-12 pb-20 sm:pt-20 sm:pb-28">
+ 65:         {/* Luces de fondo decorativas */}
+ 66:         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-amber-500/15 to-amber-300/10 blur-[130px] rounded-full pointer-events-none" />
+ 67: 
+ 68:         <div className="container mx-auto px-4 sm:px-6 relative z-10 text-center max-w-4xl">
+ 69:           {/* Badge de confianza */}
+ 70:           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-amber-500/10 border border-amber-500/30 text-amber-300 mb-6 shadow-inner animate-in fade-in slide-in-from-bottom-2">
+ 71:             <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+ 72:             <span>El generador inteligente para imprimir rifas en hojas A4</span>
+ 73:           </div>
+ 74: 
+ 75:           {/* Título Principal */}
+ 76:           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.15] text-slate-100">
+ 77:             Diseña, numera e imprime planchas de rifas{" "}
+ 78:             <span className="bg-gradient-to-r from-amber-400 via-amber-200 to-amber-500 bg-clip-text text-transparent">
+ 79:               sin desperdiciar papel
+ 80:             </span>
+ 81:           </h1>
+ 82: 
+ 83:           {/* Subtítulo enfocado en dolores reales */}
+ 84:           <p className="mt-5 text-sm sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
+ 85:             Olvídate de pegar números manualmente en Word o Canva. Eventazo acomoda automáticamente{" "}
+ 86:             <strong className="text-slate-200 font-semibold">tickets horizontales y verticales</strong> en la misma hoja A4, genera talones de control desprendibles y te entrega un PDF vectorial listo para imprimir.
+ 87:           </p>
+ 88: 
+ 89:           {/* CTAs */}
+ 90:           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+ 91:             <Link href="/editor" className="w-full sm:w-auto">
+ 92:               <Button
+ 93:                 size="lg"
+ 94:                 className="w-full sm:w-auto bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black text-sm h-12 px-7 rounded-2xl shadow-xl shadow-amber-500/30 flex items-center justify-center gap-2 group"
+ 95:               >
+ 96:                 <span>Diseñar Mi Rifa Ahora</span>
+ 97:                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+ 98:               </Button>
+ 99:             </Link>
+100: 
+101:             <a href="#calculadora" className="w-full sm:w-auto">
+102:               <Button
+103:                 variant="outline"
+104:                 size="lg"
+105:                 className="w-full sm:w-auto border-slate-700 bg-slate-900/80 hover:bg-slate-800 text-slate-200 text-sm h-12 px-6 rounded-2xl flex items-center justify-center gap-2"
+106:               >
+107:                 <Calculator className="h-4 w-4 text-amber-400" />
+108:                 <span>Calcular Ahorro de Hojas</span>
+109:               </Button>
+110:             </a>
+111:           </div>
+112: 
+113:           <p className="mt-3 text-[11px] text-slate-500">
+114:             No requiere tarjeta de crédito • 100% funcional en navegador • Exportación directa en PDF
+115:           </p>
+116: 
+117:           {/* ============================================================ */}
+118:           {/* 3. MÉTRICAS 100% REALES Y TÉCNICAS (SIN VANIDAD)            */}
+119:           {/* ============================================================ */}
+120:           <div className="mt-14 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 text-left">
+121:             <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4 backdrop-blur-sm">
+122:               <p className="text-2xl sm:text-3xl font-black text-amber-400 font-mono">0%</p>
+123:               <h4 className="text-xs font-bold text-slate-200 mt-1">Error de Correlatividad</h4>
+124:               <p className="text-[10px] text-slate-400 mt-0.5">
+125:                 Numeración continua garantizada matemáticamente sin saltos ni duplicados.
+126:               </p>
+127:             </div>
+128: 
+129:             <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4 backdrop-blur-sm">
+130:               <p className="text-2xl sm:text-3xl font-black text-amber-400 font-mono">+40%</p>
+131:               <h4 className="text-xs font-bold text-slate-200 mt-1">Aprovechamiento de Hoja</h4>
+132:               <p className="text-[10px] text-slate-400 mt-0.5">
+133:                 Exprime el lateral derecho de la hoja A4 con tickets verticales girados 90°.
+134:               </p>
+135:             </div>
+136: 
+137:             <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4 backdrop-blur-sm">
+138:               <p className="text-2xl sm:text-3xl font-black text-amber-400 font-mono">100%</p>
+139:               <h4 className="text-xs font-bold text-slate-200 mt-1">Fidelidad Vectorial</h4>
+140:               <p className="text-[10px] text-slate-400 mt-0.5">
+141:                 Textos nítidos con operadores nativos, sin píxeles borrosos al fotocopiar.
+142:               </p>
+143:             </div>
+144: 
+145:             <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4 backdrop-blur-sm">
+146:               <p className="text-2xl sm:text-3xl font-black text-amber-400 font-mono">&lt; 3 seg</p>
+147:               <h4 className="text-xs font-bold text-slate-200 mt-1">Generación Multipágina</h4>
+148:               <p className="text-[10px] text-slate-400 mt-0.5">
+149:                 Compilación instantánea en tu navegador lista para imprimir en casa o imprenta.
+150:               </p>
+151:             </div>
+152:           </div>
+153:         </div>
+154:       </section>
+155: 
+156:       {/* ============================================================ */}
+157:       {/* 4. MOCKUP VISUAL INTERACTIVO: EL BOLETO Y LA HOJA A4        */}
+158:       {/* ============================================================ */}
+159:       <section className="py-12 border-y border-slate-800/80 bg-slate-900/30">
+160:         <div className="container mx-auto px-4 sm:px-6 max-w-5xl">
+161:           <div className="text-center mb-8">
+162:             <h3 className="text-xs uppercase tracking-widest text-amber-400 font-bold mb-1">
+163:               Anatomía de un Boleto de Rifa Profesional
+164:             </h3>
+165:             <p className="text-xl sm:text-2xl font-black text-slate-100">
+166:               Diseñado específicamente para cortar, talonear y vender
+167:             </p>
+168:           </div>
+169: 
+170:           {/* Tarjeta del Boleto Ilustrado */}
+171:           <div className="rounded-2xl border border-slate-700/80 bg-slate-900/90 p-4 sm:p-6 shadow-2xl">
+172:             {/* Boleto Horizontal Demo */}
+173:             <div className="rounded-xl border border-slate-600 bg-white text-slate-900 shadow-xl overflow-hidden flex flex-col sm:flex-row">
+174:               {/* Cuerpo Principal */}
+175:               <div className="flex-1 p-4 sm:p-5 flex flex-col justify-between border-b-2 sm:border-b-0 sm:border-r-2 border-dashed border-slate-300">
+176:                 <div>
+177:                   <div className="flex items-center justify-between gap-2">
+178:                     <span className="text-[10px] uppercase font-bold tracking-wider text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+179:                       Bono Contribución Solidario
+180:                     </span>
+181:                     <span className="text-[11px] font-semibold text-slate-500">
+182:                       Sorteo: 28 de Noviembre 2026
+183:                     </span>
+184:                   </div>
+185:                   <h4 className="text-lg sm:text-xl font-black text-slate-900 mt-2 leading-tight">
+186:                     Gran Rifa Anual Club Atlético & Social
+187:                   </h4>
+188:                   <p className="text-xs text-rose-800 font-bold italic mt-0.5">
+189:                     Subcomisión de Deporte Infantil • Obras en Sede
+190:                   </p>
+191: 
+192:                   {/* Lista de premios en columnas */}
+193:                   <div className="mt-3 p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs">
+194:                     <p className="text-[10px] font-bold uppercase tracking-wider text-slate-700 mb-1">
+195:                       Premios del Sorteo:
+196:                     </p>
+197:                     <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[11px] text-rose-800 font-medium italic">
+198:                       <p><strong className="not-italic text-slate-900">1°:</strong> Moto 110cc 0KM</p>
+199:                       <p><strong className="not-italic text-slate-900">2°:</strong> Smart TV 55&quot; 4K</p>
+200:                       <p><strong className="not-italic text-slate-900">3°:</strong> Heladera con Freezer</p>
+201:                       <p><strong className="not-italic text-slate-900">4°:</strong> Bicicleta Rodado 29</p>
+202:                     </div>
+203:                   </div>
+204:                 </div>
+205: 
+206:                 <div className="mt-4 pt-2.5 border-t border-slate-200 flex items-center justify-between">
+207:                   <span className="text-sm font-black text-slate-900">Valor: $ 3.000</span>
+208:                   <span className="text-lg sm:text-xl font-black font-mono text-rose-700">
+209:                     N° 0482
+210:                   </span>
+211:                 </div>
+212:               </div>
+213: 
+214:               {/* Talón de Control */}
+215:               <div className="w-full sm:w-64 bg-slate-50 p-4 sm:p-5 flex flex-col justify-between border-slate-200">
+216:                 <div>
+217:                   <div className="flex items-center justify-between">
+218:                     <span className="text-[10px] font-black uppercase text-slate-800 border-b border-slate-300 pb-0.5">
+219:                       Talón de Control
+220:                     </span>
+221:                     <Scissors className="h-3.5 w-3.5 text-slate-400 hidden sm:block" />
+222:                   </div>
+223: 
+224:                   <div className="mt-3 space-y-2 text-[11px]">
+225:                     <div>
+226:                       <span className="text-slate-600 block text-[10px] font-bold">Nombre y Apellido:</span>
+227:                       <div className="border-b border-slate-400 h-4 mt-0.5" />
+228:                     </div>
+229:                     <div>
+230:                       <span className="text-slate-600 block text-[10px] font-bold">Teléfono de Contacto:</span>
+231:                       <div className="border-b border-slate-400 h-4 mt-0.5" />
+232:                     </div>
+233:                   </div>
+234:                 </div>
+235: 
+236:                 <div className="mt-4 text-center pt-2 border-t border-slate-200">
+237:                   <span className="text-[10px] font-semibold text-slate-600">Valor: $ 3.000</span>
+238:                   <p className="text-base font-black font-mono text-rose-700">N° 0482</p>
+239:                 </div>
+240:               </div>
+241:             </div>
+242: 
+243:             {/* Guías explicativas */}
+244:             <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-center text-xs text-slate-400">
+245:               <div className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-slate-800/50 border border-slate-800">
+246:                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+247:                 <span>Micro-punteado para corte manual o guillotina</span>
+248:               </div>
+249:               <div className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-slate-800/50 border border-slate-800">
+250:                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+251:                 <span>Datos del comprador en talón para la urna</span>
+252:               </div>
+253:               <div className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-slate-800/50 border border-slate-800">
+254:                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+255:                 <span>Numeración coincidente en cuerpo y talón</span>
+256:               </div>
+257:             </div>
+258:           </div>
+259:         </div>
+260:       </section>
+261: 
+262:       {/* ============================================================ */}
+263:       {/* 5. CALCULADORA INTERACTIVA DE RECAUDACIÓN Y PAPEL           */}
+264:       {/* ============================================================ */}
+265:       <section id="calculadora" className="py-16 sm:py-24">
+266:         <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
+267:           <div className="text-center mb-10">
+268:             <span className="text-xs uppercase tracking-widest text-amber-400 font-bold">
+269:               Herramienta de Simulación Real
+270:             </span>
+271:             <h3 className="text-2xl sm:text-4xl font-black text-slate-100 mt-1">
+272:               Calcula la recaudación de tu rifa y el ahorro de papel
+273:             </h3>
+274:             <p className="text-sm text-slate-400 mt-2 max-w-xl mx-auto">
+275:               Simula tus números y comprueba exactamente cuántas hojas A4 necesitas y cuánto dinero generará tu evento.
+276:             </p>
+277:           </div>
+278: 
+279:           <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-6 sm:p-8 shadow-2xl backdrop-blur-md">
+280:             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+281:               {/* Controles interactivos */}
+282:               <div className="space-y-6">
+283:                 <div>
+284:                   <div className="flex justify-between items-center mb-2">
+285:                     <label className="text-xs font-bold text-slate-200">
+286:                       Cantidad de Boletos a Imprimir:
+287:                     </label>
+288:                     <span className="text-base font-bold font-mono text-amber-400">
+289:                       {calcTickets} boletos
+290:                     </span>
+291:                   </div>
+292:                   <input
+293:                     type="range"
+294:                     min={100}
+295:                     max={5000}
+296:                     step={50}
+297:                     value={calcTickets}
+298:                     onChange={(e) => setCalcTickets(Number(e.target.value))}
+299:                     className="w-full accent-amber-500 h-2 bg-slate-800 rounded-lg cursor-pointer"
+300:                   />
+301:                   <div className="flex justify-between text-[10px] text-slate-500 mt-1">
+302:                     <span>100 boletos</span>
+303:                     <span>2.500 boletos</span>
+304:                     <span>5.000 boletos</span>
+305:                   </div>
+306:                 </div>
+307: 
+308:                 <div>
+309:                   <div className="flex justify-between items-center mb-2">
+310:                     <label className="text-xs font-bold text-slate-200">
+311:                       Precio de Venta por Boleto:
+312:                     </label>
+313:                     <span className="text-base font-bold font-mono text-amber-400">
+314:                       {formatCurrency(calcPrice)}
+315:                     </span>
+316:                   </div>
+317:                   <input
+318:                     type="range"
+319:                     min={500}
+320:                     max={15000}
+321:                     step={250}
+322:                     value={calcPrice}
+323:                     onChange={(e) => setCalcPrice(Number(e.target.value))}
+324:                     className="w-full accent-amber-500 h-2 bg-slate-800 rounded-lg cursor-pointer"
+325:                   />
+326:                   <div className="flex justify-between text-[10px] text-slate-500 mt-1">
+327:                     <span>$ 500</span>
+328:                     <span>$ 7.500</span>
+329:                     <span>$ 15.000</span>
+330:                   </div>
+331:                 </div>
+332: 
+333:                 <div className="p-3.5 rounded-2xl bg-slate-850 border border-slate-800 text-xs text-slate-300 space-y-1.5">
+334:                   <div className="flex items-center gap-2 font-semibold text-slate-200">
+335:                     <Sliders className="h-4 w-4 text-amber-400" />
+336:                     <span>Algoritmo de aprovechamiento A4</span>
+337:                   </div>
+338:                   <p className="text-[11px] text-slate-400">
+339:                     Eventazo coloca 5 tickets horizontales + 2 verticales en el lateral = <strong className="text-amber-300">7 tickets por hoja</strong>, en lugar de los 5 habituales.
+340:                   </p>
+341:                 </div>
+342:               </div>
+343: 
+344:               {/* Resultados */}
+345:               <div className="rounded-2xl border border-amber-500/30 bg-gradient-to-b from-amber-500/10 via-slate-900 to-slate-900 p-5 sm:p-6 space-y-5">
+346:                 <div>
+347:                   <span className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">
+348:                     Recaudación Total Potencial
+349:                   </span>
+350:                   <p className="text-3xl sm:text-4xl font-black text-amber-400 font-mono mt-1">
+351:                     {formatCurrency(totalRaised)}
+352:                   </p>
+353:                   <p className="text-[11px] text-slate-400 mt-0.5">
+354:                     Fondos brutos con el 100% de los números colocados.
+355:                   </p>
+356:                 </div>
+357: 
+358:                 <div className="pt-4 border-t border-slate-800/80 space-y-3">
+359:                   <div className="flex items-center justify-between text-xs">
+360:                     <span className="text-slate-400">Hojas con método tradicional (Word):</span>
+361:                     <span className="font-mono font-bold text-slate-300">{standardSheets} hojas A4</span>
+362:                   </div>
+363:                   <div className="flex items-center justify-between text-xs">
+364:                     <span className="text-emerald-400 font-semibold">Hojas con Eventazo A4 Optimizado:</span>
+365:                     <span className="font-mono font-bold text-emerald-400 text-sm">{eventazoSheets} hojas A4</span>
+366:                   </div>
+367:                   <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-800">
+368:                     <span className="text-amber-300 font-bold">Hojas A4 ahorradas:</span>
+369:                     <span className="font-mono font-bold text-amber-400 text-sm">
+370:                       {sheetsSaved} hojas ({percentSaved}% menos papel)
+371:                     </span>
+372:                   </div>
+373:                 </div>
+374: 
+375:                 <Link href="/editor" className="block pt-2">
+376:                   <Button className="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold text-xs h-10 rounded-xl shadow-lg shadow-amber-500/20">
+377:                     Comenzar a Diseñar esta Rifa
+378:                   </Button>
+379:                 </Link>
+380:               </div>
+381:             </div>
+382:           </div>
+383:         </div>
+384:       </section>
+385: 
+386:       {/* ============================================================ */}
+387:       {/* 6. COMPARATIVA: EVENTAZO VS METODOS TRADICIONALES           */}
+388:       {/* ============================================================ */}
+389:       <section id="comparativa" className="py-16 bg-slate-900/40 border-y border-slate-800/80">
+390:         <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
+391:           <div className="text-center mb-10">
+392:             <span className="text-xs uppercase tracking-widest text-amber-400 font-bold">
+393:               ¿Por qué cambiar a Eventazo?
+394:             </span>
+395:             <h3 className="text-2xl sm:text-3xl font-black text-slate-100 mt-1">
+396:               La diferencia entre perder horas y resolverlo en 2 minutos
+397:             </h3>
+398:           </div>
+399: 
+400:           <div className="rounded-3xl border border-slate-800 overflow-hidden bg-slate-900/90 shadow-xl">
+401:             <div className="grid grid-cols-3 p-4 sm:p-5 bg-slate-850 border-b border-slate-800 text-xs font-bold text-slate-200">
+402:               <div>Funcionalidad</div>
+403:               <div className="text-center text-slate-400">Word / Excel / Canva</div>
+404:               <div className="text-center text-amber-400 font-black">Eventazo PRO</div>
+405:             </div>
+406: 
+407:             <div className="divide-y divide-slate-800/60 text-xs">
+408:               <ComparisonRow
+409:                 feature="Numeración automática 0001 a N"
+410:                 traditional="Copiar y pegar a mano (riesgo de duplicados)"
+411:                 eventazo="100% automático y matemáticamente único"
+412:               />
+413:               <ComparisonRow
+414:                 feature="Aprovechamiento de hoja A4"
+415:                 traditional="Desperdicia hasta el 40% del margen lateral"
+416:                 eventazo="Acomoda tickets verticales y horizontales"
+417:               />
+418:               <ComparisonRow
+419:                 feature="Talón de control desprendible"
+420:                 traditional="Difícil de alinear con líneas de puntos"
+421:                 eventazo="Estandarizado con micro-puntos y corte limpio"
+422:               />
+423:               <ComparisonRow
+424:                 feature="Ajuste de múltiples premios"
+425:                 traditional="Se desborda el texto y deforma el boleto"
+426:                 eventazo="Distribución inteligente en 2, 3 o 4 columnas"
+427:               />
+428:               <ComparisonRow
+429:                 feature="Costo de producción"
+430:                 traditional="Altos costos de imprenta ($30k-$80k)"
+431:                 eventazo="100% gratis para diseñar y exportar en PDF"
+432:               />
+433:             </div>
+434:           </div>
+435:         </div>
+436:       </section>
+437: 
+438:       {/* ============================================================ */}
+439:       {/* 7. CASOS DE USO REALES                                      */}
+440:       {/* ============================================================ */}
+441:       <section id="casos" className="py-16 sm:py-24">
+442:         <div className="container mx-auto px-4 sm:px-6 max-w-5xl">
+443:           <div className="text-center mb-12">
+444:             <span className="text-xs uppercase tracking-widest text-amber-400 font-bold">
+445:               Soluciones a Medida
+446:             </span>
+447:             <h3 className="text-2xl sm:text-4xl font-black text-slate-100 mt-1">
+448:               Creado para quienes necesitan recaudar fondos en serio
+449:             </h3>
+450:           </div>
+451: 
+452:           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+453:             <UseCaseCard
+454:               icon={<GraduationCap className="h-6 w-6 text-amber-400" />}
+455:               title="Escuelas y Cooperadoras"
+456:               description="Kermesses escolares, día del maestro, viajes de egresados y equipamiento de aulas. Imprime planchas que los alumnos pueden vender fácilmente."
+457:               badge="Educación"
+458:             />
+459:             <UseCaseCard
+460:               icon={<Trophy className="h-6 w-6 text-emerald-400" />}
+461:               title="Clubes y Escuelas Deportivas"
+462:               description="Compra de indumentaria, pelotas, viajes a torneos y mantenimiento de canchas. Diseños con hasta 15 premios en varias columnas."
+463:               badge="Deportes"
+464:             />
+465:             <UseCaseCard
+466:               icon={<HeartHandshake className="h-6 w-6 text-rose-400" />}
+467:               title="Campañas Solidarias y Salud"
+468:               description="Tratamientos médicos, cirugías, rescate animal y urgencias comunitarias. Máxima transparencia con talones de control para cada colaborador."
+469:               badge="Solidario"
+470:             />
+471:           </div>
+472:         </div>
+473:       </section>
+474: 
+475:       {/* ============================================================ */}
+476:       {/* 8. PREGUNTAS FRECUENTES (FAQ)                               */}
+477:       {/* ============================================================ */}
+478:       <section id="preguntas" className="py-16 bg-slate-900/30 border-t border-slate-800/80">
+479:         <div className="container mx-auto px-4 sm:px-6 max-w-3xl">
+480:           <div className="text-center mb-10">
+481:             <span className="text-xs uppercase tracking-widest text-amber-400 font-bold">
+482:               Dudas Resueltas
+483:             </span>
+484:             <h3 className="text-2xl sm:text-3xl font-black text-slate-100 mt-1">
+485:               Preguntas Frecuentes
+486:             </h3>
+487:           </div>
+488: 
+489:           <div className="space-y-4">
+490:             <FaqItem
+491:               question="¿Qué tipo de papel es recomendable para imprimir?"
+492:               answer="Para fotocopiadoras o impresoras domésticas, el papel común obra de 75g o 80g funciona excelente y es muy económico. Si buscas un acabado premium para vender a mayor precio, puedes usar cartulina chambril u opalina de 120g a 150g."
+493:             />
+494:             <FaqItem
+495:               question="¿Cómo se cortan y arman los talonarios?"
+496:               answer="Los boletos incluyen líneas de corte punteadas normalizadas. Puedes cortarlos con guillotina de papel o trincheta y regla. Para armar talonarios (por ejemplo de 25 o 50 boletos), basta con colocar dos grampas metálicas en el borde izquierdo del talón de control o aplicar pegamento para blocks."
+497:             />
+498:             <FaqItem
+499:               question="¿Cómo funciona la numeración automática?"
+500:               answer="Tú solo defines el número de inicio (por ejemplo 0001) y la cantidad total (por ejemplo 1.000). Eventazo calcula matemáticamente la cantidad de dígitos necesarios para rellenar con ceros a la izquierda y numera secuencialmente cada boleto y su talón correspondiente sin posibilidad de duplicados."
+501:             />
+502:             <FaqItem
+503:               question="¿Puedo guardar mis diseños para modificarlos después?"
+504:               answer="Sí. Gracias a la integración con Supabase y modo local, puedes hacer clic en 'Guardar Rifa' en la barra superior y tus diseños quedarán archivados en 'Mis Rifas' para editarlos o volver a imprimirlos cuando quieras."
+505:             />
+506:           </div>
+507:         </div>
+508:       </section>
+509: 
+510:       {/* ============================================================ */}
+511:       {/* 9. BANNER CTA FINAL                                         */}
+512:       {/* ============================================================ */}
+513:       <section className="py-20 relative overflow-hidden">
+514:         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-amber-500/5 to-amber-500/10 pointer-events-none" />
+515: 
+516:         <div className="container mx-auto px-4 sm:px-6 max-w-3xl text-center relative z-10">
+517:           <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-4 border border-amber-500/30">
+518:             <Printer className="h-6 w-6" />
+519:           </div>
+520: 
+521:           <h3 className="text-3xl sm:text-4xl font-black text-slate-100">
+522:             Listo para crear tu primera plancha de rifas en 2 minutos?
+523:           </h3>
+524:           <p className="mt-3 text-slate-400 text-sm max-w-lg mx-auto">
+525:             Sin programas pesados, sin registros molestos. Entra al editor y descarga tu PDF listo para imprimir.
+526:           </p>
+527: 
+528:           <div className="mt-8 flex justify-center">
+529:             <Link href="/editor">
+530:               <Button
+531:                 size="lg"
+532:                 className="bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black text-sm h-12 px-8 rounded-2xl shadow-xl shadow-amber-500/30 flex items-center gap-2 group"
+533:               >
+534:                 <span>Abrir Editor Gratuito</span>
+535:                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+536:               </Button>
+537:             </Link>
+538:           </div>
+539:         </div>
+540:       </section>
+541: 
+542:       {/* ============================================================ */}
+543:       {/* 10. FOOTER                                                  */}
+544:       {/* ============================================================ */}
+545:       <footer className="border-t border-slate-800 py-8 bg-slate-950">
+546:         <div className="container mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+547:           <div className="flex items-center gap-2">
+548:             <Image src="/icon.svg" alt="Eventazo" width={24} height={24} className="rounded-md" />
+549:             <span className="text-xs font-bold text-slate-300">Eventazo Studio PRO</span>
+550:             <span className="text-[10px] text-slate-500">• Impresión de Rifas</span>
+551:           </div>
+552: 
+553:           <p className="text-xs text-slate-500">
+554:             Desarrollado con dedicación por{" "}
+555:             <a
+556:               href="https://somos-env.netlify.app/"
+557:               target="_blank"
+558:               rel="noopener noreferrer"
+559:               className="text-amber-400 hover:text-amber-300 underline underline-offset-2 transition-colors"
+560:             >
+561:               SoMoS
+562:             </a>
+563:           </p>
+564:         </div>
+565:       </footer>
+566:     </div>
+567:   );
+568: }
+569: 
+570: // Fila de Comparativa
+571: function ComparisonRow({
+572:   feature,
+573:   traditional,
+574:   eventazo,
+575: }: {
+576:   feature: string;
+577:   traditional: string;
+578:   eventazo: string;
+579: }) {
+580:   return (
+581:     <div className="grid grid-cols-3 p-4 sm:p-4.5 items-center hover:bg-slate-800/30 transition-colors">
+582:       <span className="font-semibold text-slate-200">{feature}</span>
+583:       <div className="text-center text-slate-400 flex items-center justify-center gap-1.5 px-2">
+584:         <XCircle className="h-4 w-4 text-rose-500 shrink-0 hidden sm:inline" />
+585:         <span>{traditional}</span>
+586:       </div>
+587:       <div className="text-center text-amber-300 font-medium flex items-center justify-center gap-1.5 px-2">
+588:         <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 hidden sm:inline" />
+589:         <span>{eventazo}</span>
+590:       </div>
+591:     </div>
+592:   );
+593: }
+594: 
+595: // Tarjeta de Caso de Uso
+596: function UseCaseCard({
+597:   icon,
+598:   title,
+599:   description,
+600:   badge,
+601: }: {
+602:   icon: React.ReactNode;
+603:   title: string;
+604:   description: string;
+605:   badge: string;
+606: }) {
+607:   return (
+608:     <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-6 flex flex-col justify-between hover:border-amber-500/40 hover:bg-slate-900 transition-all duration-200 group">
+609:       <div>
+610:         <div className="flex items-center justify-between mb-4">
+611:           <div className="w-12 h-12 rounded-2xl bg-slate-800 flex items-center justify-center group-hover:scale-105 transition-transform">
+612:             {icon}
+613:           </div>
+614:           <span className="text-[10px] uppercase font-bold text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-full border border-slate-700">
+615:             {badge}
+616:           </span>
+617:         </div>
+618:         <h4 className="text-base font-bold text-slate-100 group-hover:text-amber-300 transition-colors">
+619:           {title}
+620:         </h4>
+621:         <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+622:           {description}
+623:         </p>
+624:       </div>
+625: 
+626:       <div className="mt-6 pt-4 border-t border-slate-800/80">
+627:         <Link
+628:           href="/editor"
+629:           className="text-xs font-semibold text-amber-400 hover:text-amber-300 flex items-center gap-1 group-hover:translate-x-0.5 transition-transform"
+630:         >
+631:           <span>Diseñar para este caso</span>
+632:           <ArrowRight className="h-3.5 w-3.5" />
+633:         </Link>
+634:       </div>
+635:     </div>
+636:   );
+637: }
+638: 
+639: // Acordeón / Item de Pregunta Frecuente
+640: function FaqItem({ question, answer }: { question: string; answer: string }) {
+641:   const [open, setOpen] = useState(false);
+642: 
+643:   return (
+644:     <div className="rounded-2xl border border-slate-800 bg-slate-900/60 overflow-hidden transition-colors">
+645:       <button
+646:         onClick={() => setOpen(!open)}
+647:         className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-3 text-xs sm:text-sm font-bold text-slate-200 hover:text-amber-300 transition-colors"
+648:       >
+649:         <span>{question}</span>
+650:         <span className="text-slate-500 text-lg font-mono leading-none">
+651:           {open ? "−" : "+"}
+652:         </span>
+653:       </button>
+654:       {open && (
+655:         <div className="px-4 sm:px-5 pb-4 sm:pb-5 text-xs text-slate-400 leading-relaxed border-t border-slate-800/50 pt-3 animate-in fade-in duration-150">
+656:           {answer}
+657:         </div>
+658:       )}
+659:     </div>
+660:   );
+661: }
+````
+
+## File: src/components/PageLayoutPreview.tsx
+````typescript
+  1: "use client";
+  2: 
+  3: import { useMemo } from "react";
+  4: import { useRifaStore } from "@/store/useRifaStore";
+  5: import { A4_WIDTH_PT, A4_HEIGHT_PT, MM_TO_PT } from "@/lib/constants";
+  6: 
+  7: export function PageLayoutPreview() {
+  8:   const { printConfig, ticketConfig } = useRifaStore();
+  9: 
+ 10:   const {
+ 11:     rows,
+ 12:     cols,
+ 13:     horizCount,
+ 14:     sideRotatedCount,
+ 15:     canFitSide,
+ 16:     totalPerPage,
+ 17:     totalPages,
+ 18:     scale,
+ 19:     pageW,
+ 20:     pageH,
+ 21:     gridStartX,
+ 22:     gridW,
+ 23:     tW,
+ 24:     tH,
+ 25:     stubW,
+ 26:     gap,
+ 27:     margin,
+ 28:   } = useMemo(() => {
+ 29:     const m = printConfig.marginTop * MM_TO_PT;
+ 30:     const g = printConfig.gap * MM_TO_PT;
+ 31:     const tw = printConfig.ticketWidth * MM_TO_PT;
+ 32:     const th = printConfig.ticketHeight * MM_TO_PT;
+ 33:     const rawStub = (printConfig.stubWidth ?? 36) * MM_TO_PT;
+ 34:     const stubW = Math.min(Math.max(15 * MM_TO_PT, rawStub), Math.max(20 * MM_TO_PT, tw - 25 * MM_TO_PT));
+ 35: 
+ 36:     const availW = A4_WIDTH_PT - m * 2;
+ 37:     const availH = A4_HEIGHT_PT - m * 2;
+ 38: 
+ 39:     const c = Math.max(1, Math.floor((availW + g) / (tw + g)));
+ 40:     const r = Math.max(1, Math.floor((availH + g) / (th + g)));
+ 41:     const hc = c * r;
+ 42: 
+ 43:     const gw = c * tw + (c - 1) * g;
+ 44:     const sx = m;
+ 45: 
+ 46:     const rightRemaining = A4_WIDTH_PT - sx - gw - g - m;
+ 47:     const canFitSide = (printConfig.allowSideTickets ?? true) && (rightRemaining >= th);
+ 48:     const sc = canFitSide ? Math.floor((availH + g) / (tw + g)) : 0;
  49: 
- 50:     return {
- 51:       totalRaised: raised,
- 52:       standardSheets: stdSheets,
- 53:       eventazoSheets: evSheets,
- 54:       sheetsSaved: saved,
- 55:       percentSaved: percent,
- 56:     };
- 57:   }, [calcTickets, calcPrice]);
+ 50:     const tpp = hc + sc;
+ 51:     const tp = Math.ceil(ticketConfig.totalTickets / tpp);
+ 52: 
+ 53:     const s = 200 / A4_HEIGHT_PT;
+ 54:     const pw = A4_WIDTH_PT * s;
+ 55:     const ph = A4_HEIGHT_PT * s;
+ 56: 
+ 57:     return {
+ 58:       rows: r,
+ 59:       cols: c,
+ 60:       horizCount: hc,
+ 61:       sideRotatedCount: sc,
+ 62:       canFitSide,
+ 63:       totalPerPage: tpp,
+ 64:       totalPages: tp,
+ 65:       scale: s,
+ 66:       pageW: pw,
+ 67:       pageH: ph,
+ 68:       gridStartX: sx,
+ 69:       gridW: gw,
+ 70:       tW: tw,
+ 71:       tH: th,
+ 72:       stubW,
+ 73:       gap: g,
+ 74:       margin: m,
+ 75:     };
+ 76:   }, [
+ 77:     printConfig.marginTop,
+ 78:     printConfig.gap,
+ 79:     printConfig.ticketWidth,
+ 80:     printConfig.ticketHeight,
+ 81:     printConfig.stubWidth,
+ 82:     printConfig.allowSideTickets,
+ 83:     ticketConfig.totalTickets,
+ 84:   ]);
+ 85: 
+ 86:   return (
+ 87:     <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 backdrop-blur-sm p-4 space-y-3 shadow-lg">
+ 88:       <h4 className="text-sm font-semibold text-slate-200">
+ 89:         Distribución en Página A4
+ 90:       </h4>
+ 91: 
+ 92:       {/* Stats */}
+ 93:       <div className="grid grid-cols-3 gap-2 text-center">
+ 94:         <div className="rounded-lg bg-slate-900/60 p-2">
+ 95:           <p className="text-lg font-bold text-amber-400">{totalPerPage}</p>
+ 96:           <p className="text-[9px] text-slate-400">por página</p>
+ 97:         </div>
+ 98:         <div className="rounded-lg bg-slate-900/60 p-2">
+ 99:           <p className="text-lg font-bold text-amber-400">{totalPages}</p>
+100:           <p className="text-[9px] text-slate-400">páginas</p>
+101:         </div>
+102:         <div className="rounded-lg bg-slate-900/60 p-2">
+103:           <p className="text-lg font-bold text-amber-400">{ticketConfig.totalTickets}</p>
+104:           <p className="text-[9px] text-slate-400">tickets</p>
+105:         </div>
+106:       </div>
+107: 
+108:       {/* Visual page layout */}
+109:       <div className="flex justify-center">
+110:         <div
+111:           className="relative bg-white rounded shadow-lg border border-slate-500"
+112:           style={{ width: `${pageW}px`, height: `${pageH}px` }}
+113:         >
+114:           {/* Horizontal tickets */}
+115:           {Array.from({ length: rows }).map((_, row) =>
+116:             Array.from({ length: cols }).map((_, col) => {
+117:               const ticketIdx = row * cols + col;
+118:               if (ticketIdx >= horizCount) return null;
+119:               const x = (gridStartX + col * (tW + gap)) * scale;
+120:               const y = (margin + row * (tH + gap)) * scale;
+121:               return (
+122:                 <div
+123:                   key={`h-${row}-${col}`}
+124:                   className="absolute bg-amber-100 border border-amber-400/60 rounded-[2px] flex items-center justify-between overflow-hidden"
+125:                   style={{
+126:                     left: `${x}px`,
+127:                     top: `${y}px`,
+128:                     width: `${tW * scale}px`,
+129:                     height: `${tH * scale}px`,
+130:                   }}
+131:                 >
+132:                   <span className="flex-1 text-center text-[6px] text-amber-700 font-mono font-bold truncate">
+133:                     {ticketIdx + 1}
+134:                   </span>
+135:                   <div
+136:                     className="h-full border-l border-dashed border-amber-400/80 bg-amber-200/50"
+137:                     style={{ width: `${(stubW / tW) * 100}%` }}
+138:                     title="Talón"
+139:                   />
+140:                 </div>
+141:               );
+142:             })
+143:           )}
+144: 
+145:           {/* Rotated tickets on the right */}
+146:           {canFitSide &&
+147:             Array.from({ length: sideRotatedCount }).map((_, i) => {
+148:               const rx = (gridStartX + gridW + gap) * scale;
+149:               const ry = (margin + i * (tW + gap)) * scale;
+150:               return (
+151:                 <div
+152:                   key={`r-${i}`}
+153:                   className="absolute bg-blue-100 border border-blue-400/60 rounded-[2px] flex flex-col items-center justify-between overflow-hidden"
+154:                   style={{
+155:                     left: `${rx}px`,
+156:                     top: `${ry}px`,
+157:                     width: `${tH * scale}px`,
+158:                     height: `${tW * scale}px`,
+159:                   }}
+160:                 >
+161:                   <div
+162:                     className="w-full border-b border-dashed border-blue-400/80 bg-blue-200/50"
+163:                     style={{ height: `${(stubW / tW) * 100}%` }}
+164:                     title="Talón"
+165:                   />
+166:                   <span className="flex-1 flex items-center justify-center text-[6px] text-blue-700 font-mono font-bold rotate-90 truncate">
+167:                     {horizCount + i + 1}
+168:                   </span>
+169:                 </div>
+170:               );
+171:             })}
+172:         </div>
+173:       </div>
+174: 
+175:       {/* Legend */}
+176:       <div className="flex items-center justify-center gap-4 text-[9px]">
+177:         <div className="flex items-center gap-1">
+178:           <div className="w-3 h-2 bg-amber-100 border border-amber-400/60 rounded-[1px]" />
+179:           <span className="text-slate-400">Horizontal ({horizCount})</span>
+180:         </div>
+181:         {sideRotatedCount > 0 && (
+182:           <div className="flex items-center gap-1">
+183:             <div className="w-2 h-3 bg-blue-100 border border-blue-400/60 rounded-[1px]" />
+184:             <span className="text-slate-400">Vertical ({sideRotatedCount})</span>
+185:           </div>
+186:         )}
+187:       </div>
+188:     </div>
+189:   );
+190: }
+````
+
+## File: src/components/PrintConfigPanel.tsx
+````typescript
+  1: "use client";
+  2: 
+  3: import { useMemo } from "react";
+  4: import { Printer, Maximize2, LayoutGrid, Scissors } from "lucide-react";
+  5: import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+  6: import { Label } from "@/components/ui/label";
+  7: import { NumberInput } from "@/components/ui/number-input";
+  8: import { Slider } from "@/components/ui/slider";
+  9: import { Switch } from "@/components/ui/switch";
+ 10: import { useRifaStore } from "@/store/useRifaStore";
+ 11: import { A4_WIDTH_PT, A4_HEIGHT_PT, MM_TO_PT } from "@/lib/constants";
+ 12: 
+ 13: export function PrintConfigPanel() {
+ 14:   const { printConfig, setPrintConfig, ticketConfig } = useRifaStore();
+ 15: 
+ 16:   const currentStubWidth = printConfig.stubWidth ?? 36;
+ 17:   const stubPercent = Math.round((currentStubWidth / printConfig.ticketWidth) * 100);
+ 18: 
+ 19:   // Memoized layout calculation for fast responsiveness on low-end machines
+ 20:   const { ticketsPerRow, ticketsPerCol, horizontalCount, sideCount, ticketsPerPage, totalPages } = useMemo(() => {
+ 21:     const margin = printConfig.marginTop * MM_TO_PT;
+ 22:     const gap = printConfig.gap * MM_TO_PT;
+ 23:     const ticketWidth = printConfig.ticketWidth * MM_TO_PT;
+ 24:     const ticketHeight = printConfig.ticketHeight * MM_TO_PT;
+ 25: 
+ 26:     const availableWidth = A4_WIDTH_PT - margin * 2;
+ 27:     const availableHeight = A4_HEIGHT_PT - margin * 2;
+ 28: 
+ 29:     const cols = Math.max(1, Math.floor((availableWidth + gap) / (ticketWidth + gap)));
+ 30:     const rows = Math.max(1, Math.floor((availableHeight + gap) / (ticketHeight + gap)));
+ 31:     const hc = cols * rows;
+ 32: 
+ 33:     const gridW = cols * ticketWidth + (cols - 1) * gap;
+ 34:     const rightRem = A4_WIDTH_PT - margin - gridW - gap - margin;
+ 35:     const canFitSide = (printConfig.allowSideTickets ?? true) && (rightRem >= ticketHeight);
+ 36:     const sc = canFitSide ? Math.floor((availableHeight + gap) / (ticketWidth + gap)) : 0;
+ 37: 
+ 38:     const tpp = hc + sc;
+ 39:     const tp = Math.ceil(ticketConfig.totalTickets / tpp);
+ 40: 
+ 41:     return {
+ 42:       ticketsPerRow: cols,
+ 43:       ticketsPerCol: rows,
+ 44:       ticketsPerPage: tpp,
+ 45:       totalPages: tp,
+ 46:       horizontalCount: hc,
+ 47:       sideCount: sc,
+ 48:       canFitSide,
+ 49:     };
+ 50:   }, [
+ 51:     printConfig.ticketWidth,
+ 52:     printConfig.ticketHeight,
+ 53:     printConfig.gap,
+ 54:     printConfig.marginTop,
+ 55:     printConfig.allowSideTickets,
+ 56:     ticketConfig.totalTickets,
+ 57:   ]);
  58: 
  59:   return (
- 60:     <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-amber-500 selection:text-slate-950">
- 61:       {/* ============================================================ */}
- 62:       {/* 1. NAVBAR COMERCIAL                                         */}
- 63:       {/* ============================================================ */}
- 64:       <nav className="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-md">
- 65:         <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
- 66:           {/* Brand */}
- 67:           <Link href="/" className="flex items-center gap-2.5 group">
- 68:             <div className="relative">
- 69:               <Image
- 70:                 src="/icon.svg"
- 71:                 alt="Eventazo"
- 72:                 width={36}
- 73:                 height={36}
- 74:                 className="h-9 w-9 rounded-xl shadow-lg shadow-amber-500/20 group-hover:scale-105 transition-transform"
- 75:               />
- 76:               <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-amber-400 text-[8px] font-black text-slate-950">
- 77:                 ★
- 78:               </span>
- 79:             </div>
- 80:             <div>
- 81:               <div className="flex items-center gap-1.5">
- 82:                 <span className="text-base sm:text-lg font-black tracking-tight text-slate-100">
- 83:                   Eventazo
- 84:                 </span>
- 85:                 <span className="rounded bg-gradient-to-r from-amber-500/20 to-amber-300/20 border border-amber-500/40 px-1.5 py-0.2 text-[9px] font-bold text-amber-400">
- 86:                   PRO
- 87:                 </span>
- 88:               </div>
- 89:             </div>
- 90:           </Link>
- 91: 
- 92:           {/* Links desktop */}
- 93:           <div className="hidden md:flex items-center gap-6 text-xs font-medium text-slate-300">
- 94:             <a href="#caracteristicas" className="hover:text-amber-400 transition-colors">
- 95:               Características
- 96:             </a>
- 97:             <a href="#calculadora" className="hover:text-amber-400 transition-colors">
- 98:               Calculadora de Ahorro
- 99:             </a>
-100:             <a href="#comparativa" className="hover:text-amber-400 transition-colors">
-101:               Comparativa
-102:             </a>
-103:             <a href="#casos" className="hover:text-amber-400 transition-colors">
-104:               Casos de Uso
-105:             </a>
-106:             <a href="#preguntas" className="hover:text-amber-400 transition-colors">
-107:               Preguntas Frecuentes
-108:             </a>
-109:           </div>
-110: 
-111:           {/* Acciones */}
-112:           <div className="flex items-center gap-2 sm:gap-3">
-113:             {user ? (
-114:               <Link
-115:                 href="/editor"
-116:                 className="text-xs text-slate-300 hover:text-amber-400 px-2 py-1 hidden sm:block"
-117:               >
-118:                 Hola, <span className="font-semibold">{user.name || user.email.split("@")[0]}</span>
-119:               </Link>
-120:             ) : (
-121:               <Button
-122:                 variant="ghost"
-123:                 size="sm"
-124:                 onClick={() => setIsAuthOpen(true)}
-125:                 className="text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-900 rounded-xl gap-1.5 h-9"
-126:               >
-127:                 <LogIn className="h-3.5 w-3.5" />
-128:                 <span>Ingresar</span>
-129:               </Button>
-130:             )}
-131: 
-132:             <Link href="/editor">
-133:               <Button
-134:                 size="sm"
-135:                 className="bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold text-xs h-9 px-3.5 sm:px-4 rounded-xl shadow-lg shadow-amber-500/25 flex items-center gap-1.5 group"
-136:               >
-137:                 <span>Crear Rifa Gratis</span>
-138:                 <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
-139:               </Button>
-140:             </Link>
-141:           </div>
-142:         </div>
-143:       </nav>
-144: 
-145:       {/* ============================================================ */}
-146:       {/* 2. HERO SECTION CON ALTO IMPACTO                            */}
-147:       {/* ============================================================ */}
-148:       <section className="relative overflow-hidden pt-12 pb-20 sm:pt-20 sm:pb-28">
-149:         {/* Luces de fondo decorativas */}
-150:         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-amber-500/15 to-amber-300/10 blur-[130px] rounded-full pointer-events-none" />
-151: 
-152:         <div className="container mx-auto px-4 sm:px-6 relative z-10 text-center max-w-4xl">
-153:           {/* Badge de confianza */}
-154:           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-amber-500/10 border border-amber-500/30 text-amber-300 mb-6 shadow-inner animate-in fade-in slide-in-from-bottom-2">
-155:             <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-156:             <span>El generador inteligente para imprimir rifas en hojas A4</span>
-157:           </div>
-158: 
-159:           {/* Título Principal */}
-160:           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.15] text-slate-100">
-161:             Diseña, numera e imprime planchas de rifas{" "}
-162:             <span className="bg-gradient-to-r from-amber-400 via-amber-200 to-amber-500 bg-clip-text text-transparent">
-163:               sin desperdiciar papel
-164:             </span>
-165:           </h1>
+ 60:     <Card className="shadow-xl border-slate-800/80">
+ 61:       <CardHeader className="pb-3 border-b border-slate-800">
+ 62:         <CardTitle className="flex items-center gap-2">
+ 63:           <Printer className="h-5 w-5 text-amber-400" />
+ 64:           <span>Configuración de Impresión (A4)</span>
+ 65:         </CardTitle>
+ 66:       </CardHeader>
+ 67: 
+ 68:       <CardContent className="space-y-4 pt-4">
+ 69:         {/* Resumen de imposición */}
+ 70:         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+ 71:           <div className="rounded-lg bg-slate-900/80 border border-slate-700/80 p-3 text-center">
+ 72:             <span className="text-[11px] text-slate-400">Por Página</span>
+ 73:             <p className="text-xl font-bold font-mono text-amber-400">{ticketsPerPage}</p>
+ 74:             {sideCount > 0 && (
+ 75:               <span className="text-[9px] text-amber-500/80 block mt-0.5">
+ 76:                 ({horizontalCount} horiz. + {sideCount} vert.)
+ 77:               </span>
+ 78:             )}
+ 79:           </div>
+ 80:           <div className="rounded-lg bg-slate-900/80 border border-slate-700/80 p-3 text-center">
+ 81:             <span className="text-[11px] text-slate-400">Total Páginas</span>
+ 82:             <p className="text-xl font-bold font-mono text-amber-400">{totalPages}</p>
+ 83:           </div>
+ 84:           <div className="rounded-lg bg-slate-900/80 border border-slate-700/80 p-3 text-center">
+ 85:             <span className="text-[11px] text-slate-400">Columnas</span>
+ 86:             <p className="text-xl font-bold font-mono text-slate-200">{ticketsPerRow}</p>
+ 87:           </div>
+ 88:           <div className="rounded-lg bg-slate-900/80 border border-slate-700/80 p-3 text-center">
+ 89:             <span className="text-[11px] text-slate-400">Filas</span>
+ 90:             <p className="text-xl font-bold font-mono text-slate-200">{ticketsPerCol}</p>
+ 91:           </div>
+ 92:         </div>
+ 93: 
+ 94:         {/* Disposición: Boletos verticales en el margen */}
+ 95:         <div className="rounded-lg bg-slate-900/60 border border-slate-700/80 p-3 shadow-inner">
+ 96:           <Switch
+ 97:             id="allowSideTickets"
+ 98:             checked={printConfig.allowSideTickets ?? true}
+ 99:             onCheckedChange={(checked) => setPrintConfig({ allowSideTickets: checked })}
+100:             label="Aprovechar margen derecho con boletos verticales"
+101:             description="Activado: aprovecha el espacio lateral de la hoja A4 colocando boletos verticales rotados 90°. Desactívalo si prefieres solo boletos horizontales."
+102:           />
+103:         </div>
+104: 
+105:         {/* Tamaño del ticket */}
+106:         <div className="space-y-3">
+107:           <Label className="flex items-center gap-1.5 text-xs text-amber-400/90 uppercase tracking-wider font-semibold">
+108:             <LayoutGrid className="h-3.5 w-3.5" />
+109:             <span>Dimensiones del Ticket</span>
+110:           </Label>
+111:           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+112:             <div className="space-y-1">
+113:               <span className="text-[11px] text-slate-400">Ancho Boleto</span>
+114:               <NumberInput
+115:                 min={60}
+116:                 max={210}
+117:                 step={5}
+118:                 suffix="mm"
+119:                 value={printConfig.ticketWidth}
+120:                 onChange={(val) => {
+121:                   const maxStub = Math.max(20, val - 25);
+122:                   const safeStub = Math.min(currentStubWidth, maxStub);
+123:                   setPrintConfig({ ticketWidth: val, stubWidth: safeStub });
+124:                 }}
+125:               />
+126:             </div>
+127:             <div className="space-y-1">
+128:               <span className="text-[11px] text-slate-400">Alto Boleto</span>
+129:               <NumberInput
+130:                 min={25}
+131:                 max={150}
+132:                 step={5}
+133:                 suffix="mm"
+134:                 value={printConfig.ticketHeight}
+135:                 onChange={(val) => setPrintConfig({ ticketHeight: val })}
+136:               />
+137:             </div>
+138:             <div className="space-y-1">
+139:               <div className="flex items-center justify-between">
+140:                 <span className="text-[11px] text-slate-400">Ancho Talón</span>
+141:                 <span className="text-[10px] text-amber-400 font-mono font-bold">
+142:                   {stubPercent}%
+143:                 </span>
+144:               </div>
+145:               <NumberInput
+146:                 min={15}
+147:                 max={Math.max(20, printConfig.ticketWidth - 25)}
+148:                 step={1}
+149:                 suffix="mm"
+150:                 value={currentStubWidth}
+151:                 onChange={(val) => setPrintConfig({ stubWidth: val })}
+152:               />
+153:             </div>
+154:             <div className="space-y-1">
+155:               <span className="text-[11px] text-slate-400">Separación</span>
+156:               <NumberInput
+157:                 min={0}
+158:                 max={10}
+159:                 step={0.5}
+160:                 suffix="mm"
+161:                 value={printConfig.gap}
+162:                 onChange={(val) => setPrintConfig({ gap: val })}
+163:               />
+164:             </div>
+165:           </div>
 166: 
-167:           {/* Subtítulo enfocado en dolores reales */}
-168:           <p className="mt-5 text-sm sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
-169:             Olvídate de pegar números manualmente en Word o Canva. Eventazo acomoda automáticamente{" "}
-170:             <strong className="text-slate-200 font-semibold">tickets horizontales y verticales</strong> en la misma hoja A4, genera talones de control desprendibles y te entrega un PDF vectorial listo para imprimir.
-171:           </p>
-172: 
-173:           {/* CTAs */}
-174:           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-175:             <Link href="/editor" className="w-full sm:w-auto">
-176:               <Button
-177:                 size="lg"
-178:                 className="w-full sm:w-auto bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black text-sm h-12 px-7 rounded-2xl shadow-xl shadow-amber-500/30 flex items-center justify-center gap-2 group"
-179:               >
-180:                 <span>Diseñar Mi Rifa Ahora</span>
-181:                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-182:               </Button>
-183:             </Link>
-184: 
-185:             <a href="#calculadora" className="w-full sm:w-auto">
-186:               <Button
-187:                 variant="outline"
-188:                 size="lg"
-189:                 className="w-full sm:w-auto border-slate-700 bg-slate-900/80 hover:bg-slate-800 text-slate-200 text-sm h-12 px-6 rounded-2xl flex items-center justify-center gap-2"
-190:               >
-191:                 <Calculator className="h-4 w-4 text-amber-400" />
-192:                 <span>Calcular Ahorro de Hojas</span>
-193:               </Button>
-194:             </a>
-195:           </div>
-196: 
-197:           <p className="mt-3 text-[11px] text-slate-500">
-198:             No requiere tarjeta de crédito • 100% funcional en navegador • Exportación directa en PDF
-199:           </p>
-200: 
-201:           {/* ============================================================ */}
-202:           {/* 3. MÉTRICAS 100% REALES Y TÉCNICAS (SIN VANIDAD)            */}
-203:           {/* ============================================================ */}
-204:           <div className="mt-14 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 text-left">
-205:             <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4 backdrop-blur-sm">
-206:               <p className="text-2xl sm:text-3xl font-black text-amber-400 font-mono">0%</p>
-207:               <h4 className="text-xs font-bold text-slate-200 mt-1">Error de Correlatividad</h4>
-208:               <p className="text-[10px] text-slate-400 mt-0.5">
-209:                 Numeración continua garantizada matemáticamente sin saltos ni duplicados.
-210:               </p>
+167:           {/* Control deslizante y preajustes de talón */}
+168:           <div className="rounded-lg bg-slate-900/50 border border-slate-700/80 p-3 space-y-2.5 shadow-inner">
+169:             <div className="flex items-center justify-between text-xs">
+170:               <span className="flex items-center gap-1.5 font-medium text-slate-300 text-[11px]">
+171:                 <Scissors className="h-3.5 w-3.5 text-amber-400" />
+172:                 <span>Ajuste rápido de tamaño del talón:</span>
+173:               </span>
+174:               <span className="font-mono text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">
+175:                 {currentStubWidth} mm ({stubPercent}%)
+176:               </span>
+177:             </div>
+178: 
+179:             <Slider
+180:               min={18}
+181:               max={Math.max(25, Math.round(printConfig.ticketWidth * 0.48))}
+182:               step={1}
+183:               value={currentStubWidth}
+184:               onChange={(val) => setPrintConfig({ stubWidth: val })}
+185:               showValueBadge={false}
+186:             />
+187: 
+188:             <div className="flex flex-wrap items-center justify-between gap-1 pt-1">
+189:               <span className="text-[10px] text-slate-400">Preajustes rápidos:</span>
+190:               <div className="flex flex-wrap gap-1">
+191:                 {[
+192:                   { label: "Estrecho (28mm)", w: 28 },
+193:                   { label: "Estándar (36mm)", w: 36 },
+194:                   { label: "Medio (42mm)", w: 42 },
+195:                   { label: "Amplio (48mm)", w: 48 },
+196:                 ].map((preset) => (
+197:                   <button
+198:                     key={preset.w}
+199:                     type="button"
+200:                     onClick={() => setPrintConfig({ stubWidth: preset.w })}
+201:                     className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors cursor-pointer ${
+202:                       currentStubWidth === preset.w
+203:                         ? "bg-amber-500/20 text-amber-400 border border-amber-500/40"
+204:                         : "bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700"
+205:                     }`}
+206:                   >
+207:                     {preset.label}
+208:                   </button>
+209:                 ))}
+210:               </div>
 211:             </div>
-212: 
-213:             <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4 backdrop-blur-sm">
-214:               <p className="text-2xl sm:text-3xl font-black text-amber-400 font-mono">+40%</p>
-215:               <h4 className="text-xs font-bold text-slate-200 mt-1">Aprovechamiento de Hoja</h4>
-216:               <p className="text-[10px] text-slate-400 mt-0.5">
-217:                 Exprime el lateral derecho de la hoja A4 con tickets verticales girados 90°.
-218:               </p>
-219:             </div>
-220: 
-221:             <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4 backdrop-blur-sm">
-222:               <p className="text-2xl sm:text-3xl font-black text-amber-400 font-mono">100%</p>
-223:               <h4 className="text-xs font-bold text-slate-200 mt-1">Fidelidad Vectorial</h4>
-224:               <p className="text-[10px] text-slate-400 mt-0.5">
-225:                 Textos nítidos con operadores nativos, sin píxeles borrosos al fotocopiar.
-226:               </p>
-227:             </div>
-228: 
-229:             <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4 backdrop-blur-sm">
-230:               <p className="text-2xl sm:text-3xl font-black text-amber-400 font-mono">&lt; 3 seg</p>
-231:               <h4 className="text-xs font-bold text-slate-200 mt-1">Generación Multipágina</h4>
-232:               <p className="text-[10px] text-slate-400 mt-0.5">
-233:                 Compilación instantánea en tu navegador lista para imprimir en casa o imprenta.
-234:               </p>
-235:             </div>
-236:           </div>
-237:         </div>
-238:       </section>
-239: 
-240:       {/* ============================================================ */}
-241:       {/* 4. MOCKUP VISUAL INTERACTIVO: EL BOLETO Y LA HOJA A4        */}
-242:       {/* ============================================================ */}
-243:       <section className="py-12 border-y border-slate-800/80 bg-slate-900/30">
-244:         <div className="container mx-auto px-4 sm:px-6 max-w-5xl">
-245:           <div className="text-center mb-8">
-246:             <h3 className="text-xs uppercase tracking-widest text-amber-400 font-bold mb-1">
-247:               Anatomía de un Boleto de Rifa Profesional
-248:             </h3>
-249:             <p className="text-xl sm:text-2xl font-black text-slate-100">
-250:               Diseñado específicamente para cortar, talonear y vender
-251:             </p>
-252:           </div>
-253: 
-254:           {/* Tarjeta del Boleto Ilustrado */}
-255:           <div className="rounded-2xl border border-slate-700/80 bg-slate-900/90 p-4 sm:p-6 shadow-2xl">
-256:             {/* Boleto Horizontal Demo */}
-257:             <div className="rounded-xl border border-slate-600 bg-white text-slate-900 shadow-xl overflow-hidden flex flex-col sm:flex-row">
-258:               {/* Cuerpo Principal */}
-259:               <div className="flex-1 p-4 sm:p-5 flex flex-col justify-between border-b-2 sm:border-b-0 sm:border-r-2 border-dashed border-slate-300">
-260:                 <div>
-261:                   <div className="flex items-center justify-between gap-2">
-262:                     <span className="text-[10px] uppercase font-bold tracking-wider text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
-263:                       Bono Contribución Solidario
-264:                     </span>
-265:                     <span className="text-[11px] font-semibold text-slate-500">
-266:                       Sorteo: 28 de Noviembre 2026
-267:                     </span>
-268:                   </div>
-269:                   <h4 className="text-lg sm:text-xl font-black text-slate-900 mt-2 leading-tight">
-270:                     Gran Rifa Anual Club Atlético & Social
-271:                   </h4>
-272:                   <p className="text-xs text-rose-800 font-bold italic mt-0.5">
-273:                     Subcomisión de Deporte Infantil • Obras en Sede
-274:                   </p>
-275: 
-276:                   {/* Lista de premios en columnas */}
-277:                   <div className="mt-3 p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs">
-278:                     <p className="text-[10px] font-bold uppercase tracking-wider text-slate-700 mb-1">
-279:                       Premios del Sorteo:
-280:                     </p>
-281:                     <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[11px] text-rose-800 font-medium italic">
-282:                       <p><strong className="not-italic text-slate-900">1°:</strong> Moto 110cc 0KM</p>
-283:                       <p><strong className="not-italic text-slate-900">2°:</strong> Smart TV 55&quot; 4K</p>
-284:                       <p><strong className="not-italic text-slate-900">3°:</strong> Heladera con Freezer</p>
-285:                       <p><strong className="not-italic text-slate-900">4°:</strong> Bicicleta Rodado 29</p>
-286:                     </div>
-287:                   </div>
-288:                 </div>
-289: 
-290:                 <div className="mt-4 pt-2.5 border-t border-slate-200 flex items-center justify-between">
-291:                   <span className="text-sm font-black text-slate-900">Valor: $ 3.000</span>
-292:                   <span className="text-lg sm:text-xl font-black font-mono text-rose-700">
-293:                     N° 0482
-294:                   </span>
-295:                 </div>
-296:               </div>
-297: 
-298:               {/* Talón de Control */}
-299:               <div className="w-full sm:w-64 bg-slate-50 p-4 sm:p-5 flex flex-col justify-between border-slate-200">
-300:                 <div>
-301:                   <div className="flex items-center justify-between">
-302:                     <span className="text-[10px] font-black uppercase text-slate-800 border-b border-slate-300 pb-0.5">
-303:                       Talón de Control
-304:                     </span>
-305:                     <Scissors className="h-3.5 w-3.5 text-slate-400 hidden sm:block" />
-306:                   </div>
-307: 
-308:                   <div className="mt-3 space-y-2 text-[11px]">
-309:                     <div>
-310:                       <span className="text-slate-600 block text-[10px] font-bold">Nombre y Apellido:</span>
-311:                       <div className="border-b border-slate-400 h-4 mt-0.5" />
-312:                     </div>
-313:                     <div>
-314:                       <span className="text-slate-600 block text-[10px] font-bold">Teléfono de Contacto:</span>
-315:                       <div className="border-b border-slate-400 h-4 mt-0.5" />
-316:                     </div>
-317:                   </div>
-318:                 </div>
-319: 
-320:                 <div className="mt-4 text-center pt-2 border-t border-slate-200">
-321:                   <span className="text-[10px] font-semibold text-slate-600">Valor: $ 3.000</span>
-322:                   <p className="text-base font-black font-mono text-rose-700">N° 0482</p>
-323:                 </div>
-324:               </div>
-325:             </div>
-326: 
-327:             {/* Guías explicativas */}
-328:             <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-center text-xs text-slate-400">
-329:               <div className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-slate-800/50 border border-slate-800">
-330:                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-331:                 <span>Micro-punteado para corte manual o guillotina</span>
-332:               </div>
-333:               <div className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-slate-800/50 border border-slate-800">
-334:                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-335:                 <span>Datos del comprador en talón para la urna</span>
-336:               </div>
-337:               <div className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-slate-800/50 border border-slate-800">
-338:                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-339:                 <span>Numeración coincidente en cuerpo y talón</span>
-340:               </div>
-341:             </div>
-342:           </div>
-343:         </div>
-344:       </section>
-345: 
-346:       {/* ============================================================ */}
-347:       {/* 5. CALCULADORA INTERACTIVA DE RECAUDACIÓN Y PAPEL           */}
-348:       {/* ============================================================ */}
-349:       <section id="calculadora" className="py-16 sm:py-24">
-350:         <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
-351:           <div className="text-center mb-10">
-352:             <span className="text-xs uppercase tracking-widest text-amber-400 font-bold">
-353:               Herramienta de Simulación Real
-354:             </span>
-355:             <h3 className="text-2xl sm:text-4xl font-black text-slate-100 mt-1">
-356:               Calcula la recaudación de tu rifa y el ahorro de papel
-357:             </h3>
-358:             <p className="text-sm text-slate-400 mt-2 max-w-xl mx-auto">
-359:               Simula tus números y comprueba exactamente cuántas hojas A4 necesitas y cuánto dinero generará tu evento.
-360:             </p>
-361:           </div>
-362: 
-363:           <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-6 sm:p-8 shadow-2xl backdrop-blur-md">
-364:             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-365:               {/* Controles interactivos */}
-366:               <div className="space-y-6">
-367:                 <div>
-368:                   <div className="flex justify-between items-center mb-2">
-369:                     <label className="text-xs font-bold text-slate-200">
-370:                       Cantidad de Boletos a Imprimir:
-371:                     </label>
-372:                     <span className="text-base font-bold font-mono text-amber-400">
-373:                       {calcTickets} boletos
-374:                     </span>
-375:                   </div>
-376:                   <input
-377:                     type="range"
-378:                     min={100}
-379:                     max={5000}
-380:                     step={50}
-381:                     value={calcTickets}
-382:                     onChange={(e) => setCalcTickets(Number(e.target.value))}
-383:                     className="w-full accent-amber-500 h-2 bg-slate-800 rounded-lg cursor-pointer"
-384:                   />
-385:                   <div className="flex justify-between text-[10px] text-slate-500 mt-1">
-386:                     <span>100 boletos</span>
-387:                     <span>2.500 boletos</span>
-388:                     <span>5.000 boletos</span>
-389:                   </div>
-390:                 </div>
-391: 
-392:                 <div>
-393:                   <div className="flex justify-between items-center mb-2">
-394:                     <label className="text-xs font-bold text-slate-200">
-395:                       Precio de Venta por Boleto:
-396:                     </label>
-397:                     <span className="text-base font-bold font-mono text-amber-400">
-398:                       {formatCurrency(calcPrice)}
-399:                     </span>
-400:                   </div>
-401:                   <input
-402:                     type="range"
-403:                     min={500}
-404:                     max={15000}
-405:                     step={250}
-406:                     value={calcPrice}
-407:                     onChange={(e) => setCalcPrice(Number(e.target.value))}
-408:                     className="w-full accent-amber-500 h-2 bg-slate-800 rounded-lg cursor-pointer"
-409:                   />
-410:                   <div className="flex justify-between text-[10px] text-slate-500 mt-1">
-411:                     <span>$ 500</span>
-412:                     <span>$ 7.500</span>
-413:                     <span>$ 15.000</span>
-414:                   </div>
-415:                 </div>
-416: 
-417:                 <div className="p-3.5 rounded-2xl bg-slate-850 border border-slate-800 text-xs text-slate-300 space-y-1.5">
-418:                   <div className="flex items-center gap-2 font-semibold text-slate-200">
-419:                     <Sliders className="h-4 w-4 text-amber-400" />
-420:                     <span>Algoritmo de aprovechamiento A4</span>
-421:                   </div>
-422:                   <p className="text-[11px] text-slate-400">
-423:                     Eventazo coloca 5 tickets horizontales + 2 verticales en el lateral = <strong className="text-amber-300">7 tickets por hoja</strong>, en lugar de los 5 habituales.
-424:                   </p>
-425:                 </div>
-426:               </div>
-427: 
-428:               {/* Resultados */}
-429:               <div className="rounded-2xl border border-amber-500/30 bg-gradient-to-b from-amber-500/10 via-slate-900 to-slate-900 p-5 sm:p-6 space-y-5">
-430:                 <div>
-431:                   <span className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">
-432:                     Recaudación Total Potencial
-433:                   </span>
-434:                   <p className="text-3xl sm:text-4xl font-black text-amber-400 font-mono mt-1">
-435:                     {formatCurrency(totalRaised)}
-436:                   </p>
-437:                   <p className="text-[11px] text-slate-400 mt-0.5">
-438:                     Fondos brutos con el 100% de los números colocados.
-439:                   </p>
-440:                 </div>
-441: 
-442:                 <div className="pt-4 border-t border-slate-800/80 space-y-3">
-443:                   <div className="flex items-center justify-between text-xs">
-444:                     <span className="text-slate-400">Hojas con método tradicional (Word):</span>
-445:                     <span className="font-mono font-bold text-slate-300">{standardSheets} hojas A4</span>
-446:                   </div>
-447:                   <div className="flex items-center justify-between text-xs">
-448:                     <span className="text-emerald-400 font-semibold">Hojas con Eventazo A4 Optimizado:</span>
-449:                     <span className="font-mono font-bold text-emerald-400 text-sm">{eventazoSheets} hojas A4</span>
-450:                   </div>
-451:                   <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-800">
-452:                     <span className="text-amber-300 font-bold">Hojas A4 ahorradas:</span>
-453:                     <span className="font-mono font-bold text-amber-400 text-sm">
-454:                       {sheetsSaved} hojas ({percentSaved}% menos papel)
-455:                     </span>
-456:                   </div>
-457:                 </div>
-458: 
-459:                 <Link href="/editor" className="block pt-2">
-460:                   <Button className="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold text-xs h-10 rounded-xl shadow-lg shadow-amber-500/20">
-461:                     Comenzar a Diseñar esta Rifa
-462:                   </Button>
-463:                 </Link>
-464:               </div>
-465:             </div>
-466:           </div>
-467:         </div>
-468:       </section>
-469: 
-470:       {/* ============================================================ */}
-471:       {/* 6. COMPARATIVA: EVENTAZO VS METODOS TRADICIONALES           */}
-472:       {/* ============================================================ */}
-473:       <section id="comparativa" className="py-16 bg-slate-900/40 border-y border-slate-800/80">
-474:         <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
-475:           <div className="text-center mb-10">
-476:             <span className="text-xs uppercase tracking-widest text-amber-400 font-bold">
-477:               ¿Por qué cambiar a Eventazo?
-478:             </span>
-479:             <h3 className="text-2xl sm:text-3xl font-black text-slate-100 mt-1">
-480:               La diferencia entre perder horas y resolverlo en 2 minutos
-481:             </h3>
-482:           </div>
-483: 
-484:           <div className="rounded-3xl border border-slate-800 overflow-hidden bg-slate-900/90 shadow-xl">
-485:             <div className="grid grid-cols-3 p-4 sm:p-5 bg-slate-850 border-b border-slate-800 text-xs font-bold text-slate-200">
-486:               <div>Funcionalidad</div>
-487:               <div className="text-center text-slate-400">Word / Excel / Canva</div>
-488:               <div className="text-center text-amber-400 font-black">Eventazo PRO</div>
-489:             </div>
-490: 
-491:             <div className="divide-y divide-slate-800/60 text-xs">
-492:               <ComparisonRow
-493:                 feature="Numeración automática 0001 a N"
-494:                 traditional="Copiar y pegar a mano (riesgo de duplicados)"
-495:                 eventazo="100% automático y matemáticamente único"
-496:               />
-497:               <ComparisonRow
-498:                 feature="Aprovechamiento de hoja A4"
-499:                 traditional="Desperdicia hasta el 40% del margen lateral"
-500:                 eventazo="Acomoda tickets verticales y horizontales"
-501:               />
-502:               <ComparisonRow
-503:                 feature="Talón de control desprendible"
-504:                 traditional="Difícil de alinear con líneas de puntos"
-505:                 eventazo="Estandarizado con micro-puntos y corte limpio"
-506:               />
-507:               <ComparisonRow
-508:                 feature="Ajuste de múltiples premios"
-509:                 traditional="Se desborda el texto y deforma el boleto"
-510:                 eventazo="Distribución inteligente en 2, 3 o 4 columnas"
-511:               />
-512:               <ComparisonRow
-513:                 feature="Costo de producción"
-514:                 traditional="Altos costos de imprenta ($30k-$80k)"
-515:                 eventazo="100% gratis para diseñar y exportar en PDF"
-516:               />
-517:             </div>
-518:           </div>
-519:         </div>
-520:       </section>
-521: 
-522:       {/* ============================================================ */}
-523:       {/* 7. CASOS DE USO REALES                                      */}
-524:       {/* ============================================================ */}
-525:       <section id="casos" className="py-16 sm:py-24">
-526:         <div className="container mx-auto px-4 sm:px-6 max-w-5xl">
-527:           <div className="text-center mb-12">
-528:             <span className="text-xs uppercase tracking-widest text-amber-400 font-bold">
-529:               Soluciones a Medida
-530:             </span>
-531:             <h3 className="text-2xl sm:text-4xl font-black text-slate-100 mt-1">
-532:               Creado para quienes necesitan recaudar fondos en serio
-533:             </h3>
-534:           </div>
-535: 
-536:           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-537:             <UseCaseCard
-538:               icon={<GraduationCap className="h-6 w-6 text-amber-400" />}
-539:               title="Escuelas y Cooperadoras"
-540:               description="Kermesses escolares, día del maestro, viajes de egresados y equipamiento de aulas. Imprime planchas que los alumnos pueden vender fácilmente."
-541:               badge="Educación"
-542:             />
-543:             <UseCaseCard
-544:               icon={<Trophy className="h-6 w-6 text-emerald-400" />}
-545:               title="Clubes y Escuelas Deportivas"
-546:               description="Compra de indumentaria, pelotas, viajes a torneos y mantenimiento de canchas. Diseños con hasta 15 premios en varias columnas."
-547:               badge="Deportes"
-548:             />
-549:             <UseCaseCard
-550:               icon={<HeartHandshake className="h-6 w-6 text-rose-400" />}
-551:               title="Campañas Solidarias y Salud"
-552:               description="Tratamientos médicos, cirugías, rescate animal y urgencias comunitarias. Máxima transparencia con talones de control para cada colaborador."
-553:               badge="Solidario"
-554:             />
-555:           </div>
-556:         </div>
-557:       </section>
-558: 
-559:       {/* ============================================================ */}
-560:       {/* 8. PREGUNTAS FRECUENTES (FAQ)                               */}
-561:       {/* ============================================================ */}
-562:       <section id="preguntas" className="py-16 bg-slate-900/30 border-t border-slate-800/80">
-563:         <div className="container mx-auto px-4 sm:px-6 max-w-3xl">
-564:           <div className="text-center mb-10">
-565:             <span className="text-xs uppercase tracking-widest text-amber-400 font-bold">
-566:               Dudas Resueltas
-567:             </span>
-568:             <h3 className="text-2xl sm:text-3xl font-black text-slate-100 mt-1">
-569:               Preguntas Frecuentes
-570:             </h3>
-571:           </div>
-572: 
-573:           <div className="space-y-4">
-574:             <FaqItem
-575:               question="¿Qué tipo de papel es recomendable para imprimir?"
-576:               answer="Para fotocopiadoras o impresoras domésticas, el papel común obra de 75g o 80g funciona excelente y es muy económico. Si buscas un acabado premium para vender a mayor precio, puedes usar cartulina chambril u opalina de 120g a 150g."
-577:             />
-578:             <FaqItem
-579:               question="¿Cómo se cortan y arman los talonarios?"
-580:               answer="Los boletos incluyen líneas de corte punteadas normalizadas. Puedes cortarlos con guillotina de papel o trincheta y regla. Para armar talonarios (por ejemplo de 25 o 50 boletos), basta con colocar dos grampas metálicas en el borde izquierdo del talón de control o aplicar pegamento para blocks."
-581:             />
-582:             <FaqItem
-583:               question="¿Cómo funciona la numeración automática?"
-584:               answer="Tú solo defines el número de inicio (por ejemplo 0001) y la cantidad total (por ejemplo 1.000). Eventazo calcula matemáticamente la cantidad de dígitos necesarios para rellenar con ceros a la izquierda y numera secuencialmente cada boleto y su talón correspondiente sin posibilidad de duplicados."
-585:             />
-586:             <FaqItem
-587:               question="¿Puedo guardar mis diseños para modificarlos después?"
-588:               answer="Sí. Gracias a la integración con Supabase y modo local, puedes hacer clic en 'Guardar Rifa' en la barra superior y tus diseños quedarán archivados en 'Mis Rifas' para editarlos o volver a imprimirlos cuando quieras."
-589:             />
-590:           </div>
-591:         </div>
-592:       </section>
-593: 
-594:       {/* ============================================================ */}
-595:       {/* 9. BANNER CTA FINAL                                         */}
-596:       {/* ============================================================ */}
-597:       <section className="py-20 relative overflow-hidden">
-598:         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-amber-500/5 to-amber-500/10 pointer-events-none" />
-599: 
-600:         <div className="container mx-auto px-4 sm:px-6 max-w-3xl text-center relative z-10">
-601:           <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-4 border border-amber-500/30">
-602:             <Printer className="h-6 w-6" />
-603:           </div>
-604: 
-605:           <h3 className="text-3xl sm:text-4xl font-black text-slate-100">
-606:             Listo para crear tu primera plancha de rifas en 2 minutos?
-607:           </h3>
-608:           <p className="mt-3 text-slate-400 text-sm max-w-lg mx-auto">
-609:             Sin programas pesados, sin registros molestos. Entra al editor y descarga tu PDF listo para imprimir.
-610:           </p>
-611: 
-612:           <div className="mt-8 flex justify-center">
-613:             <Link href="/editor">
-614:               <Button
-615:                 size="lg"
-616:                 className="bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black text-sm h-12 px-8 rounded-2xl shadow-xl shadow-amber-500/30 flex items-center gap-2 group"
-617:               >
-618:                 <span>Abrir Editor Gratuito</span>
-619:                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-620:               </Button>
-621:             </Link>
-622:           </div>
-623:         </div>
-624:       </section>
-625: 
-626:       {/* ============================================================ */}
-627:       {/* 10. FOOTER                                                  */}
-628:       {/* ============================================================ */}
-629:       <footer className="border-t border-slate-800 py-8 bg-slate-950">
-630:         <div className="container mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-631:           <div className="flex items-center gap-2">
-632:             <Image src="/icon.svg" alt="Eventazo" width={24} height={24} className="rounded-md" />
-633:             <span className="text-xs font-bold text-slate-300">Eventazo Studio PRO</span>
-634:             <span className="text-[10px] text-slate-500">• Impresión de Rifas</span>
-635:           </div>
-636: 
-637:           <p className="text-xs text-slate-500">
-638:             Desarrollado con dedicación por{" "}
-639:             <a
-640:               href="https://somos-env.netlify.app/"
-641:               target="_blank"
-642:               rel="noopener noreferrer"
-643:               className="text-amber-400 hover:text-amber-300 underline underline-offset-2 transition-colors"
-644:             >
-645:               SoMoS
-646:             </a>
-647:           </p>
-648:         </div>
-649:       </footer>
-650: 
-651:       {/* Modal de Autenticación */}
-652:       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
-653:     </div>
-654:   );
-655: }
-656: 
-657: // Fila de Comparativa
-658: function ComparisonRow({
-659:   feature,
-660:   traditional,
-661:   eventazo,
-662: }: {
-663:   feature: string;
-664:   traditional: string;
-665:   eventazo: string;
-666: }) {
-667:   return (
-668:     <div className="grid grid-cols-3 p-4 sm:p-4.5 items-center hover:bg-slate-800/30 transition-colors">
-669:       <span className="font-semibold text-slate-200">{feature}</span>
-670:       <div className="text-center text-slate-400 flex items-center justify-center gap-1.5 px-2">
-671:         <XCircle className="h-4 w-4 text-rose-500 shrink-0 hidden sm:inline" />
-672:         <span>{traditional}</span>
-673:       </div>
-674:       <div className="text-center text-amber-300 font-medium flex items-center justify-center gap-1.5 px-2">
-675:         <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 hidden sm:inline" />
-676:         <span>{eventazo}</span>
-677:       </div>
-678:     </div>
-679:   );
-680: }
-681: 
-682: // Tarjeta de Caso de Uso
-683: function UseCaseCard({
-684:   icon,
-685:   title,
-686:   description,
-687:   badge,
-688: }: {
-689:   icon: React.ReactNode;
-690:   title: string;
-691:   description: string;
-692:   badge: string;
-693: }) {
-694:   return (
-695:     <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-6 flex flex-col justify-between hover:border-amber-500/40 hover:bg-slate-900 transition-all duration-200 group">
-696:       <div>
-697:         <div className="flex items-center justify-between mb-4">
-698:           <div className="w-12 h-12 rounded-2xl bg-slate-800 flex items-center justify-center group-hover:scale-105 transition-transform">
-699:             {icon}
-700:           </div>
-701:           <span className="text-[10px] uppercase font-bold text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-full border border-slate-700">
-702:             {badge}
-703:           </span>
-704:         </div>
-705:         <h4 className="text-base font-bold text-slate-100 group-hover:text-amber-300 transition-colors">
-706:           {title}
-707:         </h4>
-708:         <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-709:           {description}
-710:         </p>
-711:       </div>
-712: 
-713:       <div className="mt-6 pt-4 border-t border-slate-800/80">
-714:         <Link
-715:           href="/editor"
-716:           className="text-xs font-semibold text-amber-400 hover:text-amber-300 flex items-center gap-1 group-hover:translate-x-0.5 transition-transform"
-717:         >
-718:           <span>Diseñar para este caso</span>
-719:           <ArrowRight className="h-3.5 w-3.5" />
-720:         </Link>
-721:       </div>
-722:     </div>
-723:   );
-724: }
-725: 
-726: // Acordeón / Item de Pregunta Frecuente
-727: function FaqItem({ question, answer }: { question: string; answer: string }) {
-728:   const [open, setOpen] = useState(false);
-729: 
-730:   return (
-731:     <div className="rounded-2xl border border-slate-800 bg-slate-900/60 overflow-hidden transition-colors">
-732:       <button
-733:         onClick={() => setOpen(!open)}
-734:         className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-3 text-xs sm:text-sm font-bold text-slate-200 hover:text-amber-300 transition-colors"
-735:       >
-736:         <span>{question}</span>
-737:         <span className="text-slate-500 text-lg font-mono leading-none">
-738:           {open ? "−" : "+"}
-739:         </span>
-740:       </button>
-741:       {open && (
-742:         <div className="px-4 sm:px-5 pb-4 sm:pb-5 text-xs text-slate-400 leading-relaxed border-t border-slate-800/50 pt-3 animate-in fade-in duration-150">
-743:           {answer}
-744:         </div>
-745:       )}
-746:     </div>
-747:   );
-748: }
+212:           </div>
+213:         </div>
+214: 
+215:         {/* Márgenes */}
+216:         <div className="space-y-2 pt-1 border-t border-slate-800">
+217:           <Label className="flex items-center gap-1.5 text-xs text-slate-400 uppercase tracking-wider font-semibold">
+218:             <Maximize2 className="h-3.5 w-3.5" />
+219:             <span>Márgenes de Hoja</span>
+220:           </Label>
+221:           <div className="grid grid-cols-4 gap-2">
+222:             <div className="space-y-1">
+223:               <span className="text-[11px] text-slate-400">Arriba</span>
+224:               <NumberInput
+225:                 min={0}
+226:                 max={30}
+227:                 step={1}
+228:                 suffix="mm"
+229:                 value={printConfig.marginTop}
+230:                 onChange={(val) => setPrintConfig({ marginTop: val })}
+231:               />
+232:             </div>
+233:             <div className="space-y-1">
+234:               <span className="text-[11px] text-slate-400">Abajo</span>
+235:               <NumberInput
+236:                 min={0}
+237:                 max={30}
+238:                 step={1}
+239:                 suffix="mm"
+240:                 value={printConfig.marginBottom}
+241:                 onChange={(val) => setPrintConfig({ marginBottom: val })}
+242:               />
+243:             </div>
+244:             <div className="space-y-1">
+245:               <span className="text-[11px] text-slate-400">Izq.</span>
+246:               <NumberInput
+247:                 min={0}
+248:                 max={30}
+249:                 step={1}
+250:                 suffix="mm"
+251:                 value={printConfig.marginLeft}
+252:                 onChange={(val) => setPrintConfig({ marginLeft: val })}
+253:               />
+254:             </div>
+255:             <div className="space-y-1">
+256:               <span className="text-[11px] text-slate-400">Der.</span>
+257:               <NumberInput
+258:                 min={0}
+259:                 max={30}
+260:                 step={1}
+261:                 suffix="mm"
+262:                 value={printConfig.marginRight}
+263:                 onChange={(val) => setPrintConfig({ marginRight: val })}
+264:               />
+265:             </div>
+266:           </div>
+267:         </div>
+268: 
+269:         <p className="text-[11px] text-slate-400 flex items-center gap-1.5">
+270:           <span>💡</span>
+271:           <span>El sistema calcula el aprovechamiento óptimo de la hoja A4 rotando boletos al margen si queda espacio libre.</span>
+272:         </p>
+273:       </CardContent>
+274:     </Card>
+275:   );
+276: }
 ````
 
 ## File: src/components/ConfigPanel.tsx
@@ -4965,7 +5366,7 @@ tsconfig.json
  82:   };
  83: 
  84:   return (
- 85:     <Card className="shadow-lg border-slate-700/80">
+ 85:     <Card className="shadow-xl border-slate-800/80">
  86:       <CardHeader className="pb-3 border-b border-slate-800">
  87:         <div className="flex items-center justify-between gap-2">
  88:           <CardTitle className="flex items-center gap-2">
@@ -5556,804 +5957,6 @@ tsconfig.json
 673: }
 ````
 
-## File: src/components/PageLayoutPreview.tsx
-````typescript
-  1: "use client";
-  2: 
-  3: import { useMemo } from "react";
-  4: import { useRifaStore } from "@/store/useRifaStore";
-  5: import { A4_WIDTH_PT, A4_HEIGHT_PT, MM_TO_PT } from "@/lib/constants";
-  6: 
-  7: export function PageLayoutPreview() {
-  8:   const { printConfig, ticketConfig } = useRifaStore();
-  9: 
- 10:   const {
- 11:     rows,
- 12:     cols,
- 13:     horizCount,
- 14:     sideRotatedCount,
- 15:     canFitSide,
- 16:     totalPerPage,
- 17:     totalPages,
- 18:     scale,
- 19:     pageW,
- 20:     pageH,
- 21:     gridStartX,
- 22:     gridW,
- 23:     tW,
- 24:     tH,
- 25:     stubW,
- 26:     gap,
- 27:     margin,
- 28:   } = useMemo(() => {
- 29:     const m = printConfig.marginTop * MM_TO_PT;
- 30:     const g = printConfig.gap * MM_TO_PT;
- 31:     const tw = printConfig.ticketWidth * MM_TO_PT;
- 32:     const th = printConfig.ticketHeight * MM_TO_PT;
- 33:     const rawStub = (printConfig.stubWidth ?? 36) * MM_TO_PT;
- 34:     const stubW = Math.min(Math.max(15 * MM_TO_PT, rawStub), Math.max(20 * MM_TO_PT, tw - 25 * MM_TO_PT));
- 35: 
- 36:     const availW = A4_WIDTH_PT - m * 2;
- 37:     const availH = A4_HEIGHT_PT - m * 2;
- 38: 
- 39:     const c = Math.max(1, Math.floor((availW + g) / (tw + g)));
- 40:     const r = Math.max(1, Math.floor((availH + g) / (th + g)));
- 41:     const hc = c * r;
- 42: 
- 43:     const gw = c * tw + (c - 1) * g;
- 44:     const sx = m;
- 45: 
- 46:     const rightRemaining = A4_WIDTH_PT - sx - gw - g - m;
- 47:     const canFitSide = (printConfig.allowSideTickets ?? true) && (rightRemaining >= th);
- 48:     const sc = canFitSide ? Math.floor((availH + g) / (tw + g)) : 0;
- 49: 
- 50:     const tpp = hc + sc;
- 51:     const tp = Math.ceil(ticketConfig.totalTickets / tpp);
- 52: 
- 53:     const s = 200 / A4_HEIGHT_PT;
- 54:     const pw = A4_WIDTH_PT * s;
- 55:     const ph = A4_HEIGHT_PT * s;
- 56: 
- 57:     return {
- 58:       rows: r,
- 59:       cols: c,
- 60:       horizCount: hc,
- 61:       sideRotatedCount: sc,
- 62:       canFitSide,
- 63:       totalPerPage: tpp,
- 64:       totalPages: tp,
- 65:       scale: s,
- 66:       pageW: pw,
- 67:       pageH: ph,
- 68:       gridStartX: sx,
- 69:       gridW: gw,
- 70:       tW: tw,
- 71:       tH: th,
- 72:       stubW,
- 73:       gap: g,
- 74:       margin: m,
- 75:     };
- 76:   }, [
- 77:     printConfig.marginTop,
- 78:     printConfig.gap,
- 79:     printConfig.ticketWidth,
- 80:     printConfig.ticketHeight,
- 81:     printConfig.stubWidth,
- 82:     printConfig.allowSideTickets,
- 83:     ticketConfig.totalTickets,
- 84:   ]);
- 85: 
- 86:   return (
- 87:     <div className="rounded-xl border border-slate-700/50 bg-slate-800/80 p-4 space-y-3">
- 88:       <h4 className="text-sm font-semibold text-slate-200">
- 89:         Distribución en Página A4
- 90:       </h4>
- 91: 
- 92:       {/* Stats */}
- 93:       <div className="grid grid-cols-3 gap-2 text-center">
- 94:         <div className="rounded-lg bg-slate-900/60 p-2">
- 95:           <p className="text-lg font-bold text-amber-400">{totalPerPage}</p>
- 96:           <p className="text-[9px] text-slate-400">por página</p>
- 97:         </div>
- 98:         <div className="rounded-lg bg-slate-900/60 p-2">
- 99:           <p className="text-lg font-bold text-amber-400">{totalPages}</p>
-100:           <p className="text-[9px] text-slate-400">páginas</p>
-101:         </div>
-102:         <div className="rounded-lg bg-slate-900/60 p-2">
-103:           <p className="text-lg font-bold text-amber-400">{ticketConfig.totalTickets}</p>
-104:           <p className="text-[9px] text-slate-400">tickets</p>
-105:         </div>
-106:       </div>
-107: 
-108:       {/* Visual page layout */}
-109:       <div className="flex justify-center">
-110:         <div
-111:           className="relative bg-white rounded shadow-lg border border-slate-500"
-112:           style={{ width: `${pageW}px`, height: `${pageH}px` }}
-113:         >
-114:           {/* Horizontal tickets */}
-115:           {Array.from({ length: rows }).map((_, row) =>
-116:             Array.from({ length: cols }).map((_, col) => {
-117:               const ticketIdx = row * cols + col;
-118:               if (ticketIdx >= horizCount) return null;
-119:               const x = (gridStartX + col * (tW + gap)) * scale;
-120:               const y = (margin + row * (tH + gap)) * scale;
-121:               return (
-122:                 <div
-123:                   key={`h-${row}-${col}`}
-124:                   className="absolute bg-amber-100 border border-amber-400/60 rounded-[2px] flex items-center justify-between overflow-hidden"
-125:                   style={{
-126:                     left: `${x}px`,
-127:                     top: `${y}px`,
-128:                     width: `${tW * scale}px`,
-129:                     height: `${tH * scale}px`,
-130:                   }}
-131:                 >
-132:                   <span className="flex-1 text-center text-[6px] text-amber-700 font-mono font-bold truncate">
-133:                     {ticketIdx + 1}
-134:                   </span>
-135:                   <div
-136:                     className="h-full border-l border-dashed border-amber-400/80 bg-amber-200/50"
-137:                     style={{ width: `${(stubW / tW) * 100}%` }}
-138:                     title="Talón"
-139:                   />
-140:                 </div>
-141:               );
-142:             })
-143:           )}
-144: 
-145:           {/* Rotated tickets on the right */}
-146:           {canFitSide &&
-147:             Array.from({ length: sideRotatedCount }).map((_, i) => {
-148:               const rx = (gridStartX + gridW + gap) * scale;
-149:               const ry = (margin + i * (tW + gap)) * scale;
-150:               return (
-151:                 <div
-152:                   key={`r-${i}`}
-153:                   className="absolute bg-blue-100 border border-blue-400/60 rounded-[2px] flex flex-col items-center justify-between overflow-hidden"
-154:                   style={{
-155:                     left: `${rx}px`,
-156:                     top: `${ry}px`,
-157:                     width: `${tH * scale}px`,
-158:                     height: `${tW * scale}px`,
-159:                   }}
-160:                 >
-161:                   <div
-162:                     className="w-full border-b border-dashed border-blue-400/80 bg-blue-200/50"
-163:                     style={{ height: `${(stubW / tW) * 100}%` }}
-164:                     title="Talón"
-165:                   />
-166:                   <span className="flex-1 flex items-center justify-center text-[6px] text-blue-700 font-mono font-bold rotate-90 truncate">
-167:                     {horizCount + i + 1}
-168:                   </span>
-169:                 </div>
-170:               );
-171:             })}
-172:         </div>
-173:       </div>
-174: 
-175:       {/* Legend */}
-176:       <div className="flex items-center justify-center gap-4 text-[9px]">
-177:         <div className="flex items-center gap-1">
-178:           <div className="w-3 h-2 bg-amber-100 border border-amber-400/60 rounded-[1px]" />
-179:           <span className="text-slate-400">Horizontal ({horizCount})</span>
-180:         </div>
-181:         {sideRotatedCount > 0 && (
-182:           <div className="flex items-center gap-1">
-183:             <div className="w-2 h-3 bg-blue-100 border border-blue-400/60 rounded-[1px]" />
-184:             <span className="text-slate-400">Vertical ({sideRotatedCount})</span>
-185:           </div>
-186:         )}
-187:       </div>
-188:     </div>
-189:   );
-190: }
-````
-
-## File: src/components/PrintConfigPanel.tsx
-````typescript
-  1: "use client";
-  2: 
-  3: import { useMemo } from "react";
-  4: import { Printer, Maximize2, LayoutGrid, Scissors } from "lucide-react";
-  5: import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-  6: import { Label } from "@/components/ui/label";
-  7: import { NumberInput } from "@/components/ui/number-input";
-  8: import { Slider } from "@/components/ui/slider";
-  9: import { Switch } from "@/components/ui/switch";
- 10: import { useRifaStore } from "@/store/useRifaStore";
- 11: import { A4_WIDTH_PT, A4_HEIGHT_PT, MM_TO_PT } from "@/lib/constants";
- 12: 
- 13: export function PrintConfigPanel() {
- 14:   const { printConfig, setPrintConfig, ticketConfig } = useRifaStore();
- 15: 
- 16:   const currentStubWidth = printConfig.stubWidth ?? 36;
- 17:   const stubPercent = Math.round((currentStubWidth / printConfig.ticketWidth) * 100);
- 18: 
- 19:   // Memoized layout calculation for fast responsiveness on low-end machines
- 20:   const { ticketsPerRow, ticketsPerCol, horizontalCount, sideCount, ticketsPerPage, totalPages } = useMemo(() => {
- 21:     const margin = printConfig.marginTop * MM_TO_PT;
- 22:     const gap = printConfig.gap * MM_TO_PT;
- 23:     const ticketWidth = printConfig.ticketWidth * MM_TO_PT;
- 24:     const ticketHeight = printConfig.ticketHeight * MM_TO_PT;
- 25: 
- 26:     const availableWidth = A4_WIDTH_PT - margin * 2;
- 27:     const availableHeight = A4_HEIGHT_PT - margin * 2;
- 28: 
- 29:     const cols = Math.max(1, Math.floor((availableWidth + gap) / (ticketWidth + gap)));
- 30:     const rows = Math.max(1, Math.floor((availableHeight + gap) / (ticketHeight + gap)));
- 31:     const hc = cols * rows;
- 32: 
- 33:     const gridW = cols * ticketWidth + (cols - 1) * gap;
- 34:     const rightRem = A4_WIDTH_PT - margin - gridW - gap - margin;
- 35:     const canFitSide = (printConfig.allowSideTickets ?? true) && (rightRem >= ticketHeight);
- 36:     const sc = canFitSide ? Math.floor((availableHeight + gap) / (ticketWidth + gap)) : 0;
- 37: 
- 38:     const tpp = hc + sc;
- 39:     const tp = Math.ceil(ticketConfig.totalTickets / tpp);
- 40: 
- 41:     return {
- 42:       ticketsPerRow: cols,
- 43:       ticketsPerCol: rows,
- 44:       ticketsPerPage: tpp,
- 45:       totalPages: tp,
- 46:       horizontalCount: hc,
- 47:       sideCount: sc,
- 48:       canFitSide,
- 49:     };
- 50:   }, [
- 51:     printConfig.ticketWidth,
- 52:     printConfig.ticketHeight,
- 53:     printConfig.gap,
- 54:     printConfig.marginTop,
- 55:     printConfig.allowSideTickets,
- 56:     ticketConfig.totalTickets,
- 57:   ]);
- 58: 
- 59:   return (
- 60:     <Card className="shadow-lg border-slate-700/80">
- 61:       <CardHeader className="pb-3 border-b border-slate-800">
- 62:         <CardTitle className="flex items-center gap-2">
- 63:           <Printer className="h-5 w-5 text-amber-400" />
- 64:           <span>Configuración de Impresión (A4)</span>
- 65:         </CardTitle>
- 66:       </CardHeader>
- 67: 
- 68:       <CardContent className="space-y-4 pt-4">
- 69:         {/* Resumen de imposición */}
- 70:         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
- 71:           <div className="rounded-lg bg-slate-900/80 border border-slate-700/80 p-3 text-center">
- 72:             <span className="text-[11px] text-slate-400">Por Página</span>
- 73:             <p className="text-xl font-bold font-mono text-amber-400">{ticketsPerPage}</p>
- 74:             {sideCount > 0 && (
- 75:               <span className="text-[9px] text-amber-500/80 block mt-0.5">
- 76:                 ({horizontalCount} horiz. + {sideCount} vert.)
- 77:               </span>
- 78:             )}
- 79:           </div>
- 80:           <div className="rounded-lg bg-slate-900/80 border border-slate-700/80 p-3 text-center">
- 81:             <span className="text-[11px] text-slate-400">Total Páginas</span>
- 82:             <p className="text-xl font-bold font-mono text-amber-400">{totalPages}</p>
- 83:           </div>
- 84:           <div className="rounded-lg bg-slate-900/80 border border-slate-700/80 p-3 text-center">
- 85:             <span className="text-[11px] text-slate-400">Columnas</span>
- 86:             <p className="text-xl font-bold font-mono text-slate-200">{ticketsPerRow}</p>
- 87:           </div>
- 88:           <div className="rounded-lg bg-slate-900/80 border border-slate-700/80 p-3 text-center">
- 89:             <span className="text-[11px] text-slate-400">Filas</span>
- 90:             <p className="text-xl font-bold font-mono text-slate-200">{ticketsPerCol}</p>
- 91:           </div>
- 92:         </div>
- 93: 
- 94:         {/* Disposición: Boletos verticales en el margen */}
- 95:         <div className="rounded-lg bg-slate-900/60 border border-slate-700/80 p-3 shadow-inner">
- 96:           <Switch
- 97:             id="allowSideTickets"
- 98:             checked={printConfig.allowSideTickets ?? true}
- 99:             onCheckedChange={(checked) => setPrintConfig({ allowSideTickets: checked })}
-100:             label="Aprovechar margen derecho con boletos verticales"
-101:             description="Activado: aprovecha el espacio lateral de la hoja A4 colocando boletos verticales rotados 90°. Desactívalo si prefieres solo boletos horizontales."
-102:           />
-103:         </div>
-104: 
-105:         {/* Tamaño del ticket */}
-106:         <div className="space-y-3">
-107:           <Label className="flex items-center gap-1.5 text-xs text-amber-400/90 uppercase tracking-wider font-semibold">
-108:             <LayoutGrid className="h-3.5 w-3.5" />
-109:             <span>Dimensiones del Ticket</span>
-110:           </Label>
-111:           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-112:             <div className="space-y-1">
-113:               <span className="text-[11px] text-slate-400">Ancho Boleto</span>
-114:               <NumberInput
-115:                 min={60}
-116:                 max={210}
-117:                 step={5}
-118:                 suffix="mm"
-119:                 value={printConfig.ticketWidth}
-120:                 onChange={(val) => {
-121:                   const maxStub = Math.max(20, val - 25);
-122:                   const safeStub = Math.min(currentStubWidth, maxStub);
-123:                   setPrintConfig({ ticketWidth: val, stubWidth: safeStub });
-124:                 }}
-125:               />
-126:             </div>
-127:             <div className="space-y-1">
-128:               <span className="text-[11px] text-slate-400">Alto Boleto</span>
-129:               <NumberInput
-130:                 min={25}
-131:                 max={150}
-132:                 step={5}
-133:                 suffix="mm"
-134:                 value={printConfig.ticketHeight}
-135:                 onChange={(val) => setPrintConfig({ ticketHeight: val })}
-136:               />
-137:             </div>
-138:             <div className="space-y-1">
-139:               <div className="flex items-center justify-between">
-140:                 <span className="text-[11px] text-slate-400">Ancho Talón</span>
-141:                 <span className="text-[10px] text-amber-400 font-mono font-bold">
-142:                   {stubPercent}%
-143:                 </span>
-144:               </div>
-145:               <NumberInput
-146:                 min={15}
-147:                 max={Math.max(20, printConfig.ticketWidth - 25)}
-148:                 step={1}
-149:                 suffix="mm"
-150:                 value={currentStubWidth}
-151:                 onChange={(val) => setPrintConfig({ stubWidth: val })}
-152:               />
-153:             </div>
-154:             <div className="space-y-1">
-155:               <span className="text-[11px] text-slate-400">Separación</span>
-156:               <NumberInput
-157:                 min={0}
-158:                 max={10}
-159:                 step={0.5}
-160:                 suffix="mm"
-161:                 value={printConfig.gap}
-162:                 onChange={(val) => setPrintConfig({ gap: val })}
-163:               />
-164:             </div>
-165:           </div>
-166: 
-167:           {/* Control deslizante y preajustes de talón */}
-168:           <div className="rounded-lg bg-slate-900/50 border border-slate-700/80 p-3 space-y-2.5 shadow-inner">
-169:             <div className="flex items-center justify-between text-xs">
-170:               <span className="flex items-center gap-1.5 font-medium text-slate-300 text-[11px]">
-171:                 <Scissors className="h-3.5 w-3.5 text-amber-400" />
-172:                 <span>Ajuste rápido de tamaño del talón:</span>
-173:               </span>
-174:               <span className="font-mono text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">
-175:                 {currentStubWidth} mm ({stubPercent}%)
-176:               </span>
-177:             </div>
-178: 
-179:             <Slider
-180:               min={18}
-181:               max={Math.max(25, Math.round(printConfig.ticketWidth * 0.48))}
-182:               step={1}
-183:               value={currentStubWidth}
-184:               onChange={(val) => setPrintConfig({ stubWidth: val })}
-185:               showValueBadge={false}
-186:             />
-187: 
-188:             <div className="flex flex-wrap items-center justify-between gap-1 pt-1">
-189:               <span className="text-[10px] text-slate-400">Preajustes rápidos:</span>
-190:               <div className="flex flex-wrap gap-1">
-191:                 {[
-192:                   { label: "Estrecho (28mm)", w: 28 },
-193:                   { label: "Estándar (36mm)", w: 36 },
-194:                   { label: "Medio (42mm)", w: 42 },
-195:                   { label: "Amplio (48mm)", w: 48 },
-196:                 ].map((preset) => (
-197:                   <button
-198:                     key={preset.w}
-199:                     type="button"
-200:                     onClick={() => setPrintConfig({ stubWidth: preset.w })}
-201:                     className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors cursor-pointer ${
-202:                       currentStubWidth === preset.w
-203:                         ? "bg-amber-500/20 text-amber-400 border border-amber-500/40"
-204:                         : "bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700"
-205:                     }`}
-206:                   >
-207:                     {preset.label}
-208:                   </button>
-209:                 ))}
-210:               </div>
-211:             </div>
-212:           </div>
-213:         </div>
-214: 
-215:         {/* Márgenes */}
-216:         <div className="space-y-2 pt-1 border-t border-slate-800">
-217:           <Label className="flex items-center gap-1.5 text-xs text-slate-400 uppercase tracking-wider font-semibold">
-218:             <Maximize2 className="h-3.5 w-3.5" />
-219:             <span>Márgenes de Hoja</span>
-220:           </Label>
-221:           <div className="grid grid-cols-4 gap-2">
-222:             <div className="space-y-1">
-223:               <span className="text-[11px] text-slate-400">Arriba</span>
-224:               <NumberInput
-225:                 min={0}
-226:                 max={30}
-227:                 step={1}
-228:                 suffix="mm"
-229:                 value={printConfig.marginTop}
-230:                 onChange={(val) => setPrintConfig({ marginTop: val })}
-231:               />
-232:             </div>
-233:             <div className="space-y-1">
-234:               <span className="text-[11px] text-slate-400">Abajo</span>
-235:               <NumberInput
-236:                 min={0}
-237:                 max={30}
-238:                 step={1}
-239:                 suffix="mm"
-240:                 value={printConfig.marginBottom}
-241:                 onChange={(val) => setPrintConfig({ marginBottom: val })}
-242:               />
-243:             </div>
-244:             <div className="space-y-1">
-245:               <span className="text-[11px] text-slate-400">Izq.</span>
-246:               <NumberInput
-247:                 min={0}
-248:                 max={30}
-249:                 step={1}
-250:                 suffix="mm"
-251:                 value={printConfig.marginLeft}
-252:                 onChange={(val) => setPrintConfig({ marginLeft: val })}
-253:               />
-254:             </div>
-255:             <div className="space-y-1">
-256:               <span className="text-[11px] text-slate-400">Der.</span>
-257:               <NumberInput
-258:                 min={0}
-259:                 max={30}
-260:                 step={1}
-261:                 suffix="mm"
-262:                 value={printConfig.marginRight}
-263:                 onChange={(val) => setPrintConfig({ marginRight: val })}
-264:               />
-265:             </div>
-266:           </div>
-267:         </div>
-268: 
-269:         <p className="text-[11px] text-slate-400 flex items-center gap-1.5">
-270:           <span>💡</span>
-271:           <span>El sistema calcula el aprovechamiento óptimo de la hoja A4 rotando boletos al margen si queda espacio libre.</span>
-272:         </p>
-273:       </CardContent>
-274:     </Card>
-275:   );
-276: }
-````
-
-## File: src/components/Header.tsx
-````typescript
-  1: "use client";
-  2: 
-  3: import { useState, useEffect } from "react";
-  4: import Image from "next/image";
-  5: import {
-  6:   FolderOpen,
-  7:   Save,
-  8:   LogIn,
-  9:   LogOut,
- 10:   User as UserIcon,
- 11:   Check,
- 12:   Sparkles,
- 13:   Database
- 14: } from "lucide-react";
- 15: import { Button } from "@/components/ui/button";
- 16: import { useAuth } from "@/hooks/useAuth";
- 17: import { AuthModal } from "@/components/auth/AuthModal";
- 18: import { ProfileModal } from "@/components/auth/ProfileModal";
- 19: import { SavedTicketsDrawer } from "@/components/SavedTicketsDrawer";
- 20: import { useRifaStore } from "@/store/useRifaStore";
- 21: import { saveTicketDesign, getSavedTickets } from "@/services/tickets-service";
- 22: 
- 23: export function Header() {
- 24:   const { user, signOut, isConfigured } = useAuth();
- 25:   const { ticketConfig, printConfig } = useRifaStore();
- 26: 
- 27:   const [isAuthOpen, setIsAuthOpen] = useState(false);
- 28:   const [isProfileOpen, setIsProfileOpen] = useState(false);
- 29:   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
- 30:   const [saving, setSaving] = useState(false);
- 31:   const [saveSuccess, setSaveSuccess] = useState(false);
- 32:   const [savedCount, setSavedCount] = useState(0);
- 33: 
- 34:   // Cargar cantidad de boletos guardados
- 35:   const refreshCount = async () => {
- 36:     try {
- 37:       const list = await getSavedTickets();
- 38:       setSavedCount(list.length);
- 39:     } catch {
- 40:       // Ignorar error silencioso
- 41:     }
- 42:   };
- 43: 
- 44:   useEffect(() => {
- 45:     refreshCount();
- 46:   }, [user]);
- 47: 
- 48:   const handleSave = async () => {
- 49:     if (!user) {
- 50:       setIsAuthOpen(true);
- 51:       return;
- 52:     }
- 53: 
- 54:     setSaving(true);
- 55:     try {
- 56:       await saveTicketDesign(
- 57:         ticketConfig.eventName || "Mi Rifa",
- 58:         ticketConfig,
- 59:         printConfig
- 60:       );
- 61:       setSaveSuccess(true);
- 62:       refreshCount();
- 63:       setTimeout(() => setSaveSuccess(false), 2500);
- 64:     } catch (e) {
- 65:       console.error("Error al guardar:", e);
- 66:     } finally {
- 67:       setSaving(false);
- 68:     }
- 69:   };
- 70: 
- 71:   return (
- 72:     <>
- 73:       <header className="sticky top-0 z-40 border-b border-slate-700/60 bg-slate-900/90 backdrop-blur-md">
- 74:         <div className="container mx-auto flex h-14 sm:h-16 items-center justify-between px-3 sm:px-4">
- 75:           {/* Logo & Marca */}
- 76:           <div className="flex items-center gap-2 sm:gap-3">
- 77:             <div className="relative">
- 78:               <Image
- 79:                 src="/icon.svg"
- 80:                 alt="Eventazo"
- 81:                 width={40}
- 82:                 height={40}
- 83:                 className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl shadow-lg shadow-amber-500/20"
- 84:               />
- 85:               <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-amber-400 text-[8px] font-black text-slate-950">
- 86:                 ★
- 87:               </span>
- 88:             </div>
- 89:             <div>
- 90:               <div className="flex items-center gap-1.5">
- 91:                 <h1 className="text-sm sm:text-lg font-black text-slate-100 tracking-tight">
- 92:                   Eventazo
- 93:                 </h1>
- 94:                 <span className="rounded bg-gradient-to-r from-amber-500/20 to-amber-300/20 border border-amber-500/40 px-1.5 py-0.2 text-[9px] font-bold text-amber-300">
- 95:                   PRO
- 96:                 </span>
- 97:               </div>
- 98:               <p className="text-[10px] text-slate-400 hidden sm:block">
- 99:                 Diseño & Impresión de Rifas Profesionales
-100:               </p>
-101:             </div>
-102:           </div>
-103: 
-104:           {/* Acciones del Header */}
-105:           <div className="flex items-center gap-1.5 sm:gap-3">
-106:             {/* Botón Mis Rifas */}
-107:             <Button
-108:               variant="outline"
-109:               size="sm"
-110:               onClick={() => setIsDrawerOpen(true)}
-111:               className="border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-slate-200 hover:text-amber-400 text-xs h-8 sm:h-9 px-2 sm:px-3 rounded-xl gap-1.5"
-112:             >
-113:               <FolderOpen className="h-3.5 w-3.5 text-amber-400" />
-114:               <span className="hidden sm:inline">Mis Rifas</span>
-115:               {savedCount > 0 && (
-116:                 <span className="ml-1 rounded-full bg-amber-500/20 px-1.5 py-0.2 text-[10px] font-mono font-bold text-amber-400">
-117:                   {savedCount}
-118:                 </span>
-119:               )}
-120:             </Button>
-121: 
-122:             {/* Botón Guardar Rifa */}
-123:             <Button
-124:               size="sm"
-125:               onClick={handleSave}
-126:               disabled={saving}
-127:               className={`h-8 sm:h-9 px-2 sm:px-3 text-xs font-bold rounded-xl gap-1.5 transition-all shadow-md ${
-128:                 saveSuccess
-129:                   ? "bg-emerald-500 text-white shadow-emerald-500/20"
-130:                   : "bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 shadow-amber-500/20"
-131:               }`}
-132:             >
-133:               {saveSuccess ? (
-134:                 <>
-135:                   <Check className="h-3.5 w-3.5" />
-136:                   <span>¡Guardado!</span>
-137:                 </>
-138:               ) : (
-139:                 <>
-140:                   <Save className="h-3.5 w-3.5" />
-141:                   <span>{saving ? "Guardando..." : "Guardar"}</span>
-142:                 </>
-143:               )}
-144:             </Button>
-145: 
-146:             {/* Usuario / Login */}
-147:             {user ? (
-148:               <div className="flex items-center gap-1 sm:gap-2 pl-1 border-l border-slate-800">
-149:                 <button
-150:                   type="button"
-151:                   onClick={() => setIsProfileOpen(true)}
-152:                   className="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 hover:border-amber-500/40 transition-colors text-left group"
-153:                   title="Ver y editar mi perfil"
-154:                 >
-155:                   <div className="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px] font-bold border border-amber-500/30 group-hover:scale-105 transition-transform">
-156:                     {user.name ? user.name[0].toUpperCase() : user.email[0].toUpperCase()}
-157:                   </div>
-158:                   <span className="text-xs font-medium text-slate-300 group-hover:text-amber-300 max-w-[95px] truncate hidden md:inline transition-colors">
-159:                     {user.name || user.email.split("@")[0]}
-160:                   </span>
-161:                   {user.isDemo && (
-162:                     <span className="text-[9px] bg-slate-700 text-amber-300 px-1 rounded">
-163:                       Demo
-164:                     </span>
-165:                   )}
-166:                 </button>
-167: 
-168:                 <Button
-169:                   variant="ghost"
-170:                   size="sm"
-171:                   onClick={() => signOut()}
-172:                   title="Cerrar sesión"
-173:                   className="h-8 w-8 p-0 text-slate-400 hover:text-rose-400 rounded-xl"
-174:                 >
-175:                   <LogOut className="h-3.5 w-3.5" />
-176:                 </Button>
-177:               </div>
-178:             ) : (
-179:               <Button
-180:                 variant="ghost"
-181:                 size="sm"
-182:                 onClick={() => setIsAuthOpen(true)}
-183:                 className="h-8 sm:h-9 px-2 sm:px-3 text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-800/80 rounded-xl gap-1.5"
-184:               >
-185:                 <LogIn className="h-3.5 w-3.5" />
-186:                 <span>Ingresar</span>
-187:               </Button>
-188:             )}
-189:           </div>
-190:         </div>
-191:       </header>
-192: 
-193:       {/* Modal de Autenticación */}
-194:       <AuthModal
-195:         isOpen={isAuthOpen}
-196:         onClose={() => setIsAuthOpen(false)}
-197:         onSuccess={() => {
-198:           refreshCount();
-199:         }}
-200:       />
-201: 
-202:       {/* Modal de Perfil de Usuario */}
-203:       <ProfileModal
-204:         isOpen={isProfileOpen}
-205:         onClose={() => setIsProfileOpen(false)}
-206:       />
-207: 
-208:       {/* Cajón de Rifas Guardadas */}
-209:       <SavedTicketsDrawer
-210:         isOpen={isDrawerOpen}
-211:         onClose={() => setIsDrawerOpen(false)}
-212:         onSelectTicket={() => {
-213:           refreshCount();
-214:         }}
-215:         onOpenAuth={() => setIsAuthOpen(true)}
-216:       />
-217:     </>
-218:   );
-219: }
-````
-
-## File: src/lib/constants.ts
-````typescript
- 1: import { Prize, TicketConfig, PrintConfig } from "@/types";
- 2: 
- 3: export const DEFAULT_PRIZES: Prize[] = [
- 4:   { position: 1, label: "1°", description: "Parrilla y accesorios" },
- 5:   { position: 2, label: "2°", description: "Olla" },
- 6:   { position: 3, label: "3°", description: "Asado Battisti (3kg de asado, ens., vino, 2 gas.)" },
- 7:   { position: 4, label: "4°", description: "Almuerzo en Garden" },
- 8:   { position: 5, label: "5°", description: "Cena para dos - Club Restobar" },
- 9:   { position: 6, label: "6°", description: "Juego de mate" },
-10:   { position: 7, label: "7°", description: "Torta Pirineos" },
-11:   { position: 8, label: "8°", description: "Perfume o billetera" },
-12:   { position: 9, label: "9°", description: "Cena – Benito Pizzería" },
-13:   { position: 10, label: "10°", description: "Combo de limpieza" },
-14:   { position: 11, label: "11°", description: "Bombilla Messi" },
-15:   { position: 12, label: "12°", description: "Remera y gorra Argentina" },
-16:   { position: 13, label: "13°", description: "Bandolera" },
-17:   { position: 14, label: "14°", description: "Bufanda" },
-18:   { position: 15, label: "15°", description: "Combo de masas dulces" },
-19:   { position: 16, label: "16°", description: "Torta matera" },
-20:   { position: 17, label: "17°", description: "Body splash" },
-21:   { position: 18, label: "18°", description: "Vaso térmico Ailuz Creaciones" },
-22:   { position: 19, label: "19°", description: "Voucher Battisti Mayorista ($19.900)" },
-23:   { position: 20, label: "20°", description: "Vino" },
-24: ];
-25: 
-26: export const DEFAULT_TICKET_CONFIG: TicketConfig = {
-27:   eventName: 'ESCUELA NRO. 71 "PEDRO GOYENA"',
-28:   subtitle: "Gran Rifa Especial Día del Padre",
-29:   organizer: "Escuela Nro. 71 Pedro Goyena",
-30:   drawDate: "Viernes 19 de Junio de 2026",
-31:   price: 3000,
-32:   priceLabel: "VALOR: $3.000",
-33:   totalTickets: 900,
-34:   startNumber: 1,
-35:   contributionText: "Tu colaboración apoya los proyectos de nuestra comunidad educativa.",
-36:   prizes: DEFAULT_PRIZES,
-37:   prizesFontSize: 8,
-38:   titleFontSize: 14,
-39:   subtitleFontSize: 12,
-40:   stubFontSize: 10,
-41:   generalFontScale: 100,
-42:   prizeColumns: "auto",
-43:   primaryColor: "#991b1b",
-44: };
-45: 
-46: export const EMPTY_TICKET_CONFIG: TicketConfig = {
-47:   eventName: "",
-48:   subtitle: "",
-49:   organizer: "",
-50:   drawDate: "",
-51:   price: 0,
-52:   priceLabel: "",
-53:   totalTickets: 100,
-54:   startNumber: 1,
-55:   contributionText: "",
-56:   prizes: [],
-57:   prizesFontSize: 8,
-58:   titleFontSize: 14,
-59:   subtitleFontSize: 12,
-60:   stubFontSize: 10,
-61:   generalFontScale: 100,
-62:   prizeColumns: "auto",
-63:   primaryColor: "#991b1b",
-64: };
-65: 
-66: export const COLOR_PRESETS = [
-67:   { name: "Rojo Carmesí", hex: "#991b1b", preview: "bg-red-800" },
-68:   { name: "Rojo Fuego", hex: "#dc2626", preview: "bg-red-600" },
-69:   { name: "Azul Real", hex: "#1d4ed8", preview: "bg-blue-700" },
-70:   { name: "Azul Marino", hex: "#1e3a8a", preview: "bg-blue-900" },
-71:   { name: "Verde Esmeralda", hex: "#047857", preview: "bg-emerald-700" },
-72:   { name: "Verde Bosque", hex: "#14532d", preview: "bg-green-900" },
-73:   { name: "Borgoña / Vino", hex: "#831843", preview: "bg-pink-900" },
-74:   { name: "Dorado / Ámbar", hex: "#b45309", preview: "bg-amber-700" },
-75:   { name: "Púrpura / Violeta", hex: "#6b21a8", preview: "bg-purple-800" },
-76:   { name: "Negro Carbón", hex: "#18181b", preview: "bg-zinc-900" },
-77: ];
-78: 
-79: export const DEFAULT_PRINT_CONFIG: PrintConfig = {
-80:   ticketsPerRow: 1,
-81:   ticketsPerColumn: 5,
-82:   pageWidth: 210, // A4
-83:   pageHeight: 297, // A4
-84:   marginTop: 3,
-85:   marginBottom: 3,
-86:   marginLeft: 3,
-87:   marginRight: 3,
-88:   ticketWidth: 130,
-89:   ticketHeight: 50,
-90:   stubWidth: 36,
-91:   allowSideTickets: true,
-92:   gap: 2,
-93: };
-94: 
-95: export const A4_WIDTH_PT = 595.28;
-96: export const A4_HEIGHT_PT = 841.89;
-97: export const MM_TO_PT = 2.8346;
-````
-
 ## File: src/types/index.ts
 ````typescript
  1: export interface TicketConfig {
@@ -6420,6 +6023,295 @@ tsconfig.json
 62:   height: number;
 63:   file: File | null;
 64: }
+````
+
+## File: src/components/Header.tsx
+````typescript
+  1: "use client";
+  2: 
+  3: import { useState, useEffect } from "react";
+  4: import Link from "next/link";
+  5: import Image from "next/image";
+  6: import { usePathname } from "next/navigation";
+  7: import {
+  8:   FolderOpen,
+  9:   Save,
+ 10:   LogIn,
+ 11:   LogOut,
+ 12:   Check,
+ 13:   Sparkles,
+ 14:   ArrowRight,
+ 15:   Sliders,
+ 16:   Home
+ 17: } from "lucide-react";
+ 18: import { Button } from "@/components/ui/button";
+ 19: import { useAuth } from "@/hooks/useAuth";
+ 20: import { AuthModal } from "@/components/auth/AuthModal";
+ 21: import { ProfileModal } from "@/components/auth/ProfileModal";
+ 22: import { SavedTicketsDrawer } from "@/components/SavedTicketsDrawer";
+ 23: import { useRifaStore } from "@/store/useRifaStore";
+ 24: import { saveTicketDesign, getSavedTickets } from "@/services/tickets-service";
+ 25: 
+ 26: export function Header() {
+ 27:   const pathname = usePathname();
+ 28:   const isEditor = pathname === "/editor";
+ 29:   const { user, signOut } = useAuth();
+ 30:   const { ticketConfig, printConfig } = useRifaStore();
+ 31: 
+ 32:   const [isAuthOpen, setIsAuthOpen] = useState(false);
+ 33:   const [isProfileOpen, setIsProfileOpen] = useState(false);
+ 34:   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+ 35:   const [saving, setSaving] = useState(false);
+ 36:   const [saveSuccess, setSaveSuccess] = useState(false);
+ 37:   const [savedCount, setSavedCount] = useState(0);
+ 38: 
+ 39:   // Cargar cantidad de boletos guardados
+ 40:   const refreshCount = async () => {
+ 41:     try {
+ 42:       const list = await getSavedTickets();
+ 43:       setSavedCount(list.length);
+ 44:     } catch {
+ 45:       // Fallback silencioso
+ 46:     }
+ 47:   };
+ 48: 
+ 49:   useEffect(() => {
+ 50:     refreshCount();
+ 51:   }, [user]);
+ 52: 
+ 53:   const handleSave = async () => {
+ 54:     if (!user) {
+ 55:       setIsAuthOpen(true);
+ 56:       return;
+ 57:     }
+ 58: 
+ 59:     setSaving(true);
+ 60:     try {
+ 61:       await saveTicketDesign(
+ 62:         ticketConfig.eventName || "Mi Rifa",
+ 63:         ticketConfig,
+ 64:         printConfig
+ 65:       );
+ 66:       setSaveSuccess(true);
+ 67:       refreshCount();
+ 68:       setTimeout(() => setSaveSuccess(false), 2500);
+ 69:     } catch (e) {
+ 70:       console.error("Error al guardar:", e);
+ 71:     } finally {
+ 72:       setSaving(false);
+ 73:     }
+ 74:   };
+ 75: 
+ 76:   return (
+ 77:     <>
+ 78:       <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-md">
+ 79:         <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
+ 80:           {/* Logo & Marca unificada */}
+ 81:           <Link href="/" className="flex items-center gap-2.5 group">
+ 82:             <div className="relative">
+ 83:               <Image
+ 84:                 src="/icon.svg"
+ 85:                 alt="Eventazo"
+ 86:                 width={36}
+ 87:                 height={36}
+ 88:                 className="h-9 w-9 rounded-xl shadow-lg shadow-amber-500/20 group-hover:scale-105 transition-transform"
+ 89:               />
+ 90:               <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-amber-400 text-[8px] font-black text-slate-950">
+ 91:                 ★
+ 92:               </span>
+ 93:             </div>
+ 94:             <div>
+ 95:               <div className="flex items-center gap-1.5">
+ 96:                 <span className="text-base sm:text-lg font-black tracking-tight text-slate-100">
+ 97:                   Eventazo
+ 98:                 </span>
+ 99:                 <span className="rounded bg-gradient-to-r from-amber-500/20 to-amber-300/20 border border-amber-500/40 px-1.5 py-0.2 text-[9px] font-bold text-amber-400">
+100:                   PRO
+101:                 </span>
+102:               </div>
+103:             </div>
+104:           </Link>
+105: 
+106:           {/* Enlaces de navegación desktop */}
+107:           <div className="hidden md:flex items-center gap-6 text-xs font-medium text-slate-300">
+108:             {isEditor ? (
+109:               <>
+110:                 <Link
+111:                   href="/"
+112:                   className="flex items-center gap-1.5 hover:text-amber-400 transition-colors"
+113:                 >
+114:                   <Home className="h-3.5 w-3.5 text-amber-400" />
+115:                   <span>Inicio</span>
+116:                 </Link>
+117:                 <Link
+118:                   href="/#caracteristicas"
+119:                   className="hover:text-amber-400 transition-colors"
+120:                 >
+121:                   Características
+122:                 </Link>
+123:                 <Link
+124:                   href="/#calculadora"
+125:                   className="hover:text-amber-400 transition-colors"
+126:                 >
+127:                   Calculadora de Ahorro
+128:                 </Link>
+129:                 <Link
+130:                   href="/#preguntas"
+131:                   className="hover:text-amber-400 transition-colors"
+132:                 >
+133:                   Preguntas
+134:                 </Link>
+135:               </>
+136:             ) : (
+137:               <>
+138:                 <a href="#caracteristicas" className="hover:text-amber-400 transition-colors">
+139:                   Características
+140:                 </a>
+141:                 <a href="#calculadora" className="hover:text-amber-400 transition-colors">
+142:                   Calculadora de Ahorro
+143:                 </a>
+144:                 <a href="#comparativa" className="hover:text-amber-400 transition-colors">
+145:                   Comparativa
+146:                 </a>
+147:                 <a href="#casos" className="hover:text-amber-400 transition-colors">
+148:                   Casos de Uso
+149:                 </a>
+150:                 <a href="#preguntas" className="hover:text-amber-400 transition-colors">
+151:                   Preguntas Frecuentes
+152:                 </a>
+153:               </>
+154:             )}
+155:           </div>
+156: 
+157:           {/* Acciones del Header */}
+158:           <div className="flex items-center gap-2 sm:gap-3">
+159:             {/* Botón Mis Rifas (accesible siempre) */}
+160:             <Button
+161:               variant="ghost"
+162:               size="sm"
+163:               onClick={() => setIsDrawerOpen(true)}
+164:               className="border border-slate-800 bg-slate-900/80 hover:bg-slate-800 hover:border-amber-500/40 text-slate-200 hover:text-amber-400 text-xs h-9 px-3 rounded-xl gap-1.5 shadow-sm"
+165:             >
+166:               <FolderOpen className="h-3.5 w-3.5 text-amber-400" />
+167:               <span className="hidden sm:inline">Mis Rifas</span>
+168:               {savedCount > 0 && (
+169:                 <span className="ml-1 rounded-full bg-amber-500/20 px-1.5 py-0.2 text-[10px] font-mono font-bold text-amber-400 border border-amber-500/30">
+170:                   {savedCount}
+171:                 </span>
+172:               )}
+173:             </Button>
+174: 
+175:             {/* Acción Primaria según la ruta */}
+176:             {isEditor ? (
+177:               <Button
+178:                 size="sm"
+179:                 onClick={handleSave}
+180:                 disabled={saving}
+181:                 className={`h-9 px-3.5 sm:px-4 text-xs font-bold rounded-xl gap-1.5 transition-all shadow-lg ${
+182:                   saveSuccess
+183:                     ? "bg-emerald-500 text-white shadow-emerald-500/25 scale-105"
+184:                     : "bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 shadow-amber-500/25 active:scale-95"
+185:                 }`}
+186:               >
+187:                 {saveSuccess ? (
+188:                   <>
+189:                     <Check className="h-3.5 w-3.5" />
+190:                     <span>¡Guardado!</span>
+191:                   </>
+192:                 ) : (
+193:                   <>
+194:                     <Save className="h-3.5 w-3.5" />
+195:                     <span>{saving ? "Guardando..." : "Guardar"}</span>
+196:                   </>
+197:                 )}
+198:               </Button>
+199:             ) : (
+200:               <Link href="/editor">
+201:                 <Button
+202:                   size="sm"
+203:                   className="bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold text-xs h-9 px-3.5 sm:px-4 rounded-xl shadow-lg shadow-amber-500/25 flex items-center gap-1.5 group"
+204:                 >
+205:                   <Sliders className="h-3.5 w-3.5" />
+206:                   <span>Crear Rifa Gratis</span>
+207:                   <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+208:                 </Button>
+209:               </Link>
+210:             )}
+211: 
+212:             {/* Usuario / Login */}
+213:             {user ? (
+214:               <div className="flex items-center gap-1.5 sm:gap-2 pl-1 border-l border-slate-800">
+215:                 <button
+216:                   type="button"
+217:                   onClick={() => setIsProfileOpen(true)}
+218:                   className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/40 transition-colors text-left group"
+219:                   title="Ver y editar mi perfil"
+220:                 >
+221:                   <div className="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px] font-bold border border-amber-500/30 group-hover:scale-105 transition-transform">
+222:                     {user.name ? user.name[0].toUpperCase() : user.email[0].toUpperCase()}
+223:                   </div>
+224:                   <span className="text-xs font-semibold text-slate-300 group-hover:text-amber-300 max-w-[100px] truncate hidden md:inline transition-colors">
+225:                     {user.name || user.email.split("@")[0]}
+226:                   </span>
+227:                   {user.isDemo && (
+228:                     <span className="text-[9px] bg-slate-800 text-amber-300 px-1 py-0.5 rounded border border-slate-700">
+229:                       Demo
+230:                     </span>
+231:                   )}
+232:                 </button>
+233: 
+234:                 <Button
+235:                   variant="ghost"
+236:                   size="sm"
+237:                   onClick={() => signOut()}
+238:                   title="Cerrar sesión"
+239:                   className="h-9 w-9 p-0 text-slate-400 hover:text-rose-400 rounded-xl hover:bg-slate-900"
+240:                 >
+241:                   <LogOut className="h-3.5 w-3.5" />
+242:                 </Button>
+243:               </div>
+244:             ) : (
+245:               <Button
+246:                 variant="ghost"
+247:                 size="sm"
+248:                 onClick={() => setIsAuthOpen(true)}
+249:                 className="h-9 px-3 text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-900 border border-slate-800/80 rounded-xl gap-1.5"
+250:               >
+251:                 <LogIn className="h-3.5 w-3.5" />
+252:                 <span>Ingresar</span>
+253:               </Button>
+254:             )}
+255:           </div>
+256:         </div>
+257:       </header>
+258: 
+259:       {/* Modal de Autenticación */}
+260:       <AuthModal
+261:         isOpen={isAuthOpen}
+262:         onClose={() => setIsAuthOpen(false)}
+263:         onSuccess={() => {
+264:           refreshCount();
+265:         }}
+266:       />
+267: 
+268:       {/* Modal de Perfil de Usuario */}
+269:       <ProfileModal
+270:         isOpen={isProfileOpen}
+271:         onClose={() => setIsProfileOpen(false)}
+272:       />
+273: 
+274:       {/* Cajón de Rifas Guardadas */}
+275:       <SavedTicketsDrawer
+276:         isOpen={isDrawerOpen}
+277:         onClose={() => setIsDrawerOpen(false)}
+278:         onSelectTicket={() => {
+279:           refreshCount();
+280:         }}
+281:         onOpenAuth={() => setIsAuthOpen(true)}
+282:       />
+283:     </>
+284:   );
+285: }
 ````
 
 ## File: src/components/TicketPreview.tsx
@@ -6524,7 +6416,7 @@ tsconfig.json
  98:   const stubNumSize = Math.max(12, Math.round(18 * stubMultiplier * stubWidthFactor * fontScale));
  99: 
 100:   return (
-101:     <Card className="shadow-lg border-slate-700/80">
+101:     <Card className="shadow-xl border-slate-800/80">
 102:       <CardHeader className="pb-3">
 103:         <CardTitle className="flex items-center gap-2">
 104:           <Eye className="h-5 w-5 text-amber-400" />
@@ -6731,6 +6623,107 @@ tsconfig.json
 305:     </Card>
 306:   );
 307: }
+````
+
+## File: src/lib/constants.ts
+````typescript
+ 1: import { Prize, TicketConfig, PrintConfig } from "@/types";
+ 2: 
+ 3: export const DEFAULT_PRIZES: Prize[] = [
+ 4:   { position: 1, label: "1°", description: "Parrilla y accesorios" },
+ 5:   { position: 2, label: "2°", description: "Olla" },
+ 6:   { position: 3, label: "3°", description: "Asado Battisti (3kg de asado, ens., vino, 2 gas.)" },
+ 7:   { position: 4, label: "4°", description: "Almuerzo en Garden" },
+ 8:   { position: 5, label: "5°", description: "Cena para dos - Club Restobar" },
+ 9:   { position: 6, label: "6°", description: "Juego de mate" },
+10:   { position: 7, label: "7°", description: "Torta Pirineos" },
+11:   { position: 8, label: "8°", description: "Perfume o billetera" },
+12:   { position: 9, label: "9°", description: "Cena – Benito Pizzería" },
+13:   { position: 10, label: "10°", description: "Combo de limpieza" },
+14:   { position: 11, label: "11°", description: "Bombilla Messi" },
+15:   { position: 12, label: "12°", description: "Remera y gorra Argentina" },
+16:   { position: 13, label: "13°", description: "Bandolera" },
+17:   { position: 14, label: "14°", description: "Bufanda" },
+18:   { position: 15, label: "15°", description: "Combo de masas dulces" },
+19:   { position: 16, label: "16°", description: "Torta matera" },
+20:   { position: 17, label: "17°", description: "Body splash" },
+21:   { position: 18, label: "18°", description: "Vaso térmico Ailuz Creaciones" },
+22:   { position: 19, label: "19°", description: "Voucher Battisti Mayorista ($19.900)" },
+23:   { position: 20, label: "20°", description: "Vino" },
+24: ];
+25: 
+26: export const DEFAULT_TICKET_CONFIG: TicketConfig = {
+27:   eventName: 'ESCUELA NRO. 71 "PEDRO GOYENA"',
+28:   subtitle: "Gran Rifa Especial Día del Padre",
+29:   organizer: "Escuela Nro. 71 Pedro Goyena",
+30:   drawDate: "Viernes 19 de Junio de 2026",
+31:   price: 3000,
+32:   priceLabel: "VALOR: $3.000",
+33:   totalTickets: 900,
+34:   startNumber: 1,
+35:   contributionText: "Tu colaboración apoya los proyectos de nuestra comunidad educativa.",
+36:   prizes: DEFAULT_PRIZES,
+37:   prizesFontSize: 8,
+38:   titleFontSize: 14,
+39:   subtitleFontSize: 12,
+40:   stubFontSize: 10,
+41:   generalFontScale: 100,
+42:   prizeColumns: "auto",
+43:   primaryColor: "#991b1b",
+44: };
+45: 
+46: export const EMPTY_TICKET_CONFIG: TicketConfig = {
+47:   eventName: "",
+48:   subtitle: "",
+49:   organizer: "",
+50:   drawDate: "",
+51:   price: 0,
+52:   priceLabel: "",
+53:   totalTickets: 100,
+54:   startNumber: 1,
+55:   contributionText: "",
+56:   prizes: [],
+57:   prizesFontSize: 8,
+58:   titleFontSize: 14,
+59:   subtitleFontSize: 12,
+60:   stubFontSize: 10,
+61:   generalFontScale: 100,
+62:   prizeColumns: "auto",
+63:   primaryColor: "#991b1b",
+64: };
+65: 
+66: export const COLOR_PRESETS = [
+67:   { name: "Rojo Carmesí", hex: "#991b1b", preview: "bg-red-800" },
+68:   { name: "Rojo Fuego", hex: "#dc2626", preview: "bg-red-600" },
+69:   { name: "Azul Real", hex: "#1d4ed8", preview: "bg-blue-700" },
+70:   { name: "Azul Marino", hex: "#1e3a8a", preview: "bg-blue-900" },
+71:   { name: "Verde Esmeralda", hex: "#047857", preview: "bg-emerald-700" },
+72:   { name: "Verde Bosque", hex: "#14532d", preview: "bg-green-900" },
+73:   { name: "Borgoña / Vino", hex: "#831843", preview: "bg-pink-900" },
+74:   { name: "Dorado / Ámbar", hex: "#b45309", preview: "bg-amber-700" },
+75:   { name: "Púrpura / Violeta", hex: "#6b21a8", preview: "bg-purple-800" },
+76:   { name: "Negro Carbón", hex: "#18181b", preview: "bg-zinc-900" },
+77: ];
+78: 
+79: export const DEFAULT_PRINT_CONFIG: PrintConfig = {
+80:   ticketsPerRow: 1,
+81:   ticketsPerColumn: 5,
+82:   pageWidth: 210, // A4
+83:   pageHeight: 297, // A4
+84:   marginTop: 3,
+85:   marginBottom: 3,
+86:   marginLeft: 3,
+87:   marginRight: 3,
+88:   ticketWidth: 130,
+89:   ticketHeight: 50,
+90:   stubWidth: 36,
+91:   allowSideTickets: true,
+92:   gap: 2,
+93: };
+94: 
+95: export const A4_WIDTH_PT = 595.28;
+96: export const A4_HEIGHT_PT = 841.89;
+97: export const MM_TO_PT = 2.8346;
 ````
 
 ## File: src/services/pdf-generator.ts

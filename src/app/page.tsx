@@ -25,14 +25,10 @@ import {
   Scissors
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AuthModal } from "@/components/auth/AuthModal";
-import { useAuth } from "@/hooks/useAuth";
+import { Header } from "@/components/Header";
 import { formatCurrency } from "@/lib/utils";
 
 export default function LandingPage() {
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const { user } = useAuth();
-
   // Estados de la Calculadora de Recaudación y Ahorro
   const [calcTickets, setCalcTickets] = useState(600);
   const [calcPrice, setCalcPrice] = useState(2500);
@@ -58,89 +54,9 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-amber-500 selection:text-slate-950">
-      {/* ============================================================ */}
-      {/* 1. NAVBAR COMERCIAL                                         */}
-      {/* ============================================================ */}
-      <nav className="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-md">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
-          {/* Brand */}
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="relative">
-              <Image
-                src="/icon.svg"
-                alt="Eventazo"
-                width={36}
-                height={36}
-                className="h-9 w-9 rounded-xl shadow-lg shadow-amber-500/20 group-hover:scale-105 transition-transform"
-              />
-              <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-amber-400 text-[8px] font-black text-slate-950">
-                ★
-              </span>
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-base sm:text-lg font-black tracking-tight text-slate-100">
-                  Eventazo
-                </span>
-                <span className="rounded bg-gradient-to-r from-amber-500/20 to-amber-300/20 border border-amber-500/40 px-1.5 py-0.2 text-[9px] font-bold text-amber-400">
-                  PRO
-                </span>
-              </div>
-            </div>
-          </Link>
+      {/* 1. NAVBAR UNIVERSAL UNIFICADA */}
+      <Header />
 
-          {/* Links desktop */}
-          <div className="hidden md:flex items-center gap-6 text-xs font-medium text-slate-300">
-            <a href="#caracteristicas" className="hover:text-amber-400 transition-colors">
-              Características
-            </a>
-            <a href="#calculadora" className="hover:text-amber-400 transition-colors">
-              Calculadora de Ahorro
-            </a>
-            <a href="#comparativa" className="hover:text-amber-400 transition-colors">
-              Comparativa
-            </a>
-            <a href="#casos" className="hover:text-amber-400 transition-colors">
-              Casos de Uso
-            </a>
-            <a href="#preguntas" className="hover:text-amber-400 transition-colors">
-              Preguntas Frecuentes
-            </a>
-          </div>
-
-          {/* Acciones */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {user ? (
-              <Link
-                href="/editor"
-                className="text-xs text-slate-300 hover:text-amber-400 px-2 py-1 hidden sm:block"
-              >
-                Hola, <span className="font-semibold">{user.name || user.email.split("@")[0]}</span>
-              </Link>
-            ) : (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsAuthOpen(true)}
-                className="text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-900 rounded-xl gap-1.5 h-9"
-              >
-                <LogIn className="h-3.5 w-3.5" />
-                <span>Ingresar</span>
-              </Button>
-            )}
-
-            <Link href="/editor">
-              <Button
-                size="sm"
-                className="bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold text-xs h-9 px-3.5 sm:px-4 rounded-xl shadow-lg shadow-amber-500/25 flex items-center gap-1.5 group"
-              >
-                <span>Crear Rifa Gratis</span>
-                <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </nav>
 
       {/* ============================================================ */}
       {/* 2. HERO SECTION CON ALTO IMPACTO                            */}
@@ -647,9 +563,6 @@ export default function LandingPage() {
           </p>
         </div>
       </footer>
-
-      {/* Modal de Autenticación */}
-      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
     </div>
   );
 }

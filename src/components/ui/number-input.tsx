@@ -90,7 +90,7 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
     return (
       <div
         className={cn(
-          "group relative flex items-center h-10 w-full rounded-lg border border-slate-700 bg-slate-800/60 p-0.5 focus-within:border-amber-500/80 focus-within:ring-2 focus-within:ring-amber-500/20 hover:border-slate-600 transition-all shadow-inner",
+          "group relative flex items-center h-10 w-full rounded-xl border border-slate-800 bg-slate-900/80 p-0.5 focus-within:border-amber-500/80 focus-within:ring-2 focus-within:ring-amber-500/20 hover:border-slate-700 transition-all shadow-inner",
           disabled && "opacity-50 pointer-events-none",
           className
         )}

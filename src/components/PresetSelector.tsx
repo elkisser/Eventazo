@@ -140,7 +140,7 @@ export function PresetSelector({ onSelect }: PresetSelectorProps) {
             key={preset.id}
             type="button"
             onClick={() => handleApplyPreset(preset)}
-            className="flex flex-col items-start p-2.5 rounded-xl border border-slate-700/60 bg-slate-800/60 hover:bg-slate-800 hover:border-amber-500/50 transition-all text-left group"
+            className="flex flex-col items-start p-2.5 rounded-xl border border-slate-800 bg-slate-900/80 hover:bg-slate-800 hover:border-amber-500/50 transition-all text-left group shadow-sm"
           >
             <div className="p-1.5 rounded-lg bg-slate-900/80 mb-2 group-hover:scale-105 transition-transform">
               {preset.icon}

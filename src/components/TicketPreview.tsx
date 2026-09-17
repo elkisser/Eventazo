@@ -98,7 +98,7 @@ export function TicketPreview() {
   const stubNumSize = Math.max(12, Math.round(18 * stubMultiplier * stubWidthFactor * fontScale));
 
   return (
-    <Card className="shadow-lg border-slate-700/80">
+    <Card className="shadow-xl border-slate-800/80">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2">
           <Eye className="h-5 w-5 text-amber-400" />
