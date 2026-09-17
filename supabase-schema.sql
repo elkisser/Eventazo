@@ -2,7 +2,68 @@
 -- ESQUEMA DE BASE DE DATOS PARA EVENTAZO PRO EN SUPABASE
 -- ============================================================
 
--- 1. Crear tabla para almacenar diseños de boletos/rifas
+-- 1. Tabla de Perfiles de Usuario (Para gestión comercial, clientes y ventas SaaS)
+create table if not exists public.profiles (
+  id uuid references auth.users(id) on delete cascade primary key,
+  email text,
+  full_name text,
+  role text default 'user' check (role in ('user', 'admin')),
+  plan text default 'free' check (plan in ('free', 'pro', 'enterprise')),
+  is_pro boolean default false,
+  subscription_status text default 'none',
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Habilitar Row Level Security (RLS) en profiles
+alter table public.profiles enable row level security;
+
+drop policy if exists "Los perfiles son visibles por su dueño" on public.profiles;
+create policy "Los perfiles son visibles por su dueño"
+  on public.profiles for select
+  using (auth.uid() = id);
+
+drop policy if exists "Los usuarios pueden actualizar su propio perfil" on public.profiles;
+create policy "Los usuarios pueden actualizar su propio perfil"
+  on public.profiles for update
+  using (auth.uid() = id);
+
+-- Trigger automático para crear perfil comercial cuando se registra un usuario en Supabase Auth
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profiles (id, email, full_name, plan, is_pro)
+  values (
+    new.id,
+    new.email,
+    coalesce(new.raw_user_meta_data->>'full_name', split_part(new.email, '@', 1)),
+    'free',
+    false
+  )
+  on conflict (id) do update set
+    email = excluded.email,
+    full_name = coalesce(excluded.full_name, public.profiles.full_name);
+  return new;
+end;
+$$ language plpgsql security definer;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert or update on auth.users
+  for each row execute function public.handle_new_user();
+
+-- Backfill automático para sincronizar usuarios que ya se hayan registrado (ej: andreaarceguet@gmail.com)
+insert into public.profiles (id, email, full_name, plan, is_pro)
+select
+  id,
+  email,
+  coalesce(raw_user_meta_data->>'full_name', split_part(email, '@', 1)),
+  'free',
+  false
+from auth.users
+on conflict (id) do nothing;
+
+-- 2. Crear tabla para almacenar diseños de boletos/rifas
 create table if not exists public.saved_tickets (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references auth.users(id) on delete cascade not null,
@@ -13,10 +74,9 @@ create table if not exists public.saved_tickets (
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
--- 2. Habilitar Row Level Security (RLS)
+-- Habilitar Row Level Security (RLS) en saved_tickets
 alter table public.saved_tickets enable row level security;
 
--- 3. Políticas de seguridad: Cada usuario solo puede ver, crear, modificar y eliminar sus propios diseños
 drop policy if exists "Los usuarios pueden ver sus propios boletos" on public.saved_tickets;
 create policy "Los usuarios pueden ver sus propios boletos"
   on public.saved_tickets for select
@@ -37,6 +97,7 @@ create policy "Los usuarios pueden eliminar sus propios boletos"
   on public.saved_tickets for delete
   using (auth.uid() = user_id);
 
--- 4. Índices para acelerar búsquedas
+-- 3. Índices para acelerar búsquedas
 create index if not exists idx_saved_tickets_user_id on public.saved_tickets(user_id);
 create index if not exists idx_saved_tickets_updated_at on public.saved_tickets(updated_at desc);
+create index if not exists idx_profiles_email on public.profiles(email);

@@ -9,6 +9,8 @@ export interface AppUser {
   email: string;
   name?: string;
   isDemo?: boolean;
+  plan?: string;
+  isPro?: boolean;
 }
 
 const DEMO_USER_KEY = "eventazo_demo_user";
@@ -18,30 +20,60 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
   const isConfigured = isSupabaseConfigured();
 
+  // Cargar datos extendidos desde public.profiles
+  const syncProfile = useCallback(async (baseUser: AppUser) => {
+    const supabase = getSupabase();
+    if (!supabase || baseUser.isDemo) return baseUser;
+
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name, plan, is_pro")
+        .eq("id", baseUser.id)
+        .single();
+
+      if (data) {
+        return {
+          ...baseUser,
+          name: data.full_name || baseUser.name,
+          plan: data.plan || "free",
+          isPro: data.is_pro || false,
+        };
+      }
+    } catch {
+      // Ignorar fallback silencioso
+    }
+    return baseUser;
+  }, []);
+
   // Escuchar cambios de sesión de Supabase o cargar usuario demo local
   useEffect(() => {
     const supabase = getSupabase();
 
     if (supabase) {
-      supabase.auth.getSession().then(({ data: { session } }) => {
+      supabase.auth.getSession().then(async ({ data: { session } }) => {
         if (session?.user) {
-          setUser({
+          const base: AppUser = {
             id: session.user.id,
             email: session.user.email || "",
             name: session.user.user_metadata?.full_name || session.user.email?.split("@")[0],
-          });
+          };
+          const full = await syncProfile(base);
+          setUser(full);
         }
         setLoading(false);
       });
 
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        (_event, session) => {
+        async (_event, session) => {
           if (session?.user) {
-            setUser({
+            const base: AppUser = {
               id: session.user.id,
               email: session.user.email || "",
               name: session.user.user_metadata?.full_name || session.user.email?.split("@")[0],
-            });
+            };
+            const full = await syncProfile(base);
+            setUser(full);
           } else {
             // Verificar si hay usuario demo
             const demo = localStorage.getItem(DEMO_USER_KEY);
@@ -173,12 +205,33 @@ export function useAuth() {
       const { data, error } = await supabase.auth.updateUser(updateData);
       if (error) return { error: error.message };
 
+      // Actualizar también la tabla pública profiles
+      try {
+        const targetId = user?.id || data.user.id;
+        if (targetId) {
+          await supabase
+            .from("profiles")
+            .update({
+              full_name: newName,
+              ...(newEmail ? { email: newEmail } : {}),
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", targetId);
+        }
+      } catch (e) {
+        console.warn("No se pudo actualizar profiles:", e);
+      }
+
       if (data.user) {
-        setUser({
-          id: data.user.id,
-          email: data.user.email || "",
-          name: data.user.user_metadata?.full_name || newName,
-        });
+        setUser((prev) =>
+          prev
+            ? {
+                ...prev,
+                email: data.user.email || prev.email,
+                name: data.user.user_metadata?.full_name || newName,
+              }
+            : null
+        );
       }
 
       return {

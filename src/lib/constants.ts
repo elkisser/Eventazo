@@ -43,6 +43,26 @@ export const DEFAULT_TICKET_CONFIG: TicketConfig = {
   primaryColor: "#991b1b",
 };
 
+export const EMPTY_TICKET_CONFIG: TicketConfig = {
+  eventName: "",
+  subtitle: "",
+  organizer: "",
+  drawDate: "",
+  price: 0,
+  priceLabel: "",
+  totalTickets: 100,
+  startNumber: 1,
+  contributionText: "",
+  prizes: [],
+  prizesFontSize: 8,
+  titleFontSize: 14,
+  subtitleFontSize: 12,
+  stubFontSize: 10,
+  generalFontScale: 100,
+  prizeColumns: "auto",
+  primaryColor: "#991b1b",
+};
+
 export const COLOR_PRESETS = [
   { name: "Rojo Carmesí", hex: "#991b1b", preview: "bg-red-800" },
   { name: "Rojo Fuego", hex: "#dc2626", preview: "bg-red-600" },

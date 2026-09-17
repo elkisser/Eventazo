@@ -212,6 +212,7 @@ export function Header() {
         onSelectTicket={() => {
           refreshCount();
         }}
+        onOpenAuth={() => setIsAuthOpen(true)}
       />
     </>
   );

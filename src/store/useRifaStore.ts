@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { TicketConfig, PrintConfig, GenerationProgress, TemplateImage } from "@/types";
-import { DEFAULT_TICKET_CONFIG, DEFAULT_PRINT_CONFIG } from "@/lib/constants";
+import { DEFAULT_TICKET_CONFIG, DEFAULT_PRINT_CONFIG, EMPTY_TICKET_CONFIG } from "@/lib/constants";
 
 interface RifaState {
   // Config
@@ -29,6 +29,7 @@ interface RifaState {
   setPreviewTicketNumber: (num: number) => void;
   setActiveTab: (tab: "config" | "preview" | "generate") => void;
   resetConfig: () => void;
+  clearConfig: () => void;
 }
 
 export const useRifaStore = create<RifaState>((set) => ({
@@ -85,6 +86,13 @@ export const useRifaStore = create<RifaState>((set) => ({
         status: "idle",
         message: "",
       },
+      generatedPdfUrl: null,
+    }),
+
+  clearConfig: () =>
+    set({
+      ticketConfig: EMPTY_TICKET_CONFIG,
+      templateImage: null,
       generatedPdfUrl: null,
     }),
 }));

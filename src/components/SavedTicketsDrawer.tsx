@@ -12,20 +12,25 @@ import {
   ArrowRight,
   RefreshCw,
   Search,
-  Sparkles
+  Sparkles,
+  Lock,
+  LogIn
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SavedTicket, getSavedTickets, deleteSavedTicket, duplicateSavedTicket } from "@/services/tickets-service";
 import { useRifaStore } from "@/store/useRifaStore";
+import { useAuth } from "@/hooks/useAuth";
 import { formatCurrency } from "@/lib/utils";
 
 interface SavedTicketsDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   onSelectTicket?: (ticket: SavedTicket) => void;
+  onOpenAuth?: () => void;
 }
 
-export function SavedTicketsDrawer({ isOpen, onClose, onSelectTicket }: SavedTicketsDrawerProps) {
+export function SavedTicketsDrawer({ isOpen, onClose, onSelectTicket, onOpenAuth }: SavedTicketsDrawerProps) {
+  const { user } = useAuth();
   const [tickets, setTickets] = useState<SavedTicket[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -34,6 +39,11 @@ export function SavedTicketsDrawer({ isOpen, onClose, onSelectTicket }: SavedTic
   const { setTicketConfig, setPrintConfig } = useRifaStore();
 
   const fetchTickets = async () => {
+    if (!user) {
+      setTickets([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const data = await getSavedTickets();
@@ -47,7 +57,8 @@ export function SavedTicketsDrawer({ isOpen, onClose, onSelectTicket }: SavedTic
     if (isOpen) {
       fetchTickets();
     }
-  }, [isOpen]);
+  }, [isOpen, user]);
+
 
   if (!isOpen) return null;
 
@@ -130,7 +141,31 @@ export function SavedTicketsDrawer({ isOpen, onClose, onSelectTicket }: SavedTic
 
         {/* Lista de diseños */}
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
-          {loading ? (
+          {!user ? (
+            <div className="flex flex-col items-center justify-center h-80 text-center p-6 rounded-2xl border border-slate-800 bg-slate-900/60">
+              <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-4 shadow-lg shadow-amber-500/5">
+                <Lock className="h-7 w-7" />
+              </div>
+              <h4 className="text-base font-bold text-slate-100 mb-1">
+                Tus rifas son privadas
+              </h4>
+              <p className="text-xs text-slate-400 max-w-[280px] mb-5 leading-relaxed">
+                Cada usuario tiene su propio historial y diseños guardados. Inicia sesión o regístrate para acceder a tus rifas.
+              </p>
+              {onOpenAuth && (
+                <Button
+                  onClick={() => {
+                    onClose();
+                    onOpenAuth();
+                  }}
+                  className="bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-amber-500/20 gap-2"
+                >
+                  <LogIn className="h-4 w-4" />
+                  <span>Iniciar Sesión / Registrarse</span>
+                </Button>
+              )}
+            </div>
+          ) : loading ? (
             <div className="flex flex-col items-center justify-center h-48 text-slate-500 space-y-2">
               <RefreshCw className="h-6 w-6 animate-spin text-amber-400" />
               <p className="text-xs">Cargando tus rifas...</p>
@@ -140,10 +175,11 @@ export function SavedTicketsDrawer({ isOpen, onClose, onSelectTicket }: SavedTic
               <Sparkles className="h-8 w-8 text-slate-600 mb-2" />
               <p className="text-sm font-semibold text-slate-300">No hay rifas guardadas</p>
               <p className="text-xs text-slate-500 mt-1 max-w-[240px]">
-                {search ? "No se encontraron rifas con ese término." : "Crea tu primer diseño y haz clic en 'Guardar Rifa' en la barra superior."}
+                {search ? "No se encontraron rifas con ese término." : "Crea tu diseño y haz clic en 'Guardar' para almacenarlo en tu cuenta."}
               </p>
             </div>
           ) : (
+
             filtered.map((ticket) => (
               <div
                 key={ticket.id}

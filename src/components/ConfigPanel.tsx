@@ -14,6 +14,7 @@ import {
   Palette,
   Check,
   Scissors,
+  Trash2,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -26,7 +27,14 @@ import { COLOR_PRESETS } from "@/lib/constants";
 import { formatSpanishDate, formatShortDate, resolvePrizeColumns } from "@/lib/utils";
 
 export function ConfigPanel() {
-  const { ticketConfig, setTicketConfig, printConfig, setPrintConfig } = useRifaStore();
+  const {
+    ticketConfig,
+    setTicketConfig,
+    printConfig,
+    setPrintConfig,
+    clearConfig,
+    resetConfig,
+  } = useRifaStore();
   const [showTypography, setShowTypography] = useState(true);
   const [showColorPicker, setShowColorPicker] = useState(true);
   const [showStubConfig, setShowStubConfig] = useState(true);
@@ -67,13 +75,43 @@ export function ConfigPanel() {
     }
   };
 
+  const handleClearAll = () => {
+    if (typeof window !== "undefined" && window.confirm("¿Deseas vaciar todos los campos para comenzar tu rifa desde cero?")) {
+      clearConfig();
+    }
+  };
+
   return (
     <Card className="shadow-lg border-slate-700/80">
       <CardHeader className="pb-3 border-b border-slate-800">
-        <CardTitle className="flex items-center gap-2">
-          <Settings className="h-5 w-5 text-amber-400" />
-          <span>Configuración del Evento</span>
-        </CardTitle>
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle className="flex items-center gap-2">
+            <Settings className="h-5 w-5 text-amber-400" />
+            <span className="text-sm sm:text-base">Configuración</span>
+          </CardTitle>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={handleClearAll}
+              title="Borrar todos los campos y empezar en blanco"
+              className="text-xs font-semibold px-2.5 py-1 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-rose-500/20 hover:border-rose-500/40 text-slate-300 hover:text-rose-300 transition-colors flex items-center gap-1.5"
+            >
+              <Trash2 className="h-3.5 w-3.5 text-rose-400" />
+              <span>Borrar Todo</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => resetConfig()}
+              title="Restaurar datos de ejemplo"
+              className="text-xs font-semibold px-2 py-1 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-amber-300 transition-colors flex items-center gap-1"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Ejemplo</span>
+            </button>
+          </div>
+        </div>
       </CardHeader>
 
       <CardContent className="space-y-5 pt-4">

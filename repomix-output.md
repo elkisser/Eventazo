@@ -93,473 +93,6 @@ tsconfig.json
 
 # Files
 
-## File: src/components/auth/ProfileModal.tsx
-````typescript
-  1: "use client";
-  2: 
-  3: import { useState, useEffect } from "react";
-  4: import {
-  5:   X,
-  6:   User,
-  7:   Mail,
-  8:   Lock,
-  9:   CheckCircle2,
- 10:   AlertCircle,
- 11:   LogOut,
- 12:   Sparkles,
- 13:   Database,
- 14:   Ticket,
- 15:   KeyRound
- 16: } from "lucide-react";
- 17: import { Button } from "@/components/ui/button";
- 18: import { useAuth } from "@/hooks/useAuth";
- 19: import { getSavedTickets } from "@/services/tickets-service";
- 20: 
- 21: interface ProfileModalProps {
- 22:   isOpen: boolean;
- 23:   onClose: () => void;
- 24: }
- 25: 
- 26: export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
- 27:   const { user, updateProfile, updatePassword, signOut, isConfigured } = useAuth();
- 28: 
- 29:   const [name, setName] = useState("");
- 30:   const [email, setEmail] = useState("");
- 31:   const [newPassword, setNewPassword] = useState("");
- 32:   const [confirmPassword, setConfirmPassword] = useState("");
- 33:   const [savedTicketsCount, setSavedTicketsCount] = useState(0);
- 34: 
- 35:   const [profileLoading, setProfileLoading] = useState(false);
- 36:   const [passwordLoading, setPasswordLoading] = useState(false);
- 37:   const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
- 38: 
- 39:   useEffect(() => {
- 40:     if (user) {
- 41:       setName(user.name || "");
- 42:       setEmail(user.email || "");
- 43:       getSavedTickets().then((tickets) => setSavedTicketsCount(tickets.length)).catch(() => {});
- 44:     }
- 45:   }, [user, isOpen]);
- 46: 
- 47:   if (!isOpen || !user) return null;
- 48: 
- 49:   const handleUpdateProfile = async (e: React.FormEvent) => {
- 50:     e.preventDefault();
- 51:     setStatusMessage(null);
- 52:     setProfileLoading(true);
- 53: 
- 54:     try {
- 55:       const res = await updateProfile(name, email);
- 56:       if (res.error) {
- 57:         setStatusMessage({ type: "error", text: res.error });
- 58:       } else {
- 59:         setStatusMessage({ type: "success", text: res.message || "Perfil actualizado exitosamente" });
- 60:         setTimeout(() => setStatusMessage(null), 3000);
- 61:       }
- 62:     } finally {
- 63:       setProfileLoading(false);
- 64:     }
- 65:   };
- 66: 
- 67:   const handleChangePassword = async (e: React.FormEvent) => {
- 68:     e.preventDefault();
- 69:     setStatusMessage(null);
- 70: 
- 71:     if (newPassword.length < 6) {
- 72:       setStatusMessage({ type: "error", text: "La contraseña debe tener al menos 6 caracteres" });
- 73:       return;
- 74:     }
- 75: 
- 76:     if (newPassword !== confirmPassword) {
- 77:       setStatusMessage({ type: "error", text: "Las contraseñas no coinciden" });
- 78:       return;
- 79:     }
- 80: 
- 81:     setPasswordLoading(true);
- 82:     try {
- 83:       const res = await updatePassword(newPassword);
- 84:       if (res.error) {
- 85:         setStatusMessage({ type: "error", text: res.error });
- 86:       } else {
- 87:         setStatusMessage({ type: "success", text: "Contraseña actualizada exitosamente" });
- 88:         setNewPassword("");
- 89:         setConfirmPassword("");
- 90:         setTimeout(() => setStatusMessage(null), 3000);
- 91:       }
- 92:     } finally {
- 93:       setPasswordLoading(false);
- 94:     }
- 95:   };
- 96: 
- 97:   const handleSignOut = async () => {
- 98:     await signOut();
- 99:     onClose();
-100:   };
-101: 
-102:   return (
-103:     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
-104:       <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto rounded-3xl border border-slate-700/80 bg-slate-900 p-5 sm:p-6 shadow-2xl shadow-amber-500/10 backdrop-blur-xl">
-105:         {/* Botón Cerrar */}
-106:         <button
-107:           onClick={onClose}
-108:           className="absolute top-4 right-4 text-slate-400 hover:text-slate-200 p-1.5 rounded-xl hover:bg-slate-800 transition-colors"
-109:         >
-110:           <X className="h-5 w-5" />
-111:         </button>
-112: 
-113:         {/* Header con Avatar */}
-114:         <div className="flex items-center gap-3.5 pb-4 border-b border-slate-800">
-115:           <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center text-xl font-black shadow-lg shadow-amber-500/30">
-116:             {name ? name[0].toUpperCase() : user.email[0].toUpperCase()}
-117:           </div>
-118:           <div>
-119:             <div className="flex items-center gap-1.5">
-120:               <h3 className="text-base font-bold text-slate-100">{name || "Mi Cuenta"}</h3>
-121:               <span className="rounded-full bg-amber-500/20 border border-amber-500/40 px-2 py-0.2 text-[9px] font-bold text-amber-300">
-122:                 PRO
-123:               </span>
-124:             </div>
-125:             <p className="text-xs text-slate-400 mt-0.5 truncate max-w-[220px]">{user.email}</p>
-126:           </div>
-127:         </div>
-128: 
-129:         {/* Métricas de la cuenta */}
-130:         <div className="grid grid-cols-2 gap-2.5 my-4">
-131:           <div className="p-3 rounded-2xl bg-slate-800/60 border border-slate-800 flex items-center gap-2.5">
-132:             <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400">
-133:               <Ticket className="h-4 w-4" />
-134:             </div>
-135:             <div>
-136:               <p className="text-xs font-bold text-slate-200">{savedTicketsCount}</p>
-137:               <p className="text-[10px] text-slate-400">Rifas Guardadas</p>
-138:             </div>
-139:           </div>
-140: 
-141:           <div className="p-3 rounded-2xl bg-slate-800/60 border border-slate-800 flex items-center gap-2.5">
-142:             <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
-143:               <Database className="h-4 w-4" />
-144:             </div>
-145:             <div>
-146:               <p className="text-xs font-bold text-slate-200">{isConfigured ? "Supabase Cloud" : "Local Demo"}</p>
-147:               <p className="text-[10px] text-slate-400">Almacenamiento</p>
-148:             </div>
-149:           </div>
-150:         </div>
-151: 
-152:         {/* Alerta de Feedback */}
-153:         {statusMessage && (
-154:           <div
-155:             className={`mb-4 flex items-center gap-2 p-3 rounded-2xl text-xs ${
-156:               statusMessage.type === "success"
-157:                 ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400"
-158:                 : "bg-rose-500/10 border border-rose-500/30 text-rose-400"
-159:             }`}
-160:           >
-161:             {statusMessage.type === "success" ? (
-162:               <CheckCircle2 className="h-4 w-4 shrink-0" />
-163:             ) : (
-164:               <AlertCircle className="h-4 w-4 shrink-0" />
-165:             )}
-166:             <span>{statusMessage.text}</span>
-167:           </div>
-168:         )}
-169: 
-170:         {/* Formulario 1: Datos Personales */}
-171:         <form onSubmit={handleUpdateProfile} className="space-y-3 pt-1">
-172:           <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-173:             <User className="h-3.5 w-3.5 text-amber-400" />
-174:             <span>Datos del Perfil</span>
-175:           </h4>
-176: 
-177:           <div>
-178:             <label className="block text-[11px] font-medium text-slate-300 mb-1">
-179:               Nombre Completo
-180:             </label>
-181:             <input
-182:               type="text"
-183:               required
-184:               value={name}
-185:               onChange={(e) => setName(e.target.value)}
-186:               placeholder="Tu nombre o el de tu organización"
-187:               className="w-full px-3 py-2 bg-slate-800/90 border border-slate-700 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500"
-188:             />
-189:           </div>
-190: 
-191:           <div>
-192:             <label className="block text-[11px] font-medium text-slate-300 mb-1">
-193:               Correo Electrónico
-194:             </label>
-195:             <input
-196:               type="email"
-197:               required
-198:               value={email}
-199:               onChange={(e) => setEmail(e.target.value)}
-200:               placeholder="tu@email.com"
-201:               className="w-full px-3 py-2 bg-slate-800/90 border border-slate-700 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500"
-202:             />
-203:           </div>
-204: 
-205:           <Button
-206:             type="submit"
-207:             disabled={profileLoading}
-208:             size="sm"
-209:             className="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-amber-300 text-xs font-semibold h-9 rounded-xl transition-all"
-210:           >
-211:             {profileLoading ? "Guardando..." : "Guardar Cambios de Perfil"}
-212:           </Button>
-213:         </form>
-214: 
-215:         {/* Separador */}
-216:         <div className="my-5 border-t border-slate-800" />
-217: 
-218:         {/* Formulario 2: Cambiar Contraseña */}
-219:         <form onSubmit={handleChangePassword} className="space-y-3">
-220:           <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-221:             <KeyRound className="h-3.5 w-3.5 text-amber-400" />
-222:             <span>Seguridad y Contraseña</span>
-223:           </h4>
-224: 
-225:           <div>
-226:             <label className="block text-[11px] font-medium text-slate-300 mb-1">
-227:               Nueva Contraseña
-228:             </label>
-229:             <input
-230:               type="password"
-231:               minLength={6}
-232:               value={newPassword}
-233:               onChange={(e) => setNewPassword(e.target.value)}
-234:               placeholder="Mínimo 6 caracteres"
-235:               className="w-full px-3 py-2 bg-slate-800/90 border border-slate-700 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500"
-236:             />
-237:           </div>
-238: 
-239:           <div>
-240:             <label className="block text-[11px] font-medium text-slate-300 mb-1">
-241:               Confirmar Nueva Contraseña
-242:             </label>
-243:             <input
-244:               type="password"
-245:               minLength={6}
-246:               value={confirmPassword}
-247:               onChange={(e) => setConfirmPassword(e.target.value)}
-248:               placeholder="Repite la nueva contraseña"
-249:               className="w-full px-3 py-2 bg-slate-800/90 border border-slate-700 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500"
-250:             />
-251:           </div>
-252: 
-253:           <Button
-254:             type="submit"
-255:             disabled={passwordLoading || !newPassword}
-256:             size="sm"
-257:             className="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-amber-300 text-xs font-semibold h-9 rounded-xl transition-all"
-258:           >
-259:             {passwordLoading ? "Actualizando..." : "Actualizar Contraseña"}
-260:           </Button>
-261:         </form>
-262: 
-263:         {/* Separador y Cerrar Sesión */}
-264:         <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
-265:           <span className="text-[11px] text-slate-500">Sesión iniciada</span>
-266:           <Button
-267:             type="button"
-268:             variant="ghost"
-269:             size="sm"
-270:             onClick={handleSignOut}
-271:             className="text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 text-xs h-8 rounded-xl flex items-center gap-1.5"
-272:           >
-273:             <LogOut className="h-3.5 w-3.5" />
-274:             <span>Cerrar Sesión</span>
-275:           </Button>
-276:         </div>
-277:       </div>
-278:     </div>
-279:   );
-280: }
-````
-
-## File: src/components/MobileBottomNav.tsx
-````typescript
-  1: "use client";
-  2: 
-  3: import { useState, useEffect } from "react";
-  4: import Link from "next/link";
-  5: import { usePathname } from "next/navigation";
-  6: import {
-  7:   Home,
-  8:   Sliders,
-  9:   FolderOpen,
- 10:   Save,
- 11:   User,
- 12:   Check,
- 13:   Sparkles
- 14: } from "lucide-react";
- 15: import { useAuth } from "@/hooks/useAuth";
- 16: import { useRifaStore } from "@/store/useRifaStore";
- 17: import { saveTicketDesign, getSavedTickets } from "@/services/tickets-service";
- 18: import { AuthModal } from "@/components/auth/AuthModal";
- 19: import { ProfileModal } from "@/components/auth/ProfileModal";
- 20: import { SavedTicketsDrawer } from "@/components/SavedTicketsDrawer";
- 21: 
- 22: export function MobileBottomNav() {
- 23:   const pathname = usePathname();
- 24:   const { user } = useAuth();
- 25:   const { ticketConfig, printConfig } = useRifaStore();
- 26: 
- 27:   const [isAuthOpen, setIsAuthOpen] = useState(false);
- 28:   const [isProfileOpen, setIsProfileOpen] = useState(false);
- 29:   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
- 30:   const [saving, setSaving] = useState(false);
- 31:   const [saveSuccess, setSaveSuccess] = useState(false);
- 32:   const [savedCount, setSavedCount] = useState(0);
- 33: 
- 34:   const refreshCount = async () => {
- 35:     try {
- 36:       const list = await getSavedTickets();
- 37:       setSavedCount(list.length);
- 38:     } catch {}
- 39:   };
- 40: 
- 41:   useEffect(() => {
- 42:     refreshCount();
- 43:   }, [user]);
- 44: 
- 45:   const handleSave = async () => {
- 46:     if (!user) {
- 47:       setIsAuthOpen(true);
- 48:       return;
- 49:     }
- 50: 
- 51:     setSaving(true);
- 52:     try {
- 53:       await saveTicketDesign(
- 54:         ticketConfig.eventName || "Mi Rifa",
- 55:         ticketConfig,
- 56:         printConfig
- 57:       );
- 58:       setSaveSuccess(true);
- 59:       refreshCount();
- 60:       setTimeout(() => setSaveSuccess(false), 2500);
- 61:     } catch (e) {
- 62:       console.error(e);
- 63:     } finally {
- 64:       setSaving(false);
- 65:     }
- 66:   };
- 67: 
- 68:   const handleProfileClick = () => {
- 69:     if (user) {
- 70:       setIsProfileOpen(true);
- 71:     } else {
- 72:       setIsAuthOpen(true);
- 73:     }
- 74:   };
- 75: 
- 76:   return (
- 77:     <>
- 78:       {/* Barra de navegación inferior fija estilo Native App */}
- 79:       <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800/80 px-2 py-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-2xl">
- 80:         <div className="grid grid-cols-5 items-center justify-items-center">
- 81:           {/* 1. Inicio / Landing */}
- 82:           <Link
- 83:             href="/"
- 84:             className={`flex flex-col items-center gap-1 py-1 px-2 rounded-xl transition-colors ${
- 85:               pathname === "/"
- 86:                 ? "text-amber-400 font-bold"
- 87:                 : "text-slate-400 hover:text-slate-200"
- 88:             }`}
- 89:           >
- 90:             <Home className="h-5 w-5" />
- 91:             <span className="text-[10px]">Inicio</span>
- 92:           </Link>
- 93: 
- 94:           {/* 2. Editor */}
- 95:           <Link
- 96:             href="/editor"
- 97:             className={`flex flex-col items-center gap-1 py-1 px-2 rounded-xl transition-colors ${
- 98:               pathname === "/editor"
- 99:                 ? "text-amber-400 font-bold"
-100:                 : "text-slate-400 hover:text-slate-200"
-101:             }`}
-102:           >
-103:             <Sliders className="h-5 w-5" />
-104:             <span className="text-[10px]">Editor</span>
-105:           </Link>
-106: 
-107:           {/* 3. Guardar Rifa (Acción central destacada) */}
-108:           <button
-109:             onClick={handleSave}
-110:             disabled={saving}
-111:             className="flex flex-col items-center -mt-4 group"
-112:           >
-113:             <div
-114:               className={`w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg transition-all ${
-115:                 saveSuccess
-116:                   ? "bg-emerald-500 text-white shadow-emerald-500/30 scale-105"
-117:                   : "bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 shadow-amber-500/30 group-active:scale-95"
-118:               }`}
-119:             >
-120:               {saveSuccess ? (
-121:                 <Check className="h-5 w-5" />
-122:               ) : (
-123:                 <Save className="h-5 w-5" />
-124:               )}
-125:             </div>
-126:             <span className="text-[10px] font-bold text-amber-400 mt-1">
-127:               {saveSuccess ? "¡Listo!" : saving ? "..." : "Guardar"}
-128:             </span>
-129:           </button>
-130: 
-131:           {/* 4. Mis Rifas */}
-132:           <button
-133:             onClick={() => setIsDrawerOpen(true)}
-134:             className="flex flex-col items-center gap-1 py-1 px-2 rounded-xl text-slate-400 hover:text-slate-200 relative transition-colors"
-135:           >
-136:             <FolderOpen className="h-5 w-5" />
-137:             <span className="text-[10px]">Mis Rifas</span>
-138:             {savedCount > 0 && (
-139:               <span className="absolute top-0 right-2 w-4 h-4 rounded-full bg-amber-500 text-slate-950 text-[9px] font-mono font-black flex items-center justify-center">
-140:                 {savedCount}
-141:               </span>
-142:             )}
-143:           </button>
-144: 
-145:           {/* 5. Perfil / Cuenta */}
-146:           <button
-147:             onClick={handleProfileClick}
-148:             className="flex flex-col items-center gap-1 py-1 px-2 rounded-xl text-slate-400 hover:text-slate-200 transition-colors"
-149:           >
-150:             {user ? (
-151:               <div className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px] font-bold border border-amber-500/40">
-152:                 {user.name ? user.name[0].toUpperCase() : user.email[0].toUpperCase()}
-153:               </div>
-154:             ) : (
-155:               <User className="h-5 w-5" />
-156:             )}
-157:             <span className="text-[10px]">{user ? "Perfil" : "Entrar"}</span>
-158:           </button>
-159:         </div>
-160:       </nav>
-161: 
-162:       {/* Modales */}
-163:       <AuthModal
-164:         isOpen={isAuthOpen}
-165:         onClose={() => setIsAuthOpen(false)}
-166:         onSuccess={() => refreshCount()}
-167:       />
-168:       <ProfileModal
-169:         isOpen={isProfileOpen}
-170:         onClose={() => setIsProfileOpen(false)}
-171:       />
-172:       <SavedTicketsDrawer
-173:         isOpen={isDrawerOpen}
-174:         onClose={() => setIsDrawerOpen(false)}
-175:         onSelectTicket={() => refreshCount()}
-176:       />
-177:     </>
-178:   );
-179: }
-````
-
 ## File: src/app/editor/page.tsx
 ````typescript
   1: "use client";
@@ -1046,6 +579,290 @@ tsconfig.json
 217:     </div>
 218:   );
 219: }
+````
+
+## File: src/components/auth/ProfileModal.tsx
+````typescript
+  1: "use client";
+  2: 
+  3: import { useState, useEffect } from "react";
+  4: import {
+  5:   X,
+  6:   User,
+  7:   Mail,
+  8:   Lock,
+  9:   CheckCircle2,
+ 10:   AlertCircle,
+ 11:   LogOut,
+ 12:   Sparkles,
+ 13:   Database,
+ 14:   Ticket,
+ 15:   KeyRound
+ 16: } from "lucide-react";
+ 17: import { Button } from "@/components/ui/button";
+ 18: import { useAuth } from "@/hooks/useAuth";
+ 19: import { getSavedTickets } from "@/services/tickets-service";
+ 20: 
+ 21: interface ProfileModalProps {
+ 22:   isOpen: boolean;
+ 23:   onClose: () => void;
+ 24: }
+ 25: 
+ 26: export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
+ 27:   const { user, updateProfile, updatePassword, signOut, isConfigured } = useAuth();
+ 28: 
+ 29:   const [name, setName] = useState("");
+ 30:   const [email, setEmail] = useState("");
+ 31:   const [newPassword, setNewPassword] = useState("");
+ 32:   const [confirmPassword, setConfirmPassword] = useState("");
+ 33:   const [savedTicketsCount, setSavedTicketsCount] = useState(0);
+ 34: 
+ 35:   const [profileLoading, setProfileLoading] = useState(false);
+ 36:   const [passwordLoading, setPasswordLoading] = useState(false);
+ 37:   const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+ 38: 
+ 39:   useEffect(() => {
+ 40:     if (user) {
+ 41:       setName(user.name || "");
+ 42:       setEmail(user.email || "");
+ 43:       getSavedTickets().then((tickets) => setSavedTicketsCount(tickets.length)).catch(() => {});
+ 44:     }
+ 45:   }, [user, isOpen]);
+ 46: 
+ 47:   if (!isOpen || !user) return null;
+ 48: 
+ 49:   const handleUpdateProfile = async (e: React.FormEvent) => {
+ 50:     e.preventDefault();
+ 51:     setStatusMessage(null);
+ 52:     setProfileLoading(true);
+ 53: 
+ 54:     try {
+ 55:       const res = await updateProfile(name, email);
+ 56:       if (res.error) {
+ 57:         setStatusMessage({ type: "error", text: res.error });
+ 58:       } else {
+ 59:         setStatusMessage({ type: "success", text: res.message || "Perfil actualizado exitosamente" });
+ 60:         setTimeout(() => setStatusMessage(null), 3000);
+ 61:       }
+ 62:     } finally {
+ 63:       setProfileLoading(false);
+ 64:     }
+ 65:   };
+ 66: 
+ 67:   const handleChangePassword = async (e: React.FormEvent) => {
+ 68:     e.preventDefault();
+ 69:     setStatusMessage(null);
+ 70: 
+ 71:     if (newPassword.length < 6) {
+ 72:       setStatusMessage({ type: "error", text: "La contraseña debe tener al menos 6 caracteres" });
+ 73:       return;
+ 74:     }
+ 75: 
+ 76:     if (newPassword !== confirmPassword) {
+ 77:       setStatusMessage({ type: "error", text: "Las contraseñas no coinciden" });
+ 78:       return;
+ 79:     }
+ 80: 
+ 81:     setPasswordLoading(true);
+ 82:     try {
+ 83:       const res = await updatePassword(newPassword);
+ 84:       if (res.error) {
+ 85:         setStatusMessage({ type: "error", text: res.error });
+ 86:       } else {
+ 87:         setStatusMessage({ type: "success", text: "Contraseña actualizada exitosamente" });
+ 88:         setNewPassword("");
+ 89:         setConfirmPassword("");
+ 90:         setTimeout(() => setStatusMessage(null), 3000);
+ 91:       }
+ 92:     } finally {
+ 93:       setPasswordLoading(false);
+ 94:     }
+ 95:   };
+ 96: 
+ 97:   const handleSignOut = async () => {
+ 98:     await signOut();
+ 99:     onClose();
+100:   };
+101: 
+102:   return (
+103:     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
+104:       <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto rounded-3xl border border-slate-700/80 bg-slate-900 p-5 sm:p-6 shadow-2xl shadow-amber-500/10 backdrop-blur-xl">
+105:         {/* Botón Cerrar */}
+106:         <button
+107:           onClick={onClose}
+108:           className="absolute top-4 right-4 text-slate-400 hover:text-slate-200 p-1.5 rounded-xl hover:bg-slate-800 transition-colors"
+109:         >
+110:           <X className="h-5 w-5" />
+111:         </button>
+112: 
+113:         {/* Header con Avatar */}
+114:         <div className="flex items-center gap-3.5 pb-4 border-b border-slate-800">
+115:           <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center text-xl font-black shadow-lg shadow-amber-500/30">
+116:             {name ? name[0].toUpperCase() : user.email[0].toUpperCase()}
+117:           </div>
+118:           <div>
+119:             <div className="flex items-center gap-1.5">
+120:               <h3 className="text-base font-bold text-slate-100">{name || "Mi Cuenta"}</h3>
+121:               <span className="rounded-full bg-amber-500/20 border border-amber-500/40 px-2 py-0.2 text-[9px] font-bold text-amber-300">
+122:                 PRO
+123:               </span>
+124:             </div>
+125:             <p className="text-xs text-slate-400 mt-0.5 truncate max-w-[220px]">{user.email}</p>
+126:           </div>
+127:         </div>
+128: 
+129:         {/* Métricas de la cuenta */}
+130:         <div className="grid grid-cols-2 gap-2.5 my-4">
+131:           <div className="p-3 rounded-2xl bg-slate-800/60 border border-slate-800 flex items-center gap-2.5">
+132:             <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400">
+133:               <Ticket className="h-4 w-4" />
+134:             </div>
+135:             <div>
+136:               <p className="text-xs font-bold text-slate-200">{savedTicketsCount}</p>
+137:               <p className="text-[10px] text-slate-400">Rifas Guardadas</p>
+138:             </div>
+139:           </div>
+140: 
+141:           <div className="p-3 rounded-2xl bg-slate-800/60 border border-slate-800 flex items-center gap-2.5">
+142:             <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
+143:               <Database className="h-4 w-4" />
+144:             </div>
+145:             <div>
+146:               <p className="text-xs font-bold text-slate-200">{isConfigured ? "Supabase Cloud" : "Local Demo"}</p>
+147:               <p className="text-[10px] text-slate-400">Almacenamiento</p>
+148:             </div>
+149:           </div>
+150:         </div>
+151: 
+152:         {/* Alerta de Feedback */}
+153:         {statusMessage && (
+154:           <div
+155:             className={`mb-4 flex items-center gap-2 p-3 rounded-2xl text-xs ${
+156:               statusMessage.type === "success"
+157:                 ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400"
+158:                 : "bg-rose-500/10 border border-rose-500/30 text-rose-400"
+159:             }`}
+160:           >
+161:             {statusMessage.type === "success" ? (
+162:               <CheckCircle2 className="h-4 w-4 shrink-0" />
+163:             ) : (
+164:               <AlertCircle className="h-4 w-4 shrink-0" />
+165:             )}
+166:             <span>{statusMessage.text}</span>
+167:           </div>
+168:         )}
+169: 
+170:         {/* Formulario 1: Datos Personales */}
+171:         <form onSubmit={handleUpdateProfile} className="space-y-3 pt-1">
+172:           <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+173:             <User className="h-3.5 w-3.5 text-amber-400" />
+174:             <span>Datos del Perfil</span>
+175:           </h4>
+176: 
+177:           <div>
+178:             <label className="block text-[11px] font-medium text-slate-300 mb-1">
+179:               Nombre Completo
+180:             </label>
+181:             <input
+182:               type="text"
+183:               required
+184:               value={name}
+185:               onChange={(e) => setName(e.target.value)}
+186:               placeholder="Tu nombre o el de tu organización"
+187:               className="w-full px-3 py-2 bg-slate-800/90 border border-slate-700 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500"
+188:             />
+189:           </div>
+190: 
+191:           <div>
+192:             <label className="block text-[11px] font-medium text-slate-300 mb-1">
+193:               Correo Electrónico
+194:             </label>
+195:             <input
+196:               type="email"
+197:               required
+198:               value={email}
+199:               onChange={(e) => setEmail(e.target.value)}
+200:               placeholder="tu@email.com"
+201:               className="w-full px-3 py-2 bg-slate-800/90 border border-slate-700 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500"
+202:             />
+203:           </div>
+204: 
+205:           <Button
+206:             type="submit"
+207:             disabled={profileLoading}
+208:             size="sm"
+209:             className="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-amber-300 text-xs font-semibold h-9 rounded-xl transition-all"
+210:           >
+211:             {profileLoading ? "Guardando..." : "Guardar Cambios de Perfil"}
+212:           </Button>
+213:         </form>
+214: 
+215:         {/* Separador */}
+216:         <div className="my-5 border-t border-slate-800" />
+217: 
+218:         {/* Formulario 2: Cambiar Contraseña */}
+219:         <form onSubmit={handleChangePassword} className="space-y-3">
+220:           <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+221:             <KeyRound className="h-3.5 w-3.5 text-amber-400" />
+222:             <span>Seguridad y Contraseña</span>
+223:           </h4>
+224: 
+225:           <div>
+226:             <label className="block text-[11px] font-medium text-slate-300 mb-1">
+227:               Nueva Contraseña
+228:             </label>
+229:             <input
+230:               type="password"
+231:               minLength={6}
+232:               value={newPassword}
+233:               onChange={(e) => setNewPassword(e.target.value)}
+234:               placeholder="Mínimo 6 caracteres"
+235:               className="w-full px-3 py-2 bg-slate-800/90 border border-slate-700 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500"
+236:             />
+237:           </div>
+238: 
+239:           <div>
+240:             <label className="block text-[11px] font-medium text-slate-300 mb-1">
+241:               Confirmar Nueva Contraseña
+242:             </label>
+243:             <input
+244:               type="password"
+245:               minLength={6}
+246:               value={confirmPassword}
+247:               onChange={(e) => setConfirmPassword(e.target.value)}
+248:               placeholder="Repite la nueva contraseña"
+249:               className="w-full px-3 py-2 bg-slate-800/90 border border-slate-700 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500"
+250:             />
+251:           </div>
+252: 
+253:           <Button
+254:             type="submit"
+255:             disabled={passwordLoading || !newPassword}
+256:             size="sm"
+257:             className="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-amber-300 text-xs font-semibold h-9 rounded-xl transition-all"
+258:           >
+259:             {passwordLoading ? "Actualizando..." : "Actualizar Contraseña"}
+260:           </Button>
+261:         </form>
+262: 
+263:         {/* Separador y Cerrar Sesión */}
+264:         <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
+265:           <span className="text-[11px] text-slate-500">Sesión iniciada</span>
+266:           <Button
+267:             type="button"
+268:             variant="ghost"
+269:             size="sm"
+270:             onClick={handleSignOut}
+271:             className="text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 text-xs h-8 rounded-xl flex items-center gap-1.5"
+272:           >
+273:             <LogOut className="h-3.5 w-3.5" />
+274:             <span>Cerrar Sesión</span>
+275:           </Button>
+276:         </div>
+277:       </div>
+278:     </div>
+279:   );
+280: }
 ````
 
 ## File: src/components/ui/button.tsx
@@ -1765,6 +1582,190 @@ tsconfig.json
 109: }
 ````
 
+## File: src/components/MobileBottomNav.tsx
+````typescript
+  1: "use client";
+  2: 
+  3: import { useState, useEffect } from "react";
+  4: import Link from "next/link";
+  5: import { usePathname } from "next/navigation";
+  6: import {
+  7:   Home,
+  8:   Sliders,
+  9:   FolderOpen,
+ 10:   Save,
+ 11:   User,
+ 12:   Check,
+ 13:   Sparkles
+ 14: } from "lucide-react";
+ 15: import { useAuth } from "@/hooks/useAuth";
+ 16: import { useRifaStore } from "@/store/useRifaStore";
+ 17: import { saveTicketDesign, getSavedTickets } from "@/services/tickets-service";
+ 18: import { AuthModal } from "@/components/auth/AuthModal";
+ 19: import { ProfileModal } from "@/components/auth/ProfileModal";
+ 20: import { SavedTicketsDrawer } from "@/components/SavedTicketsDrawer";
+ 21: 
+ 22: export function MobileBottomNav() {
+ 23:   const pathname = usePathname();
+ 24:   const { user } = useAuth();
+ 25:   const { ticketConfig, printConfig } = useRifaStore();
+ 26: 
+ 27:   const [isAuthOpen, setIsAuthOpen] = useState(false);
+ 28:   const [isProfileOpen, setIsProfileOpen] = useState(false);
+ 29:   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+ 30:   const [saving, setSaving] = useState(false);
+ 31:   const [saveSuccess, setSaveSuccess] = useState(false);
+ 32:   const [savedCount, setSavedCount] = useState(0);
+ 33: 
+ 34:   const refreshCount = async () => {
+ 35:     try {
+ 36:       const list = await getSavedTickets();
+ 37:       setSavedCount(list.length);
+ 38:     } catch {}
+ 39:   };
+ 40: 
+ 41:   useEffect(() => {
+ 42:     refreshCount();
+ 43:   }, [user]);
+ 44: 
+ 45:   const handleSave = async () => {
+ 46:     if (!user) {
+ 47:       setIsAuthOpen(true);
+ 48:       return;
+ 49:     }
+ 50: 
+ 51:     setSaving(true);
+ 52:     try {
+ 53:       await saveTicketDesign(
+ 54:         ticketConfig.eventName || "Mi Rifa",
+ 55:         ticketConfig,
+ 56:         printConfig
+ 57:       );
+ 58:       setSaveSuccess(true);
+ 59:       refreshCount();
+ 60:       setTimeout(() => setSaveSuccess(false), 2500);
+ 61:     } catch (e) {
+ 62:       console.error(e);
+ 63:     } finally {
+ 64:       setSaving(false);
+ 65:     }
+ 66:   };
+ 67: 
+ 68:   const handleProfileClick = () => {
+ 69:     if (user) {
+ 70:       setIsProfileOpen(true);
+ 71:     } else {
+ 72:       setIsAuthOpen(true);
+ 73:     }
+ 74:   };
+ 75: 
+ 76:   return (
+ 77:     <>
+ 78:       {/* Barra de navegación inferior fija estilo Native App */}
+ 79:       <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800/80 px-2 py-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-2xl">
+ 80:         <div className="grid grid-cols-5 items-center justify-items-center">
+ 81:           {/* 1. Inicio / Landing */}
+ 82:           <Link
+ 83:             href="/"
+ 84:             className={`flex flex-col items-center gap-1 py-1 px-2 rounded-xl transition-colors ${
+ 85:               pathname === "/"
+ 86:                 ? "text-amber-400 font-bold"
+ 87:                 : "text-slate-400 hover:text-slate-200"
+ 88:             }`}
+ 89:           >
+ 90:             <Home className="h-5 w-5" />
+ 91:             <span className="text-[10px]">Inicio</span>
+ 92:           </Link>
+ 93: 
+ 94:           {/* 2. Editor */}
+ 95:           <Link
+ 96:             href="/editor"
+ 97:             className={`flex flex-col items-center gap-1 py-1 px-2 rounded-xl transition-colors ${
+ 98:               pathname === "/editor"
+ 99:                 ? "text-amber-400 font-bold"
+100:                 : "text-slate-400 hover:text-slate-200"
+101:             }`}
+102:           >
+103:             <Sliders className="h-5 w-5" />
+104:             <span className="text-[10px]">Editor</span>
+105:           </Link>
+106: 
+107:           {/* 3. Guardar Rifa (Acción central destacada) */}
+108:           <button
+109:             onClick={handleSave}
+110:             disabled={saving}
+111:             className="flex flex-col items-center -mt-4 group"
+112:           >
+113:             <div
+114:               className={`w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg transition-all ${
+115:                 saveSuccess
+116:                   ? "bg-emerald-500 text-white shadow-emerald-500/30 scale-105"
+117:                   : "bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 shadow-amber-500/30 group-active:scale-95"
+118:               }`}
+119:             >
+120:               {saveSuccess ? (
+121:                 <Check className="h-5 w-5" />
+122:               ) : (
+123:                 <Save className="h-5 w-5" />
+124:               )}
+125:             </div>
+126:             <span className="text-[10px] font-bold text-amber-400 mt-1">
+127:               {saveSuccess ? "¡Listo!" : saving ? "..." : "Guardar"}
+128:             </span>
+129:           </button>
+130: 
+131:           {/* 4. Mis Rifas */}
+132:           <button
+133:             onClick={() => setIsDrawerOpen(true)}
+134:             className="flex flex-col items-center gap-1 py-1 px-2 rounded-xl text-slate-400 hover:text-slate-200 relative transition-colors"
+135:           >
+136:             <FolderOpen className="h-5 w-5" />
+137:             <span className="text-[10px]">Mis Rifas</span>
+138:             {savedCount > 0 && (
+139:               <span className="absolute top-0 right-2 w-4 h-4 rounded-full bg-amber-500 text-slate-950 text-[9px] font-mono font-black flex items-center justify-center">
+140:                 {savedCount}
+141:               </span>
+142:             )}
+143:           </button>
+144: 
+145:           {/* 5. Perfil / Cuenta */}
+146:           <button
+147:             onClick={handleProfileClick}
+148:             className="flex flex-col items-center gap-1 py-1 px-2 rounded-xl text-slate-400 hover:text-slate-200 transition-colors"
+149:           >
+150:             {user ? (
+151:               <div className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px] font-bold border border-amber-500/40">
+152:                 {user.name ? user.name[0].toUpperCase() : user.email[0].toUpperCase()}
+153:               </div>
+154:             ) : (
+155:               <User className="h-5 w-5" />
+156:             )}
+157:             <span className="text-[10px]">{user ? "Perfil" : "Entrar"}</span>
+158:           </button>
+159:         </div>
+160:       </nav>
+161: 
+162:       {/* Modales */}
+163:       <AuthModal
+164:         isOpen={isAuthOpen}
+165:         onClose={() => setIsAuthOpen(false)}
+166:         onSuccess={() => refreshCount()}
+167:       />
+168:       <ProfileModal
+169:         isOpen={isProfileOpen}
+170:         onClose={() => setIsProfileOpen(false)}
+171:       />
+172:       <SavedTicketsDrawer
+173:         isOpen={isDrawerOpen}
+174:         onClose={() => setIsDrawerOpen(false)}
+175:         onSelectTicket={() => refreshCount()}
+176:         onOpenAuth={() => setIsAuthOpen(true)}
+177:       />
+178:     </>
+179:   );
+180: }
+````
+
 ## File: src/components/PresetSelector.tsx
 ````typescript
   1: "use client";
@@ -1944,449 +1945,250 @@ tsconfig.json
  12:   ArrowRight,
  13:   RefreshCw,
  14:   Search,
- 15:   Sparkles
- 16: } from "lucide-react";
- 17: import { Button } from "@/components/ui/button";
- 18: import { SavedTicket, getSavedTickets, deleteSavedTicket, duplicateSavedTicket } from "@/services/tickets-service";
- 19: import { useRifaStore } from "@/store/useRifaStore";
- 20: import { formatCurrency } from "@/lib/utils";
- 21: 
- 22: interface SavedTicketsDrawerProps {
- 23:   isOpen: boolean;
- 24:   onClose: () => void;
- 25:   onSelectTicket?: (ticket: SavedTicket) => void;
- 26: }
- 27: 
- 28: export function SavedTicketsDrawer({ isOpen, onClose, onSelectTicket }: SavedTicketsDrawerProps) {
- 29:   const [tickets, setTickets] = useState<SavedTicket[]>([]);
- 30:   const [loading, setLoading] = useState(true);
- 31:   const [search, setSearch] = useState("");
- 32:   const [activeDeleteId, setActiveDeleteId] = useState<string | null>(null);
- 33: 
- 34:   const { setTicketConfig, setPrintConfig } = useRifaStore();
- 35: 
- 36:   const fetchTickets = async () => {
- 37:     setLoading(true);
- 38:     try {
- 39:       const data = await getSavedTickets();
- 40:       setTickets(data);
- 41:     } finally {
- 42:       setLoading(false);
- 43:     }
- 44:   };
- 45: 
- 46:   useEffect(() => {
- 47:     if (isOpen) {
- 48:       fetchTickets();
- 49:     }
- 50:   }, [isOpen]);
- 51: 
- 52:   if (!isOpen) return null;
- 53: 
- 54:   const handleLoad = (ticket: SavedTicket) => {
- 55:     setTicketConfig(ticket.ticket_config);
- 56:     setPrintConfig(ticket.print_config);
- 57:     onSelectTicket?.(ticket);
- 58:     onClose();
- 59:   };
- 60: 
- 61:   const handleDelete = async (id: string, e: React.MouseEvent) => {
- 62:     e.stopPropagation();
- 63:     setActiveDeleteId(id);
- 64:     try {
- 65:       await deleteSavedTicket(id);
- 66:       setTickets((prev) => prev.filter((t) => t.id !== id));
- 67:     } finally {
- 68:       setActiveDeleteId(null);
- 69:     }
+ 15:   Sparkles,
+ 16:   Lock,
+ 17:   LogIn
+ 18: } from "lucide-react";
+ 19: import { Button } from "@/components/ui/button";
+ 20: import { SavedTicket, getSavedTickets, deleteSavedTicket, duplicateSavedTicket } from "@/services/tickets-service";
+ 21: import { useRifaStore } from "@/store/useRifaStore";
+ 22: import { useAuth } from "@/hooks/useAuth";
+ 23: import { formatCurrency } from "@/lib/utils";
+ 24: 
+ 25: interface SavedTicketsDrawerProps {
+ 26:   isOpen: boolean;
+ 27:   onClose: () => void;
+ 28:   onSelectTicket?: (ticket: SavedTicket) => void;
+ 29:   onOpenAuth?: () => void;
+ 30: }
+ 31: 
+ 32: export function SavedTicketsDrawer({ isOpen, onClose, onSelectTicket, onOpenAuth }: SavedTicketsDrawerProps) {
+ 33:   const { user } = useAuth();
+ 34:   const [tickets, setTickets] = useState<SavedTicket[]>([]);
+ 35:   const [loading, setLoading] = useState(true);
+ 36:   const [search, setSearch] = useState("");
+ 37:   const [activeDeleteId, setActiveDeleteId] = useState<string | null>(null);
+ 38: 
+ 39:   const { setTicketConfig, setPrintConfig } = useRifaStore();
+ 40: 
+ 41:   const fetchTickets = async () => {
+ 42:     if (!user) {
+ 43:       setTickets([]);
+ 44:       setLoading(false);
+ 45:       return;
+ 46:     }
+ 47:     setLoading(true);
+ 48:     try {
+ 49:       const data = await getSavedTickets();
+ 50:       setTickets(data);
+ 51:     } finally {
+ 52:       setLoading(false);
+ 53:     }
+ 54:   };
+ 55: 
+ 56:   useEffect(() => {
+ 57:     if (isOpen) {
+ 58:       fetchTickets();
+ 59:     }
+ 60:   }, [isOpen, user]);
+ 61: 
+ 62: 
+ 63:   if (!isOpen) return null;
+ 64: 
+ 65:   const handleLoad = (ticket: SavedTicket) => {
+ 66:     setTicketConfig(ticket.ticket_config);
+ 67:     setPrintConfig(ticket.print_config);
+ 68:     onSelectTicket?.(ticket);
+ 69:     onClose();
  70:   };
  71: 
- 72:   const handleDuplicate = async (ticket: SavedTicket, e: React.MouseEvent) => {
+ 72:   const handleDelete = async (id: string, e: React.MouseEvent) => {
  73:     e.stopPropagation();
- 74:     const duplicated = await duplicateSavedTicket(ticket);
- 75:     setTickets((prev) => [duplicated, ...prev]);
- 76:   };
- 77: 
- 78:   const filtered = tickets.filter((t) =>
- 79:     t.title.toLowerCase().includes(search.toLowerCase()) ||
- 80:     t.ticket_config.eventName.toLowerCase().includes(search.toLowerCase())
- 81:   );
+ 74:     setActiveDeleteId(id);
+ 75:     try {
+ 76:       await deleteSavedTicket(id);
+ 77:       setTickets((prev) => prev.filter((t) => t.id !== id));
+ 78:     } finally {
+ 79:       setActiveDeleteId(null);
+ 80:     }
+ 81:   };
  82: 
- 83:   return (
- 84:     <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
- 85:       <div className="relative w-full max-w-md h-full bg-slate-900 border-l border-slate-700/80 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
- 86:         {/* Cabecera */}
- 87:         <div className="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-900/90">
- 88:           <div className="flex items-center gap-2.5">
- 89:             <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
- 90:               <FolderOpen className="h-4 w-4" />
- 91:             </div>
- 92:             <div>
- 93:               <h3 className="text-sm font-bold text-slate-100">Mis Rifas Guardadas</h3>
- 94:               <p className="text-[10px] text-slate-400">
- 95:                 {tickets.length} {tickets.length === 1 ? "diseño disponible" : "diseños disponibles"}
- 96:               </p>
- 97:             </div>
- 98:           </div>
- 99: 
-100:           <div className="flex items-center gap-1">
-101:             <button
-102:               onClick={fetchTickets}
-103:               title="Recargar"
-104:               className="text-slate-400 hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
-105:             >
-106:               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin text-amber-400" : ""}`} />
-107:             </button>
-108:             <button
-109:               onClick={onClose}
-110:               className="text-slate-400 hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
-111:             >
-112:               <X className="h-5 w-5" />
-113:             </button>
-114:           </div>
-115:         </div>
-116: 
-117:         {/* Buscador */}
-118:         <div className="p-3 border-b border-slate-800/80 bg-slate-900/50">
-119:           <div className="relative">
-120:             <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-500" />
-121:             <input
-122:               type="text"
-123:               value={search}
-124:               onChange={(e) => setSearch(e.target.value)}
-125:               placeholder="Buscar rifa por nombre..."
-126:               className="w-full pl-8 pr-3 py-1.5 bg-slate-800/80 border border-slate-700 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500"
-127:             />
-128:           </div>
-129:         </div>
-130: 
-131:         {/* Lista de diseños */}
-132:         <div className="flex-1 overflow-y-auto p-4 space-y-3">
-133:           {loading ? (
-134:             <div className="flex flex-col items-center justify-center h-48 text-slate-500 space-y-2">
-135:               <RefreshCw className="h-6 w-6 animate-spin text-amber-400" />
-136:               <p className="text-xs">Cargando tus rifas...</p>
-137:             </div>
-138:           ) : filtered.length === 0 ? (
-139:             <div className="flex flex-col items-center justify-center h-64 text-center p-6 rounded-2xl border border-dashed border-slate-800 bg-slate-900/40">
-140:               <Sparkles className="h-8 w-8 text-slate-600 mb-2" />
-141:               <p className="text-sm font-semibold text-slate-300">No hay rifas guardadas</p>
-142:               <p className="text-xs text-slate-500 mt-1 max-w-[240px]">
-143:                 {search ? "No se encontraron rifas con ese término." : "Crea tu primer diseño y haz clic en 'Guardar Rifa' en la barra superior."}
-144:               </p>
-145:             </div>
-146:           ) : (
-147:             filtered.map((ticket) => (
-148:               <div
-149:                 key={ticket.id}
-150:                 onClick={() => handleLoad(ticket)}
-151:                 className="group relative rounded-xl border border-slate-800 bg-slate-800/50 hover:bg-slate-800 hover:border-amber-500/50 p-3.5 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-lg hover:shadow-amber-500/5"
-152:               >
-153:                 <div className="flex items-start justify-between gap-2">
-154:                   <div className="flex-1 min-w-0">
-155:                     <h4 className="text-xs font-bold text-slate-100 group-hover:text-amber-300 truncate transition-colors">
-156:                       {ticket.title}
-157:                     </h4>
-158:                     <p className="text-[11px] text-slate-400 truncate mt-0.5">
-159:                       {ticket.ticket_config.subtitle || ticket.ticket_config.eventName}
-160:                     </p>
-161:                   </div>
-162: 
-163:                   {/* Acciones */}
-164:                   <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
-165:                     <button
-166:                       onClick={(e) => handleDuplicate(ticket, e)}
-167:                       title="Duplicar"
-168:                       className="text-slate-400 hover:text-amber-400 p-1 rounded hover:bg-slate-700/60"
-169:                     >
-170:                       <Copy className="h-3.5 w-3.5" />
-171:                     </button>
-172:                     <button
-173:                       onClick={(e) => handleDelete(ticket.id, e)}
-174:                       title="Eliminar"
-175:                       disabled={activeDeleteId === ticket.id}
-176:                       className="text-slate-400 hover:text-rose-400 p-1 rounded hover:bg-slate-700/60"
-177:                     >
-178:                       <Trash2 className="h-3.5 w-3.5" />
-179:                     </button>
-180:                   </div>
-181:                 </div>
-182: 
-183:                 {/* Metadata pills */}
-184:                 <div className="grid grid-cols-3 gap-2 mt-3 pt-2.5 border-t border-slate-700/40 text-[10px] text-slate-400">
-185:                   <div className="flex items-center gap-1 truncate">
-186:                     <Ticket className="h-3 w-3 text-amber-400 shrink-0" />
-187:                     <span>{ticket.ticket_config.totalTickets} tks</span>
-188:                   </div>
-189:                   <div className="flex items-center gap-1 truncate">
-190:                     <Trophy className="h-3 w-3 text-amber-400 shrink-0" />
-191:                     <span>{ticket.ticket_config.prizes?.length || 0} premios</span>
-192:                   </div>
-193:                   <div className="flex items-center gap-1 truncate font-mono text-amber-300 font-semibold">
-194:                     <span>{formatCurrency(ticket.ticket_config.price || 0)}</span>
-195:                   </div>
-196:                 </div>
-197: 
-198:                 {/* Botón Cargar */}
-199:                 <div className="mt-2.5 flex items-center justify-between text-[10px] text-slate-500 group-hover:text-amber-400 transition-colors">
-200:                   <span className="flex items-center gap-1">
-201:                     <Calendar className="h-2.5 w-2.5" />
-202:                     {new Date(ticket.updated_at).toLocaleDateString()}
-203:                   </span>
-204:                   <span className="flex items-center gap-0.5 font-medium">
-205:                     Cargar diseño <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
-206:                   </span>
-207:                 </div>
-208:               </div>
-209:             ))
-210:           )}
-211:         </div>
-212: 
-213:         {/* Footer */}
-214:         <div className="p-3 border-t border-slate-800 bg-slate-900/90 text-center">
-215:           <p className="text-[10px] text-slate-500">
-216:             Los cambios se sincronizan en la nube y quedan disponibles en tu cuenta.
-217:           </p>
-218:         </div>
-219:       </div>
-220:     </div>
-221:   );
-222: }
-````
-
-## File: src/hooks/useAuth.ts
-````typescript
-  1: "use client";
-  2: 
-  3: import { useState, useEffect, useCallback } from "react";
-  4: import { getSupabase, isSupabaseConfigured } from "@/lib/supabase";
-  5: import { User } from "@supabase/supabase-js";
-  6: 
-  7: export interface AppUser {
-  8:   id: string;
-  9:   email: string;
- 10:   name?: string;
- 11:   isDemo?: boolean;
- 12: }
- 13: 
- 14: const DEMO_USER_KEY = "eventazo_demo_user";
- 15: 
- 16: export function useAuth() {
- 17:   const [user, setUser] = useState<AppUser | null>(null);
- 18:   const [loading, setLoading] = useState(true);
- 19:   const isConfigured = isSupabaseConfigured();
- 20: 
- 21:   // Escuchar cambios de sesión de Supabase o cargar usuario demo local
- 22:   useEffect(() => {
- 23:     const supabase = getSupabase();
- 24: 
- 25:     if (supabase) {
- 26:       supabase.auth.getSession().then(({ data: { session } }) => {
- 27:         if (session?.user) {
- 28:           setUser({
- 29:             id: session.user.id,
- 30:             email: session.user.email || "",
- 31:             name: session.user.user_metadata?.full_name || session.user.email?.split("@")[0],
- 32:           });
- 33:         }
- 34:         setLoading(false);
- 35:       });
- 36: 
- 37:       const { data: { subscription } } = supabase.auth.onAuthStateChange(
- 38:         (_event, session) => {
- 39:           if (session?.user) {
- 40:             setUser({
- 41:               id: session.user.id,
- 42:               email: session.user.email || "",
- 43:               name: session.user.user_metadata?.full_name || session.user.email?.split("@")[0],
- 44:             });
- 45:           } else {
- 46:             // Verificar si hay usuario demo
- 47:             const demo = localStorage.getItem(DEMO_USER_KEY);
- 48:             if (demo) {
- 49:               setUser(JSON.parse(demo));
- 50:             } else {
- 51:               setUser(null);
- 52:             }
- 53:           }
- 54:           setLoading(false);
- 55:         }
- 56:       );
- 57: 
- 58:       return () => {
- 59:         subscription.unsubscribe();
- 60:       };
- 61:     } else {
- 62:       // Modo local / demo
- 63:       if (typeof window !== "undefined") {
- 64:         const demo = localStorage.getItem(DEMO_USER_KEY);
- 65:         if (demo) {
- 66:           setUser(JSON.parse(demo));
- 67:         }
- 68:       }
- 69:       setLoading(false);
- 70:     }
- 71:   }, []);
- 72: 
- 73:   const signIn = useCallback(async (email: string, password: string): Promise<{ error: string | null }> => {
- 74:     const supabase = getSupabase();
- 75: 
- 76:     if (!supabase) {
- 77:       // Si Supabase no está configurado, loguear como demo
- 78:       const demoUser: AppUser = {
- 79:         id: "demo-user-123",
- 80:         email,
- 81:         name: email.split("@")[0],
- 82:         isDemo: true,
- 83:       };
- 84:       localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser));
- 85:       setUser(demoUser);
- 86:       return { error: null };
- 87:     }
+ 83:   const handleDuplicate = async (ticket: SavedTicket, e: React.MouseEvent) => {
+ 84:     e.stopPropagation();
+ 85:     const duplicated = await duplicateSavedTicket(ticket);
+ 86:     setTickets((prev) => [duplicated, ...prev]);
+ 87:   };
  88: 
- 89:     try {
- 90:       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
- 91:       if (error) return { error: error.message };
- 92:       if (data.user) {
- 93:         setUser({
- 94:           id: data.user.id,
- 95:           email: data.user.email || "",
- 96:           name: data.user.user_metadata?.full_name || data.user.email?.split("@")[0],
- 97:         });
- 98:       }
- 99:       return { error: null };
-100:     } catch (e) {
-101:       return { error: e instanceof Error ? e.message : "Error al iniciar sesión" };
-102:     }
-103:   }, []);
-104: 
-105:   const signUp = useCallback(async (email: string, password: string): Promise<{ error: string | null; message?: string }> => {
-106:     const supabase = getSupabase();
-107: 
-108:     if (!supabase) {
-109:       const demoUser: AppUser = {
-110:         id: "demo-user-123",
-111:         email,
-112:         name: email.split("@")[0],
-113:         isDemo: true,
-114:       };
-115:       localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser));
-116:       setUser(demoUser);
-117:       return { error: null, message: "Cuenta demo creada exitosamente" };
-118:     }
-119: 
-120:     try {
-121:       const { data, error } = await supabase.auth.signUp({
-122:         email,
-123:         password,
-124:       });
-125:       if (error) return { error: error.message };
-126:       if (data.user) {
-127:         setUser({
-128:           id: data.user.id,
-129:           email: data.user.email || "",
-130:           name: data.user.user_metadata?.full_name || data.user.email?.split("@")[0],
-131:         });
-132:       }
-133:       return { error: null, message: "Revisa tu correo para confirmar tu cuenta si es requerido" };
-134:     } catch (e) {
-135:       return { error: e instanceof Error ? e.message : "Error al registrarse" };
-136:     }
-137:   }, []);
-138: 
-139:   const signInDemo = useCallback(() => {
-140:     const demoUser: AppUser = {
-141:       id: "demo-pro-user",
-142:       email: "demo@eventazo.pro",
-143:       name: "Usuario Pro (Demo)",
-144:       isDemo: true,
-145:     };
-146:     localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser));
-147:     setUser(demoUser);
-148:   }, []);
-149: 
-150:   const updateProfile = useCallback(async (newName: string, newEmail?: string): Promise<{ error: string | null; message?: string }> => {
-151:     const supabase = getSupabase();
-152: 
-153:     if (!supabase || user?.isDemo) {
-154:       const updated: AppUser = {
-155:         id: user?.id || "demo-user",
-156:         email: newEmail || user?.email || "",
-157:         name: newName,
-158:         isDemo: true,
-159:       };
-160:       localStorage.setItem(DEMO_USER_KEY, JSON.stringify(updated));
-161:       setUser(updated);
-162:       return { error: null, message: "Perfil actualizado exitosamente" };
-163:     }
-164: 
-165:     try {
-166:       const updateData: { data?: { full_name: string }; email?: string } = {
-167:         data: { full_name: newName },
-168:       };
-169:       if (newEmail && newEmail !== user?.email) {
-170:         updateData.email = newEmail;
-171:       }
-172: 
-173:       const { data, error } = await supabase.auth.updateUser(updateData);
-174:       if (error) return { error: error.message };
-175: 
-176:       if (data.user) {
-177:         setUser({
-178:           id: data.user.id,
-179:           email: data.user.email || "",
-180:           name: data.user.user_metadata?.full_name || newName,
-181:         });
-182:       }
-183: 
-184:       return {
-185:         error: null,
-186:         message: newEmail && newEmail !== user?.email
-187:           ? "Perfil actualizado. Se envió un correo de confirmación al nuevo email."
-188:           : "Perfil actualizado exitosamente",
-189:       };
-190:     } catch (e) {
-191:       return { error: e instanceof Error ? e.message : "Error al actualizar perfil" };
-192:     }
-193:   }, [user]);
-194: 
-195:   const updatePassword = useCallback(async (newPassword: string): Promise<{ error: string | null }> => {
-196:     const supabase = getSupabase();
-197: 
-198:     if (!supabase || user?.isDemo) {
-199:       return { error: null };
-200:     }
-201: 
-202:     try {
-203:       const { error } = await supabase.auth.updateUser({ password: newPassword });
-204:       if (error) return { error: error.message };
-205:       return { error: null };
-206:     } catch (e) {
-207:       return { error: e instanceof Error ? e.message : "Error al cambiar contraseña" };
-208:     }
-209:   }, [user]);
-210: 
-211:   const signOut = useCallback(async () => {
-212:     const supabase = getSupabase();
-213:     if (supabase) {
-214:       await supabase.auth.signOut();
-215:     }
-216:     localStorage.removeItem(DEMO_USER_KEY);
-217:     setUser(null);
-218:   }, []);
-219: 
-220:   return {
-221:     user,
-222:     loading,
-223:     isConfigured,
-224:     signIn,
-225:     signUp,
-226:     signInDemo,
-227:     updateProfile,
-228:     updatePassword,
-229:     signOut,
-230:   };
-231: }
+ 89:   const filtered = tickets.filter((t) =>
+ 90:     t.title.toLowerCase().includes(search.toLowerCase()) ||
+ 91:     t.ticket_config.eventName.toLowerCase().includes(search.toLowerCase())
+ 92:   );
+ 93: 
+ 94:   return (
+ 95:     <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+ 96:       <div className="relative w-full max-w-md h-full bg-slate-900 border-l border-slate-700/80 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+ 97:         {/* Cabecera */}
+ 98:         <div className="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-900/90">
+ 99:           <div className="flex items-center gap-2.5">
+100:             <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
+101:               <FolderOpen className="h-4 w-4" />
+102:             </div>
+103:             <div>
+104:               <h3 className="text-sm font-bold text-slate-100">Mis Rifas Guardadas</h3>
+105:               <p className="text-[10px] text-slate-400">
+106:                 {tickets.length} {tickets.length === 1 ? "diseño disponible" : "diseños disponibles"}
+107:               </p>
+108:             </div>
+109:           </div>
+110: 
+111:           <div className="flex items-center gap-1">
+112:             <button
+113:               onClick={fetchTickets}
+114:               title="Recargar"
+115:               className="text-slate-400 hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
+116:             >
+117:               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin text-amber-400" : ""}`} />
+118:             </button>
+119:             <button
+120:               onClick={onClose}
+121:               className="text-slate-400 hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
+122:             >
+123:               <X className="h-5 w-5" />
+124:             </button>
+125:           </div>
+126:         </div>
+127: 
+128:         {/* Buscador */}
+129:         <div className="p-3 border-b border-slate-800/80 bg-slate-900/50">
+130:           <div className="relative">
+131:             <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-500" />
+132:             <input
+133:               type="text"
+134:               value={search}
+135:               onChange={(e) => setSearch(e.target.value)}
+136:               placeholder="Buscar rifa por nombre..."
+137:               className="w-full pl-8 pr-3 py-1.5 bg-slate-800/80 border border-slate-700 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500"
+138:             />
+139:           </div>
+140:         </div>
+141: 
+142:         {/* Lista de diseños */}
+143:         <div className="flex-1 overflow-y-auto p-4 space-y-3">
+144:           {!user ? (
+145:             <div className="flex flex-col items-center justify-center h-80 text-center p-6 rounded-2xl border border-slate-800 bg-slate-900/60">
+146:               <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-4 shadow-lg shadow-amber-500/5">
+147:                 <Lock className="h-7 w-7" />
+148:               </div>
+149:               <h4 className="text-base font-bold text-slate-100 mb-1">
+150:                 Tus rifas son privadas
+151:               </h4>
+152:               <p className="text-xs text-slate-400 max-w-[280px] mb-5 leading-relaxed">
+153:                 Cada usuario tiene su propio historial y diseños guardados. Inicia sesión o regístrate para acceder a tus rifas.
+154:               </p>
+155:               {onOpenAuth && (
+156:                 <Button
+157:                   onClick={() => {
+158:                     onClose();
+159:                     onOpenAuth();
+160:                   }}
+161:                   className="bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-amber-500/20 gap-2"
+162:                 >
+163:                   <LogIn className="h-4 w-4" />
+164:                   <span>Iniciar Sesión / Registrarse</span>
+165:                 </Button>
+166:               )}
+167:             </div>
+168:           ) : loading ? (
+169:             <div className="flex flex-col items-center justify-center h-48 text-slate-500 space-y-2">
+170:               <RefreshCw className="h-6 w-6 animate-spin text-amber-400" />
+171:               <p className="text-xs">Cargando tus rifas...</p>
+172:             </div>
+173:           ) : filtered.length === 0 ? (
+174:             <div className="flex flex-col items-center justify-center h-64 text-center p-6 rounded-2xl border border-dashed border-slate-800 bg-slate-900/40">
+175:               <Sparkles className="h-8 w-8 text-slate-600 mb-2" />
+176:               <p className="text-sm font-semibold text-slate-300">No hay rifas guardadas</p>
+177:               <p className="text-xs text-slate-500 mt-1 max-w-[240px]">
+178:                 {search ? "No se encontraron rifas con ese término." : "Crea tu diseño y haz clic en 'Guardar' para almacenarlo en tu cuenta."}
+179:               </p>
+180:             </div>
+181:           ) : (
+182: 
+183:             filtered.map((ticket) => (
+184:               <div
+185:                 key={ticket.id}
+186:                 onClick={() => handleLoad(ticket)}
+187:                 className="group relative rounded-xl border border-slate-800 bg-slate-800/50 hover:bg-slate-800 hover:border-amber-500/50 p-3.5 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-lg hover:shadow-amber-500/5"
+188:               >
+189:                 <div className="flex items-start justify-between gap-2">
+190:                   <div className="flex-1 min-w-0">
+191:                     <h4 className="text-xs font-bold text-slate-100 group-hover:text-amber-300 truncate transition-colors">
+192:                       {ticket.title}
+193:                     </h4>
+194:                     <p className="text-[11px] text-slate-400 truncate mt-0.5">
+195:                       {ticket.ticket_config.subtitle || ticket.ticket_config.eventName}
+196:                     </p>
+197:                   </div>
+198: 
+199:                   {/* Acciones */}
+200:                   <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+201:                     <button
+202:                       onClick={(e) => handleDuplicate(ticket, e)}
+203:                       title="Duplicar"
+204:                       className="text-slate-400 hover:text-amber-400 p-1 rounded hover:bg-slate-700/60"
+205:                     >
+206:                       <Copy className="h-3.5 w-3.5" />
+207:                     </button>
+208:                     <button
+209:                       onClick={(e) => handleDelete(ticket.id, e)}
+210:                       title="Eliminar"
+211:                       disabled={activeDeleteId === ticket.id}
+212:                       className="text-slate-400 hover:text-rose-400 p-1 rounded hover:bg-slate-700/60"
+213:                     >
+214:                       <Trash2 className="h-3.5 w-3.5" />
+215:                     </button>
+216:                   </div>
+217:                 </div>
+218: 
+219:                 {/* Metadata pills */}
+220:                 <div className="grid grid-cols-3 gap-2 mt-3 pt-2.5 border-t border-slate-700/40 text-[10px] text-slate-400">
+221:                   <div className="flex items-center gap-1 truncate">
+222:                     <Ticket className="h-3 w-3 text-amber-400 shrink-0" />
+223:                     <span>{ticket.ticket_config.totalTickets} tks</span>
+224:                   </div>
+225:                   <div className="flex items-center gap-1 truncate">
+226:                     <Trophy className="h-3 w-3 text-amber-400 shrink-0" />
+227:                     <span>{ticket.ticket_config.prizes?.length || 0} premios</span>
+228:                   </div>
+229:                   <div className="flex items-center gap-1 truncate font-mono text-amber-300 font-semibold">
+230:                     <span>{formatCurrency(ticket.ticket_config.price || 0)}</span>
+231:                   </div>
+232:                 </div>
+233: 
+234:                 {/* Botón Cargar */}
+235:                 <div className="mt-2.5 flex items-center justify-between text-[10px] text-slate-500 group-hover:text-amber-400 transition-colors">
+236:                   <span className="flex items-center gap-1">
+237:                     <Calendar className="h-2.5 w-2.5" />
+238:                     {new Date(ticket.updated_at).toLocaleDateString()}
+239:                   </span>
+240:                   <span className="flex items-center gap-0.5 font-medium">
+241:                     Cargar diseño <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+242:                   </span>
+243:                 </div>
+244:               </div>
+245:             ))
+246:           )}
+247:         </div>
+248: 
+249:         {/* Footer */}
+250:         <div className="p-3 border-t border-slate-800 bg-slate-900/90 text-center">
+251:           <p className="text-[10px] text-slate-500">
+252:             Los cambios se sincronizan en la nube y quedan disponibles en tu cuenta.
+253:           </p>
+254:         </div>
+255:       </div>
+256:     </div>
+257:   );
+258: }
 ````
 
 ## File: src/hooks/usePdfGeneration.ts
@@ -2506,7 +2308,7 @@ tsconfig.json
 
 ## File: src/services/tickets-service.ts
 ````typescript
-  1: import { getSupabase, isSupabaseConfigured } from "@/lib/supabase";
+  1: import { getSupabase } from "@/lib/supabase";
   2: import { TicketConfig, PrintConfig } from "@/types";
   3: 
   4: export interface SavedTicket {
@@ -2519,180 +2321,228 @@ tsconfig.json
  11:   updated_at: string;
  12: }
  13: 
- 14: const LOCAL_STORAGE_KEY = "eventazo_saved_tickets";
- 15: 
- 16: // Obtener tickets desde LocalStorage (fallback de desarrollo/modo demo)
- 17: function getLocalTickets(): SavedTicket[] {
- 18:   if (typeof window === "undefined") return [];
- 19:   try {
- 20:     const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
- 21:     return raw ? JSON.parse(raw) : [];
- 22:   } catch (e) {
- 23:     console.error("Error al leer rifas locales:", e);
- 24:     return [];
- 25:   }
- 26: }
- 27: 
- 28: // Guardar tickets en LocalStorage
- 29: function saveLocalTickets(tickets: SavedTicket[]) {
- 30:   if (typeof window === "undefined") return;
- 31:   try {
- 32:     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(tickets));
- 33:   } catch (e) {
- 34:     console.error("Error al guardar rifas locales:", e);
- 35:   }
- 36: }
- 37: 
- 38: // Obtener todas las rifas del usuario (Supabase o LocalStorage)
- 39: export async function getSavedTickets(): Promise<SavedTicket[]> {
- 40:   const supabase = getSupabase();
+ 14: // Obtener el ID del usuario actualmente autenticado (Supabase o Demo)
+ 15: async function getCurrentUserId(): Promise<string | null> {
+ 16:   const supabase = getSupabase();
+ 17:   if (supabase) {
+ 18:     try {
+ 19:       const { data: { user } } = await supabase.auth.getUser();
+ 20:       if (user?.id) return user.id;
+ 21:     } catch (e) {
+ 22:       console.warn("Error al verificar usuario en Supabase:", e);
+ 23:     }
+ 24:   }
+ 25: 
+ 26:   // Fallback solo para usuario demo explícitamente logueado
+ 27:   if (typeof window !== "undefined") {
+ 28:     try {
+ 29:       const demo = localStorage.getItem("eventazo_demo_user");
+ 30:       if (demo) {
+ 31:         const parsed = JSON.parse(demo);
+ 32:         return parsed.id || null;
+ 33:       }
+ 34:     } catch {
+ 35:       return null;
+ 36:     }
+ 37:   }
+ 38: 
+ 39:   return null;
+ 40: }
  41: 
- 42:   if (supabase) {
- 43:     try {
- 44:       const { data: { user } } = await supabase.auth.getUser();
- 45:       if (user) {
- 46:         const { data, error } = await supabase
- 47:           .from("saved_tickets")
- 48:           .select("*")
- 49:           .order("updated_at", { ascending: false });
- 50: 
- 51:         if (error) {
- 52:           console.warn("Supabase error, usando fallback local:", error.message);
- 53:           return getLocalTickets();
- 54:         }
- 55: 
- 56:         return data as SavedTicket[];
- 57:       }
- 58:     } catch (e) {
- 59:       console.warn("Error consultando Supabase, usando fallback local:", e);
- 60:     }
- 61:   }
- 62: 
- 63:   return getLocalTickets();
+ 42: // Almacenamiento local aislado estrictamente por ID de usuario (solo para modo demo offline)
+ 43: function getUserScopedLocalKey(userId: string): string {
+ 44:   return `eventazo_saved_tickets_${userId}`;
+ 45: }
+ 46: 
+ 47: function getLocalUserTickets(userId: string): SavedTicket[] {
+ 48:   if (typeof window === "undefined") return [];
+ 49:   try {
+ 50:     const raw = localStorage.getItem(getUserScopedLocalKey(userId));
+ 51:     return raw ? JSON.parse(raw) : [];
+ 52:   } catch {
+ 53:     return [];
+ 54:   }
+ 55: }
+ 56: 
+ 57: function saveLocalUserTickets(userId: string, tickets: SavedTicket[]) {
+ 58:   if (typeof window === "undefined") return;
+ 59:   try {
+ 60:     localStorage.setItem(getUserScopedLocalKey(userId), JSON.stringify(tickets));
+ 61:   } catch (e) {
+ 62:     console.error("Error al persistir rifas locales:", e);
+ 63:   }
  64: }
  65: 
- 66: // Guardar o actualizar una rifa
- 67: export async function saveTicketDesign(
- 68:   title: string,
- 69:   ticketConfig: TicketConfig,
- 70:   printConfig: PrintConfig,
- 71:   existingId?: string
- 72: ): Promise<SavedTicket> {
- 73:   const supabase = getSupabase();
- 74:   const now = new Date().toISOString();
- 75: 
- 76:   if (supabase) {
- 77:     try {
- 78:       const { data: { user } } = await supabase.auth.getUser();
- 79: 
- 80:       if (user) {
- 81:         if (existingId) {
- 82:           const { data, error } = await supabase
- 83:             .from("saved_tickets")
- 84:             .update({
- 85:               title,
- 86:               ticket_config: ticketConfig,
- 87:               print_config: printConfig,
- 88:               updated_at: now,
- 89:             })
- 90:             .eq("id", existingId)
- 91:             .select()
- 92:             .single();
- 93: 
- 94:           if (!error && data) {
- 95:             return data as SavedTicket;
- 96:           }
- 97:         } else {
- 98:           const { data, error } = await supabase
- 99:             .from("saved_tickets")
-100:             .insert({
-101:               user_id: user.id,
-102:               title,
-103:               ticket_config: ticketConfig,
-104:               print_config: printConfig,
-105:               created_at: now,
-106:               updated_at: now,
-107:             })
-108:             .select()
-109:             .single();
-110: 
-111:           if (!error && data) {
-112:             return data as SavedTicket;
-113:           }
-114:         }
-115:       }
-116:     } catch (e) {
-117:       console.warn("Error guardando en Supabase, guardando localmente:", e);
-118:     }
-119:   }
+ 66: /**
+ 67:  * Obtener las rifas guardadas del usuario autenticado.
+ 68:  * Si NO hay sesión activa, retorna siempre [] (las rifas son privadas y por usuario).
+ 69:  */
+ 70: export async function getSavedTickets(): Promise<SavedTicket[]> {
+ 71:   const supabase = getSupabase();
+ 72:   const userId = await getCurrentUserId();
+ 73: 
+ 74:   // Si no está autenticado, no hay rifas para mostrar (aislamiento por usuario)
+ 75:   if (!userId) {
+ 76:     return [];
+ 77:   }
+ 78: 
+ 79:   if (supabase && !userId.startsWith("demo-")) {
+ 80:     try {
+ 81:       const { data, error } = await supabase
+ 82:         .from("saved_tickets")
+ 83:         .select("*")
+ 84:         .eq("user_id", userId)
+ 85:         .order("updated_at", { ascending: false });
+ 86: 
+ 87:       if (!error && data) {
+ 88:         return data as SavedTicket[];
+ 89:       }
+ 90:       if (error) {
+ 91:         console.error("Error al consultar rifas de Supabase:", error.message);
+ 92:       }
+ 93:     } catch (e) {
+ 94:       console.warn("Excepción al consultar Supabase:", e);
+ 95:     }
+ 96:   }
+ 97: 
+ 98:   // Fallback aislado estrictamente a este usuario específico
+ 99:   return getLocalUserTickets(userId);
+100: }
+101: 
+102: /**
+103:  * Guardar o actualizar una rifa en la cuenta del usuario autenticado.
+104:  * Requiere estrictamente que el usuario esté logueado.
+105:  */
+106: export async function saveTicketDesign(
+107:   title: string,
+108:   ticketConfig: TicketConfig,
+109:   printConfig: PrintConfig,
+110:   existingId?: string
+111: ): Promise<SavedTicket> {
+112:   const supabase = getSupabase();
+113:   const userId = await getCurrentUserId();
+114: 
+115:   if (!userId) {
+116:     throw new Error("Debes iniciar sesión para guardar tus rifas en tu cuenta.");
+117:   }
+118: 
+119:   const now = new Date().toISOString();
 120: 
-121:   // Fallback local
-122:   const current = getLocalTickets();
-123:   if (existingId) {
-124:     const idx = current.findIndex((t) => t.id === existingId);
-125:     if (idx !== -1) {
-126:       const updated: SavedTicket = {
-127:         ...current[idx],
-128:         title,
-129:         ticket_config: ticketConfig,
-130:         print_config: printConfig,
-131:         updated_at: now,
-132:       };
-133:       current[idx] = updated;
-134:       saveLocalTickets(current);
-135:       return updated;
-136:     }
-137:   }
-138: 
-139:   const newTicket: SavedTicket = {
-140:     id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-141:     title,
-142:     ticket_config: ticketConfig,
-143:     print_config: printConfig,
-144:     created_at: now,
-145:     updated_at: now,
-146:   };
-147:   current.unshift(newTicket);
-148:   saveLocalTickets(current);
-149:   return newTicket;
-150: }
-151: 
-152: // Eliminar una rifa guardada
-153: export async function deleteSavedTicket(id: string): Promise<boolean> {
-154:   const supabase = getSupabase();
-155: 
-156:   if (supabase && !id.startsWith("local-")) {
-157:     try {
-158:       const { error } = await supabase
-159:         .from("saved_tickets")
-160:         .delete()
-161:         .eq("id", id);
-162: 
-163:       if (!error) {
-164:         return true;
-165:       }
-166:     } catch (e) {
-167:       console.warn("Error eliminando en Supabase:", e);
-168:     }
-169:   }
-170: 
-171:   const current = getLocalTickets().filter((t) => t.id !== id);
-172:   saveLocalTickets(current);
-173:   return true;
-174: }
-175: 
-176: // Duplicar una rifa guardada
-177: export async function duplicateSavedTicket(ticket: SavedTicket): Promise<SavedTicket> {
-178:   const newTitle = `${ticket.title} (Copia)`;
-179:   return saveTicketDesign(newTitle, ticket.ticket_config, ticket.print_config);
-180: }
+121:   if (supabase && !userId.startsWith("demo-")) {
+122:     try {
+123:       if (existingId) {
+124:         const { data, error } = await supabase
+125:           .from("saved_tickets")
+126:           .update({
+127:             title,
+128:             ticket_config: ticketConfig,
+129:             print_config: printConfig,
+130:             updated_at: now,
+131:           })
+132:           .eq("id", existingId)
+133:           .eq("user_id", userId)
+134:           .select()
+135:           .single();
+136: 
+137:         if (error) throw error;
+138:         if (data) return data as SavedTicket;
+139:       } else {
+140:         const { data, error } = await supabase
+141:           .from("saved_tickets")
+142:           .insert({
+143:             user_id: userId,
+144:             title,
+145:             ticket_config: ticketConfig,
+146:             print_config: printConfig,
+147:             created_at: now,
+148:             updated_at: now,
+149:           })
+150:           .select()
+151:           .single();
+152: 
+153:         if (error) throw error;
+154:         if (data) return data as SavedTicket;
+155:       }
+156:     } catch (e) {
+157:       console.error("Error guardando en Supabase:", e);
+158:       throw e;
+159:     }
+160:   }
+161: 
+162:   // Fallback demo aislado
+163:   const current = getLocalUserTickets(userId);
+164:   if (existingId) {
+165:     const idx = current.findIndex((t) => t.id === existingId);
+166:     if (idx !== -1) {
+167:       const updated: SavedTicket = {
+168:         ...current[idx],
+169:         title,
+170:         ticket_config: ticketConfig,
+171:         print_config: printConfig,
+172:         updated_at: now,
+173:       };
+174:       current[idx] = updated;
+175:       saveLocalUserTickets(userId, current);
+176:       return updated;
+177:     }
+178:   }
+179: 
+180:   const newTicket: SavedTicket = {
+181:     id: `ticket-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+182:     user_id: userId,
+183:     title,
+184:     ticket_config: ticketConfig,
+185:     print_config: printConfig,
+186:     created_at: now,
+187:     updated_at: now,
+188:   };
+189:   current.unshift(newTicket);
+190:   saveLocalUserTickets(userId, current);
+191:   return newTicket;
+192: }
+193: 
+194: /**
+195:  * Eliminar una rifa guardada perteneciente al usuario autenticado.
+196:  */
+197: export async function deleteSavedTicket(id: string): Promise<boolean> {
+198:   const supabase = getSupabase();
+199:   const userId = await getCurrentUserId();
+200: 
+201:   if (!userId) return false;
+202: 
+203:   if (supabase && !userId.startsWith("demo-")) {
+204:     try {
+205:       const { error } = await supabase
+206:         .from("saved_tickets")
+207:         .delete()
+208:         .eq("id", id)
+209:         .eq("user_id", userId);
+210: 
+211:       if (!error) return true;
+212:     } catch (e) {
+213:       console.error("Error eliminando en Supabase:", e);
+214:     }
+215:   }
+216: 
+217:   const current = getLocalUserTickets(userId).filter((t) => t.id !== id);
+218:   saveLocalUserTickets(userId, current);
+219:   return true;
+220: }
+221: 
+222: /**
+223:  * Duplicar una rifa guardada del usuario autenticado.
+224:  */
+225: export async function duplicateSavedTicket(ticket: SavedTicket): Promise<SavedTicket> {
+226:   const newTitle = `${ticket.title} (Copia)`;
+227:   return saveTicketDesign(newTitle, ticket.ticket_config, ticket.print_config);
+228: }
 ````
 
 ## File: src/store/useRifaStore.ts
 ````typescript
  1: import { create } from "zustand";
  2: import { TicketConfig, PrintConfig, GenerationProgress, TemplateImage } from "@/types";
- 3: import { DEFAULT_TICKET_CONFIG, DEFAULT_PRINT_CONFIG } from "@/lib/constants";
+ 3: import { DEFAULT_TICKET_CONFIG, DEFAULT_PRINT_CONFIG, EMPTY_TICKET_CONFIG } from "@/lib/constants";
  4: 
  5: interface RifaState {
  6:   // Config
@@ -2721,65 +2571,73 @@ tsconfig.json
 29:   setPreviewTicketNumber: (num: number) => void;
 30:   setActiveTab: (tab: "config" | "preview" | "generate") => void;
 31:   resetConfig: () => void;
-32: }
-33: 
-34: export const useRifaStore = create<RifaState>((set) => ({
-35:   ticketConfig: DEFAULT_TICKET_CONFIG,
-36:   printConfig: DEFAULT_PRINT_CONFIG,
-37:   templateImage: null,
-38: 
-39:   progress: {
-40:     current: 0,
-41:     total: 0,
-42:     percentage: 0,
-43:     status: "idle",
-44:     message: "",
-45:   },
-46:   generatedPdfUrl: null,
-47:   isGenerating: false,
-48: 
-49:   darkMode: true,
-50:   previewTicketNumber: 1,
-51:   activeTab: "config",
-52: 
-53:   setTicketConfig: (config) =>
-54:     set((state) => ({
-55:       ticketConfig: { ...state.ticketConfig, ...config },
-56:     })),
-57: 
-58:   setPrintConfig: (config) =>
-59:     set((state) => ({
-60:       printConfig: { ...state.printConfig, ...config },
-61:     })),
-62: 
-63:   setTemplateImage: (image) => set({ templateImage: image }),
-64: 
-65:   setProgress: (progress) =>
-66:     set((state) => ({
-67:       progress: { ...state.progress, ...progress },
-68:     })),
-69: 
-70:   setGeneratedPdfUrl: (url) => set({ generatedPdfUrl: url }),
-71:   setIsGenerating: (generating) => set({ isGenerating: generating }),
-72:   setDarkMode: (dark) => set({ darkMode: dark }),
-73:   setPreviewTicketNumber: (num) => set({ previewTicketNumber: num }),
-74:   setActiveTab: (tab) => set({ activeTab: tab }),
-75: 
-76:   resetConfig: () =>
-77:     set({
-78:       ticketConfig: DEFAULT_TICKET_CONFIG,
-79:       printConfig: DEFAULT_PRINT_CONFIG,
-80:       templateImage: null,
-81:       progress: {
-82:         current: 0,
-83:         total: 0,
-84:         percentage: 0,
-85:         status: "idle",
-86:         message: "",
-87:       },
-88:       generatedPdfUrl: null,
-89:     }),
-90: }));
+32:   clearConfig: () => void;
+33: }
+34: 
+35: export const useRifaStore = create<RifaState>((set) => ({
+36:   ticketConfig: DEFAULT_TICKET_CONFIG,
+37:   printConfig: DEFAULT_PRINT_CONFIG,
+38:   templateImage: null,
+39: 
+40:   progress: {
+41:     current: 0,
+42:     total: 0,
+43:     percentage: 0,
+44:     status: "idle",
+45:     message: "",
+46:   },
+47:   generatedPdfUrl: null,
+48:   isGenerating: false,
+49: 
+50:   darkMode: true,
+51:   previewTicketNumber: 1,
+52:   activeTab: "config",
+53: 
+54:   setTicketConfig: (config) =>
+55:     set((state) => ({
+56:       ticketConfig: { ...state.ticketConfig, ...config },
+57:     })),
+58: 
+59:   setPrintConfig: (config) =>
+60:     set((state) => ({
+61:       printConfig: { ...state.printConfig, ...config },
+62:     })),
+63: 
+64:   setTemplateImage: (image) => set({ templateImage: image }),
+65: 
+66:   setProgress: (progress) =>
+67:     set((state) => ({
+68:       progress: { ...state.progress, ...progress },
+69:     })),
+70: 
+71:   setGeneratedPdfUrl: (url) => set({ generatedPdfUrl: url }),
+72:   setIsGenerating: (generating) => set({ isGenerating: generating }),
+73:   setDarkMode: (dark) => set({ darkMode: dark }),
+74:   setPreviewTicketNumber: (num) => set({ previewTicketNumber: num }),
+75:   setActiveTab: (tab) => set({ activeTab: tab }),
+76: 
+77:   resetConfig: () =>
+78:     set({
+79:       ticketConfig: DEFAULT_TICKET_CONFIG,
+80:       printConfig: DEFAULT_PRINT_CONFIG,
+81:       templateImage: null,
+82:       progress: {
+83:         current: 0,
+84:         total: 0,
+85:         percentage: 0,
+86:         status: "idle",
+87:         message: "",
+88:       },
+89:       generatedPdfUrl: null,
+90:     }),
+91: 
+92:   clearConfig: () =>
+93:     set({
+94:       ticketConfig: EMPTY_TICKET_CONFIG,
+95:       templateImage: null,
+96:       generatedPdfUrl: null,
+97:     }),
+98: }));
 ````
 
 ## File: README.md
@@ -3014,231 +2872,6 @@ tsconfig.json
 32:   ],
 33:   "exclude": ["node_modules"]
 34: }
-````
-
-## File: src/app/globals.css
-````css
-  1: @import "tailwindcss";
-  2: 
-  3: :root {
-  4:   --background: #0f172a;
-  5:   --foreground: #e2e8f0;
-  6: }
-  7: 
-  8: * {
-  9:   box-sizing: border-box;
- 10: }
- 11: 
- 12: body {
- 13:   background: var(--background);
- 14:   color: var(--foreground);
- 15:   font-family: "Inter", system-ui, -apple-system, sans-serif;
- 16:   -webkit-font-smoothing: antialiased;
- 17:   -moz-osx-font-smoothing: grayscale;
- 18: }
- 19: 
- 20: /* Custom scrollbar */
- 21: ::-webkit-scrollbar {
- 22:   width: 6px;
- 23:   height: 6px;
- 24: }
- 25: 
- 26: ::-webkit-scrollbar-track {
- 27:   background: #1e293b;
- 28:   border-radius: 3px;
- 29: }
- 30: 
- 31: ::-webkit-scrollbar-thumb {
- 32:   background: #475569;
- 33:   border-radius: 3px;
- 34: }
- 35: 
- 36: ::-webkit-scrollbar-thumb:hover {
- 37:   background: #64748b;
- 38: }
- 39: 
- 40: /* Print styles */
- 41: @media print {
- 42:   body {
- 43:     background: white;
- 44:     color: black;
- 45:   }
- 46: 
- 47:   .no-print {
- 48:     display: none !important;
- 49:   }
- 50: }
- 51: 
- 52: /* Transiciones específicas solo en elementos interactivos para máxima fluidez en PCs lentas */
- 53: button, a, input, select, textarea, [role="switch"], [role="checkbox"] {
- 54:   transition: color 120ms ease, background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
- 55: }
- 56: 
- 57: /* Ocultar spinners nativos de input type=number en todos los navegadores */
- 58: input[type="number"]::-webkit-outer-spin-button,
- 59: input[type="number"]::-webkit-inner-spin-button {
- 60:   -webkit-appearance: none;
- 61:   margin: 0;
- 62: }
- 63: input[type="number"] {
- 64:   -moz-appearance: textfield;
- 65:   appearance: textfield;
- 66: }
- 67: 
- 68: /* Custom range slider styling */
- 69: input[type="range"] {
- 70:   -webkit-appearance: none;
- 71:   appearance: none;
- 72:   background: transparent;
- 73:   cursor: pointer;
- 74: }
- 75: input[type="range"]::-webkit-slider-runnable-track {
- 76:   background: #334155;
- 77:   height: 6px;
- 78:   border-radius: 9999px;
- 79: }
- 80: input[type="range"]::-webkit-slider-thumb {
- 81:   -webkit-appearance: none;
- 82:   height: 18px;
- 83:   width: 18px;
- 84:   background: #f59e0b;
- 85:   border-radius: 50%;
- 86:   border: 2px solid #0f172a;
- 87:   box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
- 88:   margin-top: -6px;
- 89:   transition: transform 100ms ease, background-color 100ms ease;
- 90: }
- 91: input[type="range"]::-webkit-slider-thumb:hover {
- 92:   transform: scale(1.15);
- 93:   background: #fbbf24;
- 94: }
- 95: input[type="range"]::-moz-range-track {
- 96:   background: #334155;
- 97:   height: 6px;
- 98:   border-radius: 9999px;
- 99: }
-100: input[type="range"]::-moz-range-thumb {
-101:   height: 18px;
-102:   width: 18px;
-103:   background: #f59e0b;
-104:   border-radius: 50%;
-105:   border: 2px solid #0f172a;
-106:   box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
-107:   transition: transform 100ms ease;
-108: }
-109: 
-110: /* Animaciones de entrada */
-111: @keyframes fadeIn {
-112:   from { opacity: 0; }
-113:   to { opacity: 1; }
-114: }
-115: 
-116: @keyframes slideInFromTop {
-117:   from { opacity: 0; transform: translateY(-8px); }
-118:   to { opacity: 1; transform: translateY(0); }
-119: }
-120: 
-121: @keyframes slideInFromBottom {
-122:   from { opacity: 0; transform: translateY(8px); }
-123:   to { opacity: 1; transform: translateY(0); }
-124: }
-125: 
-126: @keyframes zoomIn {
-127:   from { opacity: 0; transform: scale(0.95); }
-128:   to { opacity: 1; transform: scale(1); }
-129: }
-130: 
-131: @keyframes pulse-glow {
-132:   0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
-133:   50% { box-shadow: 0 0 20px 4px rgba(245, 158, 11, 0.2); }
-134: }
-135: 
-136: .animate-in {
-137:   animation-fill-mode: both;
-138: }
-139: 
-140: .fade-in {
-141:   animation: fadeIn 0.3s ease-out;
-142: }
-143: 
-144: .slide-in-from-top-2 {
-145:   animation: slideInFromTop 0.3s ease-out;
-146: }
-147: 
-148: .slide-in-from-bottom-3 {
-149:   animation: slideInFromBottom 0.5s ease-out;
-150: }
-151: 
-152: .zoom-in-95 {
-153:   animation: zoomIn 0.5s ease-out;
-154: }
-155: 
-156: .animate-pulse-glow {
-157:   animation: pulse-glow 2s infinite;
-158: }
-159: 
-160: /* Gradient background */
-161: .bg-gradient-dark {
-162:   background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-163: }
-164: 
-165: /* ============================================================ */
-166: /* OPTIMIZACIONES MOBILE APP-LIKE                               */
-167: /* ============================================================ */
-168: 
-169: /* Prevenir auto-zoom en iOS Safari y Android Chrome al enfocar inputs */
-170: @media screen and (max-width: 768px) {
-171:   input, select, textarea {
-172:     font-size: 16px !important;
-173:   }
-174: }
-175: 
-176: /* Eliminar retraso de tap y destello en pantallas táctiles */
-177: html {
-178:   scroll-behavior: smooth;
-179:   -webkit-tap-highlight-color: transparent;
-180: }
-181: 
-182: a, button, [role="button"] {
-183:   touch-action: manipulation;
-184: }
-````
-
-## File: src/app/layout.tsx
-````typescript
- 1: import type { Metadata, Viewport } from "next";
- 2: import "./globals.css";
- 3: import { MobileBottomNav } from "@/components/MobileBottomNav";
- 4: 
- 5: export const metadata: Metadata = {
- 6:   title: "Eventazo | Generador de Rifas Profesional",
- 7:   description:
- 8:     "Generá rifas y tickets de sorteos de forma profesional. Optimizado para impresión A4 con diseño premium.",
- 9: };
-10: 
-11: export const viewport: Viewport = {
-12:   width: "device-width",
-13:   initialScale: 1,
-14:   maximumScale: 1,
-15:   userScalable: false,
-16:   viewportFit: "cover",
-17:   themeColor: "#020617",
-18: };
-19: 
-20: export default function RootLayout({
-21:   children,
-22: }: Readonly<{
-23:   children: React.ReactNode;
-24: }>) {
-25:   return (
-26:     <html lang="es" className="dark">
-27:       <body className="min-h-screen bg-gradient-dark antialiased pb-16 sm:pb-0">
-28:         {children}
-29:         <MobileBottomNav />
-30:       </body>
-31:     </html>
-32:   );
-33: }
 ````
 
 ## File: src/components/ui/input.tsx
@@ -3654,6 +3287,294 @@ tsconfig.json
 384: }
 ````
 
+## File: src/hooks/useAuth.ts
+````typescript
+  1: "use client";
+  2: 
+  3: import { useState, useEffect, useCallback } from "react";
+  4: import { getSupabase, isSupabaseConfigured } from "@/lib/supabase";
+  5: import { User } from "@supabase/supabase-js";
+  6: 
+  7: export interface AppUser {
+  8:   id: string;
+  9:   email: string;
+ 10:   name?: string;
+ 11:   isDemo?: boolean;
+ 12:   plan?: string;
+ 13:   isPro?: boolean;
+ 14: }
+ 15: 
+ 16: const DEMO_USER_KEY = "eventazo_demo_user";
+ 17: 
+ 18: export function useAuth() {
+ 19:   const [user, setUser] = useState<AppUser | null>(null);
+ 20:   const [loading, setLoading] = useState(true);
+ 21:   const isConfigured = isSupabaseConfigured();
+ 22: 
+ 23:   // Cargar datos extendidos desde public.profiles
+ 24:   const syncProfile = useCallback(async (baseUser: AppUser) => {
+ 25:     const supabase = getSupabase();
+ 26:     if (!supabase || baseUser.isDemo) return baseUser;
+ 27: 
+ 28:     try {
+ 29:       const { data } = await supabase
+ 30:         .from("profiles")
+ 31:         .select("full_name, plan, is_pro")
+ 32:         .eq("id", baseUser.id)
+ 33:         .single();
+ 34: 
+ 35:       if (data) {
+ 36:         return {
+ 37:           ...baseUser,
+ 38:           name: data.full_name || baseUser.name,
+ 39:           plan: data.plan || "free",
+ 40:           isPro: data.is_pro || false,
+ 41:         };
+ 42:       }
+ 43:     } catch {
+ 44:       // Ignorar fallback silencioso
+ 45:     }
+ 46:     return baseUser;
+ 47:   }, []);
+ 48: 
+ 49:   // Escuchar cambios de sesión de Supabase o cargar usuario demo local
+ 50:   useEffect(() => {
+ 51:     const supabase = getSupabase();
+ 52: 
+ 53:     if (supabase) {
+ 54:       supabase.auth.getSession().then(async ({ data: { session } }) => {
+ 55:         if (session?.user) {
+ 56:           const base: AppUser = {
+ 57:             id: session.user.id,
+ 58:             email: session.user.email || "",
+ 59:             name: session.user.user_metadata?.full_name || session.user.email?.split("@")[0],
+ 60:           };
+ 61:           const full = await syncProfile(base);
+ 62:           setUser(full);
+ 63:         }
+ 64:         setLoading(false);
+ 65:       });
+ 66: 
+ 67:       const { data: { subscription } } = supabase.auth.onAuthStateChange(
+ 68:         async (_event, session) => {
+ 69:           if (session?.user) {
+ 70:             const base: AppUser = {
+ 71:               id: session.user.id,
+ 72:               email: session.user.email || "",
+ 73:               name: session.user.user_metadata?.full_name || session.user.email?.split("@")[0],
+ 74:             };
+ 75:             const full = await syncProfile(base);
+ 76:             setUser(full);
+ 77:           } else {
+ 78:             // Verificar si hay usuario demo
+ 79:             const demo = localStorage.getItem(DEMO_USER_KEY);
+ 80:             if (demo) {
+ 81:               setUser(JSON.parse(demo));
+ 82:             } else {
+ 83:               setUser(null);
+ 84:             }
+ 85:           }
+ 86:           setLoading(false);
+ 87:         }
+ 88:       );
+ 89: 
+ 90:       return () => {
+ 91:         subscription.unsubscribe();
+ 92:       };
+ 93:     } else {
+ 94:       // Modo local / demo
+ 95:       if (typeof window !== "undefined") {
+ 96:         const demo = localStorage.getItem(DEMO_USER_KEY);
+ 97:         if (demo) {
+ 98:           setUser(JSON.parse(demo));
+ 99:         }
+100:       }
+101:       setLoading(false);
+102:     }
+103:   }, []);
+104: 
+105:   const signIn = useCallback(async (email: string, password: string): Promise<{ error: string | null }> => {
+106:     const supabase = getSupabase();
+107: 
+108:     if (!supabase) {
+109:       // Si Supabase no está configurado, loguear como demo
+110:       const demoUser: AppUser = {
+111:         id: "demo-user-123",
+112:         email,
+113:         name: email.split("@")[0],
+114:         isDemo: true,
+115:       };
+116:       localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser));
+117:       setUser(demoUser);
+118:       return { error: null };
+119:     }
+120: 
+121:     try {
+122:       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+123:       if (error) return { error: error.message };
+124:       if (data.user) {
+125:         setUser({
+126:           id: data.user.id,
+127:           email: data.user.email || "",
+128:           name: data.user.user_metadata?.full_name || data.user.email?.split("@")[0],
+129:         });
+130:       }
+131:       return { error: null };
+132:     } catch (e) {
+133:       return { error: e instanceof Error ? e.message : "Error al iniciar sesión" };
+134:     }
+135:   }, []);
+136: 
+137:   const signUp = useCallback(async (email: string, password: string): Promise<{ error: string | null; message?: string }> => {
+138:     const supabase = getSupabase();
+139: 
+140:     if (!supabase) {
+141:       const demoUser: AppUser = {
+142:         id: "demo-user-123",
+143:         email,
+144:         name: email.split("@")[0],
+145:         isDemo: true,
+146:       };
+147:       localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser));
+148:       setUser(demoUser);
+149:       return { error: null, message: "Cuenta demo creada exitosamente" };
+150:     }
+151: 
+152:     try {
+153:       const { data, error } = await supabase.auth.signUp({
+154:         email,
+155:         password,
+156:       });
+157:       if (error) return { error: error.message };
+158:       if (data.user) {
+159:         setUser({
+160:           id: data.user.id,
+161:           email: data.user.email || "",
+162:           name: data.user.user_metadata?.full_name || data.user.email?.split("@")[0],
+163:         });
+164:       }
+165:       return { error: null, message: "Revisa tu correo para confirmar tu cuenta si es requerido" };
+166:     } catch (e) {
+167:       return { error: e instanceof Error ? e.message : "Error al registrarse" };
+168:     }
+169:   }, []);
+170: 
+171:   const signInDemo = useCallback(() => {
+172:     const demoUser: AppUser = {
+173:       id: "demo-pro-user",
+174:       email: "demo@eventazo.pro",
+175:       name: "Usuario Pro (Demo)",
+176:       isDemo: true,
+177:     };
+178:     localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser));
+179:     setUser(demoUser);
+180:   }, []);
+181: 
+182:   const updateProfile = useCallback(async (newName: string, newEmail?: string): Promise<{ error: string | null; message?: string }> => {
+183:     const supabase = getSupabase();
+184: 
+185:     if (!supabase || user?.isDemo) {
+186:       const updated: AppUser = {
+187:         id: user?.id || "demo-user",
+188:         email: newEmail || user?.email || "",
+189:         name: newName,
+190:         isDemo: true,
+191:       };
+192:       localStorage.setItem(DEMO_USER_KEY, JSON.stringify(updated));
+193:       setUser(updated);
+194:       return { error: null, message: "Perfil actualizado exitosamente" };
+195:     }
+196: 
+197:     try {
+198:       const updateData: { data?: { full_name: string }; email?: string } = {
+199:         data: { full_name: newName },
+200:       };
+201:       if (newEmail && newEmail !== user?.email) {
+202:         updateData.email = newEmail;
+203:       }
+204: 
+205:       const { data, error } = await supabase.auth.updateUser(updateData);
+206:       if (error) return { error: error.message };
+207: 
+208:       // Actualizar también la tabla pública profiles
+209:       try {
+210:         const targetId = user?.id || data.user.id;
+211:         if (targetId) {
+212:           await supabase
+213:             .from("profiles")
+214:             .update({
+215:               full_name: newName,
+216:               ...(newEmail ? { email: newEmail } : {}),
+217:               updated_at: new Date().toISOString(),
+218:             })
+219:             .eq("id", targetId);
+220:         }
+221:       } catch (e) {
+222:         console.warn("No se pudo actualizar profiles:", e);
+223:       }
+224: 
+225:       if (data.user) {
+226:         setUser((prev) =>
+227:           prev
+228:             ? {
+229:                 ...prev,
+230:                 email: data.user.email || prev.email,
+231:                 name: data.user.user_metadata?.full_name || newName,
+232:               }
+233:             : null
+234:         );
+235:       }
+236: 
+237:       return {
+238:         error: null,
+239:         message: newEmail && newEmail !== user?.email
+240:           ? "Perfil actualizado. Se envió un correo de confirmación al nuevo email."
+241:           : "Perfil actualizado exitosamente",
+242:       };
+243:     } catch (e) {
+244:       return { error: e instanceof Error ? e.message : "Error al actualizar perfil" };
+245:     }
+246:   }, [user]);
+247: 
+248:   const updatePassword = useCallback(async (newPassword: string): Promise<{ error: string | null }> => {
+249:     const supabase = getSupabase();
+250: 
+251:     if (!supabase || user?.isDemo) {
+252:       return { error: null };
+253:     }
+254: 
+255:     try {
+256:       const { error } = await supabase.auth.updateUser({ password: newPassword });
+257:       if (error) return { error: error.message };
+258:       return { error: null };
+259:     } catch (e) {
+260:       return { error: e instanceof Error ? e.message : "Error al cambiar contraseña" };
+261:     }
+262:   }, [user]);
+263: 
+264:   const signOut = useCallback(async () => {
+265:     const supabase = getSupabase();
+266:     if (supabase) {
+267:       await supabase.auth.signOut();
+268:     }
+269:     localStorage.removeItem(DEMO_USER_KEY);
+270:     setUser(null);
+271:   }, []);
+272: 
+273:   return {
+274:     user,
+275:     loading,
+276:     isConfigured,
+277:     signIn,
+278:     signUp,
+279:     signInDemo,
+280:     updateProfile,
+281:     updatePassword,
+282:     signOut,
+283:   };
+284: }
+````
+
 ## File: package.json
 ````json
  1: {
@@ -3692,6 +3613,231 @@ tsconfig.json
 34:     "typescript": "^5"
 35:   }
 36: }
+````
+
+## File: src/app/globals.css
+````css
+  1: @import "tailwindcss";
+  2: 
+  3: :root {
+  4:   --background: #0f172a;
+  5:   --foreground: #e2e8f0;
+  6: }
+  7: 
+  8: * {
+  9:   box-sizing: border-box;
+ 10: }
+ 11: 
+ 12: body {
+ 13:   background: var(--background);
+ 14:   color: var(--foreground);
+ 15:   font-family: "Inter", system-ui, -apple-system, sans-serif;
+ 16:   -webkit-font-smoothing: antialiased;
+ 17:   -moz-osx-font-smoothing: grayscale;
+ 18: }
+ 19: 
+ 20: /* Custom scrollbar */
+ 21: ::-webkit-scrollbar {
+ 22:   width: 6px;
+ 23:   height: 6px;
+ 24: }
+ 25: 
+ 26: ::-webkit-scrollbar-track {
+ 27:   background: #1e293b;
+ 28:   border-radius: 3px;
+ 29: }
+ 30: 
+ 31: ::-webkit-scrollbar-thumb {
+ 32:   background: #475569;
+ 33:   border-radius: 3px;
+ 34: }
+ 35: 
+ 36: ::-webkit-scrollbar-thumb:hover {
+ 37:   background: #64748b;
+ 38: }
+ 39: 
+ 40: /* Print styles */
+ 41: @media print {
+ 42:   body {
+ 43:     background: white;
+ 44:     color: black;
+ 45:   }
+ 46: 
+ 47:   .no-print {
+ 48:     display: none !important;
+ 49:   }
+ 50: }
+ 51: 
+ 52: /* Transiciones específicas solo en elementos interactivos para máxima fluidez en PCs lentas */
+ 53: button, a, input, select, textarea, [role="switch"], [role="checkbox"] {
+ 54:   transition: color 120ms ease, background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+ 55: }
+ 56: 
+ 57: /* Ocultar spinners nativos de input type=number en todos los navegadores */
+ 58: input[type="number"]::-webkit-outer-spin-button,
+ 59: input[type="number"]::-webkit-inner-spin-button {
+ 60:   -webkit-appearance: none;
+ 61:   margin: 0;
+ 62: }
+ 63: input[type="number"] {
+ 64:   -moz-appearance: textfield;
+ 65:   appearance: textfield;
+ 66: }
+ 67: 
+ 68: /* Custom range slider styling */
+ 69: input[type="range"] {
+ 70:   -webkit-appearance: none;
+ 71:   appearance: none;
+ 72:   background: transparent;
+ 73:   cursor: pointer;
+ 74: }
+ 75: input[type="range"]::-webkit-slider-runnable-track {
+ 76:   background: #334155;
+ 77:   height: 6px;
+ 78:   border-radius: 9999px;
+ 79: }
+ 80: input[type="range"]::-webkit-slider-thumb {
+ 81:   -webkit-appearance: none;
+ 82:   height: 18px;
+ 83:   width: 18px;
+ 84:   background: #f59e0b;
+ 85:   border-radius: 50%;
+ 86:   border: 2px solid #0f172a;
+ 87:   box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+ 88:   margin-top: -6px;
+ 89:   transition: transform 100ms ease, background-color 100ms ease;
+ 90: }
+ 91: input[type="range"]::-webkit-slider-thumb:hover {
+ 92:   transform: scale(1.15);
+ 93:   background: #fbbf24;
+ 94: }
+ 95: input[type="range"]::-moz-range-track {
+ 96:   background: #334155;
+ 97:   height: 6px;
+ 98:   border-radius: 9999px;
+ 99: }
+100: input[type="range"]::-moz-range-thumb {
+101:   height: 18px;
+102:   width: 18px;
+103:   background: #f59e0b;
+104:   border-radius: 50%;
+105:   border: 2px solid #0f172a;
+106:   box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+107:   transition: transform 100ms ease;
+108: }
+109: 
+110: /* Animaciones de entrada */
+111: @keyframes fadeIn {
+112:   from { opacity: 0; }
+113:   to { opacity: 1; }
+114: }
+115: 
+116: @keyframes slideInFromTop {
+117:   from { opacity: 0; transform: translateY(-8px); }
+118:   to { opacity: 1; transform: translateY(0); }
+119: }
+120: 
+121: @keyframes slideInFromBottom {
+122:   from { opacity: 0; transform: translateY(8px); }
+123:   to { opacity: 1; transform: translateY(0); }
+124: }
+125: 
+126: @keyframes zoomIn {
+127:   from { opacity: 0; transform: scale(0.95); }
+128:   to { opacity: 1; transform: scale(1); }
+129: }
+130: 
+131: @keyframes pulse-glow {
+132:   0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+133:   50% { box-shadow: 0 0 20px 4px rgba(245, 158, 11, 0.2); }
+134: }
+135: 
+136: .animate-in {
+137:   animation-fill-mode: both;
+138: }
+139: 
+140: .fade-in {
+141:   animation: fadeIn 0.3s ease-out;
+142: }
+143: 
+144: .slide-in-from-top-2 {
+145:   animation: slideInFromTop 0.3s ease-out;
+146: }
+147: 
+148: .slide-in-from-bottom-3 {
+149:   animation: slideInFromBottom 0.5s ease-out;
+150: }
+151: 
+152: .zoom-in-95 {
+153:   animation: zoomIn 0.5s ease-out;
+154: }
+155: 
+156: .animate-pulse-glow {
+157:   animation: pulse-glow 2s infinite;
+158: }
+159: 
+160: /* Gradient background */
+161: .bg-gradient-dark {
+162:   background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+163: }
+164: 
+165: /* ============================================================ */
+166: /* OPTIMIZACIONES MOBILE APP-LIKE                               */
+167: /* ============================================================ */
+168: 
+169: /* Prevenir auto-zoom en iOS Safari y Android Chrome al enfocar inputs */
+170: @media screen and (max-width: 768px) {
+171:   input, select, textarea {
+172:     font-size: 16px !important;
+173:   }
+174: }
+175: 
+176: /* Eliminar retraso de tap y destello en pantallas táctiles */
+177: html {
+178:   scroll-behavior: smooth;
+179:   -webkit-tap-highlight-color: transparent;
+180: }
+181: 
+182: a, button, [role="button"] {
+183:   touch-action: manipulation;
+184: }
+````
+
+## File: src/app/layout.tsx
+````typescript
+ 1: import type { Metadata, Viewport } from "next";
+ 2: import "./globals.css";
+ 3: import { MobileBottomNav } from "@/components/MobileBottomNav";
+ 4: 
+ 5: export const metadata: Metadata = {
+ 6:   title: "Eventazo | Generador de Rifas Profesional",
+ 7:   description:
+ 8:     "Generá rifas y tickets de sorteos de forma profesional. Optimizado para impresión A4 con diseño premium.",
+ 9: };
+10: 
+11: export const viewport: Viewport = {
+12:   width: "device-width",
+13:   initialScale: 1,
+14:   maximumScale: 1,
+15:   userScalable: false,
+16:   viewportFit: "cover",
+17:   themeColor: "#020617",
+18: };
+19: 
+20: export default function RootLayout({
+21:   children,
+22: }: Readonly<{
+23:   children: React.ReactNode;
+24: }>) {
+25:   return (
+26:     <html lang="es" className="dark">
+27:       <body className="min-h-screen bg-gradient-dark antialiased pb-16 sm:pb-0">
+28:         {children}
+29:         <MobileBottomNav />
+30:       </body>
+31:     </html>
+32:   );
+33: }
 ````
 
 ## File: src/components/GeneratePanel.tsx
@@ -4751,847 +4897,663 @@ tsconfig.json
  14:   Palette,
  15:   Check,
  16:   Scissors,
- 17: } from "lucide-react";
- 18: import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
- 19: import { Input } from "@/components/ui/input";
- 20: import { NumberInput } from "@/components/ui/number-input";
- 21: import { Slider } from "@/components/ui/slider";
- 22: import { Label } from "@/components/ui/label";
- 23: import { useRifaStore } from "@/store/useRifaStore";
- 24: import { PrizeEditor } from "@/components/PrizeEditor";
- 25: import { COLOR_PRESETS } from "@/lib/constants";
- 26: import { formatSpanishDate, formatShortDate, resolvePrizeColumns } from "@/lib/utils";
- 27: 
- 28: export function ConfigPanel() {
- 29:   const { ticketConfig, setTicketConfig, printConfig, setPrintConfig } = useRifaStore();
- 30:   const [showTypography, setShowTypography] = useState(true);
- 31:   const [showColorPicker, setShowColorPicker] = useState(true);
- 32:   const [showStubConfig, setShowStubConfig] = useState(true);
- 33: 
- 34:   // Defaults fallback
- 35:   const titleSize = ticketConfig.titleFontSize ?? 14;
- 36:   const subtitleSize = ticketConfig.subtitleFontSize ?? 12;
- 37:   const prizesSize = ticketConfig.prizesFontSize ?? 8;
- 38:   const stubFontSize = ticketConfig.stubFontSize ?? 10;
- 39:   const fontScale = ticketConfig.generalFontScale ?? 100;
- 40:   const currentColor = ticketConfig.primaryColor ?? "#991b1b";
- 41:   const stubWidth = printConfig.stubWidth ?? 36;
- 42:   const stubPercent = Math.round((stubWidth / printConfig.ticketWidth) * 100);
- 43: 
- 44:   // Auto-fitting prize font size calculation for guidance in UI
- 45:   const numPrizes = ticketConfig.prizes.length;
- 46:   const numCols = resolvePrizeColumns(ticketConfig.prizeColumns, numPrizes, prizesSize);
- 47:   const prizeRows = Math.max(1, Math.ceil(numPrizes / numCols));
- 48:   const heightFactor = (printConfig.ticketHeight || 50) / 50;
- 49:   const maxFittingPrizesPx = Math.max(6, Math.floor((78 * heightFactor) / prizeRows));
- 50:   const effectivePrizesSize = Math.max(5.5, Math.min(prizesSize, maxFittingPrizesPx));
- 51:   const isPrizesSizeAutoAdjusted = prizesSize > effectivePrizesSize;
- 52: 
- 53:   const handleResetTypography = () => {
- 54:     setTicketConfig({
- 55:       titleFontSize: 14,
- 56:       subtitleFontSize: 12,
- 57:       prizesFontSize: 8,
- 58:       stubFontSize: 10,
- 59:       generalFontScale: 100,
- 60:     });
- 61:   };
- 62: 
- 63:   const handleDatePickerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
- 64:     if (e.target.value) {
- 65:       const formatted = formatSpanishDate(e.target.value);
- 66:       setTicketConfig({ drawDate: formatted });
- 67:     }
- 68:   };
- 69: 
- 70:   return (
- 71:     <Card className="shadow-lg border-slate-700/80">
- 72:       <CardHeader className="pb-3 border-b border-slate-800">
- 73:         <CardTitle className="flex items-center gap-2">
- 74:           <Settings className="h-5 w-5 text-amber-400" />
- 75:           <span>Configuración del Evento</span>
- 76:         </CardTitle>
- 77:       </CardHeader>
- 78: 
- 79:       <CardContent className="space-y-5 pt-4">
- 80:         {/* Sección: Información Principal */}
- 81:         <div className="space-y-3.5">
- 82:           <div className="flex items-center gap-2 text-xs font-semibold text-amber-400/90 uppercase tracking-wider">
- 83:             <Building2 className="h-3.5 w-3.5" />
- 84:             <span>Datos del Evento</span>
- 85:           </div>
- 86: 
- 87:           {/* Event Name */}
- 88:           <div className="space-y-1.5">
- 89:             <Label htmlFor="eventName" className="text-xs text-slate-300">
- 90:               Nombre del Evento
- 91:             </Label>
- 92:             <Input
- 93:               id="eventName"
- 94:               value={ticketConfig.eventName}
- 95:               placeholder="Ej: GRAN RIFA ANUAL..."
- 96:               onChange={(e) => setTicketConfig({ eventName: e.target.value })}
- 97:             />
- 98:           </div>
- 99: 
-100:           {/* Subtitle */}
-101:           <div className="space-y-1.5">
-102:             <Label htmlFor="subtitle" className="text-xs text-slate-300">
-103:               Subtítulo o Lema
-104:             </Label>
-105:             <Input
-106:               id="subtitle"
-107:               value={ticketConfig.subtitle}
-108:               placeholder="Ej: Especial Día del Padre"
-109:               onChange={(e) => setTicketConfig({ subtitle: e.target.value })}
-110:             />
-111:           </div>
-112: 
-113:           {/* Organizer & Date */}
-114:           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-115:             <div className="space-y-1.5">
-116:               <Label htmlFor="organizer" className="text-xs text-slate-300">
-117:                 Organiza
-118:               </Label>
-119:               <Input
-120:                 id="organizer"
-121:                 value={ticketConfig.organizer}
-122:                 onChange={(e) => setTicketConfig({ organizer: e.target.value })}
-123:               />
-124:             </div>
-125: 
-126:             {/* Fecha del Sorteo con selector interactivo y texto libre */}
-127:             <div className="space-y-1.5">
-128:               <div className="flex items-center justify-between">
-129:                 <Label htmlFor="drawDate" className="flex items-center gap-1.5 text-xs text-slate-300">
-130:                   <Calendar className="h-3 w-3 text-amber-400/80" />
-131:                   Fecha del Sorteo
-132:                 </Label>
-133:                 <label
-134:                   htmlFor="datePickerHidden"
-135:                   className="text-[11px] text-amber-400 hover:text-amber-300 cursor-pointer flex items-center gap-1 underline underline-offset-2"
-136:                   title="Abrir calendario para autocompletar"
-137:                 >
-138:                   <Calendar className="h-3 w-3" />
-139:                   <span>Calendario</span>
-140:                 </label>
-141:                 <input
-142:                   id="datePickerHidden"
-143:                   type="date"
-144:                   className="sr-only"
-145:                   onChange={handleDatePickerChange}
-146:                 />
-147:               </div>
-148: 
-149:               <div className="relative">
-150:                 <Input
-151:                   id="drawDate"
-152:                   value={ticketConfig.drawDate}
-153:                   placeholder="Viernes 19 de Junio de 2026..."
-154:                   onChange={(e) => setTicketConfig({ drawDate: e.target.value })}
-155:                   className="pr-8"
-156:                 />
-157:                 <input
-158:                   type="date"
-159:                   tabIndex={-1}
-160:                   onChange={handleDatePickerChange}
-161:                   className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 opacity-0 cursor-pointer"
-162:                   title="Elegir fecha"
-163:                 />
-164:                 <Calendar className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-165:               </div>
-166: 
-167:               <div className="flex items-center justify-between text-[10px] text-slate-400 px-0.5">
-168:                 <span>En el talón se verá:</span>
-169:                 <span className="font-mono text-amber-300/90 font-semibold bg-slate-900/60 px-1.5 py-0.5 rounded border border-slate-800">
-170:                   Sorteo: {formatShortDate(ticketConfig.drawDate)}
-171:                 </span>
-172:               </div>
-173:             </div>
-174:           </div>
-175: 
-176:           {/* Contribution Text */}
-177:           <div className="space-y-1.5">
-178:             <Label htmlFor="contribution" className="text-xs text-slate-300">
-179:               Texto de Contribución
-180:             </Label>
-181:             <Input
-182:               id="contribution"
-183:               value={ticketConfig.contributionText}
-184:               placeholder="Tu colaboración apoya..."
-185:               onChange={(e) => setTicketConfig({ contributionText: e.target.value })}
-186:             />
-187:           </div>
-188:         </div>
-189: 
-190:         {/* Sección: Color del Boleto */}
-191:         <div className="space-y-3 pt-2 border-t border-slate-800">
-192:           <div className="flex items-center justify-between">
-193:             <button
-194:               type="button"
-195:               onClick={() => setShowColorPicker(!showColorPicker)}
-196:               className="flex items-center gap-2 text-xs font-semibold text-amber-400/90 uppercase tracking-wider hover:text-amber-300 transition-colors cursor-pointer"
-197:             >
-198:               <Palette className="h-3.5 w-3.5" />
-199:               <span>Color de Acento del Boleto</span>
-200:               {showColorPicker ? (
-201:                 <ChevronUp className="h-3.5 w-3.5 text-slate-400" />
-202:               ) : (
-203:                 <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
-204:               )}
-205:             </button>
-206: 
-207:             {/* Muestra del color actual */}
-208:             <div className="flex items-center gap-2">
-209:               <span
-210:                 className="h-4 w-4 rounded-full border border-white/30 shadow-sm"
-211:                 style={{ backgroundColor: currentColor }}
-212:               />
-213:               <span className="text-[11px] font-mono text-slate-300">
-214:                 {currentColor.toUpperCase()}
-215:               </span>
-216:             </div>
-217:           </div>
-218: 
-219:           {showColorPicker && (
-220:             <div className="rounded-lg border border-slate-700/80 bg-slate-900/50 p-3.5 space-y-3 shadow-inner">
-221:               <div className="text-[11px] text-slate-400">
-222:                 Selecciona un color predefinido o elige uno personalizado:
-223:               </div>
-224: 
-225:               {/* Paleta de colores predefinidos */}
-226:               <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
-227:                 {COLOR_PRESETS.map((preset) => {
-228:                   const isSelected = currentColor.toLowerCase() === preset.hex.toLowerCase();
-229:                   return (
-230:                     <button
-231:                       key={preset.hex}
-232:                       type="button"
-233:                       onClick={() => setTicketConfig({ primaryColor: preset.hex })}
-234:                       className={`group relative flex flex-col items-center justify-center p-1 rounded-lg border transition-all cursor-pointer ${
-235:                         isSelected
-236:                           ? "border-amber-400 bg-slate-800 ring-2 ring-amber-400/40 scale-105"
-237:                           : "border-slate-700/80 bg-slate-800/50 hover:border-slate-500 hover:scale-105"
-238:                       }`}
-239:                       title={preset.name}
-240:                     >
-241:                       <span
-242:                         className="h-6 w-6 rounded-full flex items-center justify-center shadow-md border border-white/20"
-243:                         style={{ backgroundColor: preset.hex }}
-244:                       >
-245:                         {isSelected && <Check className="h-3.5 w-3.5 text-white drop-shadow stroke-[3]" />}
-246:                       </span>
-247:                     </button>
-248:                   );
-249:                 })}
-250:               </div>
-251: 
-252:               {/* Selector personalizado de color */}
-253:               <div className="flex items-center justify-between pt-2 border-t border-slate-800/80">
-254:                 <span className="text-xs text-slate-300">Color personalizado:</span>
-255:                 <div className="flex items-center gap-2">
-256:                   <input
-257:                     type="color"
-258:                     value={currentColor}
-259:                     onChange={(e) => setTicketConfig({ primaryColor: e.target.value })}
-260:                     className="h-8 w-10 rounded border border-slate-600 bg-transparent p-0.5 cursor-pointer"
-261:                     title="Elegir color personalizado en la rueda de colores"
-262:                   />
-263:                   <input
-264:                     type="text"
-265:                     value={currentColor}
-266:                     onChange={(e) => setTicketConfig({ primaryColor: e.target.value })}
-267:                     className="w-20 rounded bg-slate-800 px-2 py-1 text-center font-mono text-xs text-slate-200 uppercase border border-slate-700 focus:outline-none focus:border-amber-500"
-268:                     placeholder="#991B1B"
-269:                   />
-270:                   <button
-271:                     type="button"
-272:                     onClick={() => setTicketConfig({ primaryColor: "#991b1b" })}
-273:                     className="text-[11px] text-slate-400 hover:text-amber-400 cursor-pointer"
-274:                     title="Restablecer al rojo predeterminado"
-275:                   >
-276:                     Restablecer
-277:                   </button>
-278:                 </div>
-279:               </div>
-280:             </div>
-281:           )}
-282:         </div>
-283: 
-284:         {/* Sección: Valores y Numeración */}
-285:         <div className="space-y-3.5 pt-2 border-t border-slate-800">
-286:           <div className="flex items-center gap-2 text-xs font-semibold text-amber-400/90 uppercase tracking-wider">
-287:             <DollarSign className="h-3.5 w-3.5" />
-288:             <span>Valores y Numeración</span>
-289:           </div>
-290: 
-291:           {/* Price & Price Label */}
-292:           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-293:             <div className="space-y-1.5">
-294:               <Label htmlFor="price" className="text-xs text-slate-300">
-295:                 Precio Unitario ($)
-296:               </Label>
-297:               <NumberInput
-298:                 id="price"
-299:                 min={0}
-300:                 max={1000000}
-301:                 step={500}
-302:                 prefix="$"
-303:                 value={ticketConfig.price}
-304:                 onChange={(val) => {
-305:                   setTicketConfig({
-306:                     price: val,
-307:                     priceLabel: `VALOR: $${val.toLocaleString("es-AR")}`,
-308:                   });
-309:                 }}
-310:               />
-311:             </div>
-312:             <div className="space-y-1.5">
-313:               <Label htmlFor="priceLabel" className="text-xs text-slate-300">
-314:                 Texto en el Boleto
-315:               </Label>
-316:               <Input
-317:                 id="priceLabel"
-318:                 value={ticketConfig.priceLabel}
-319:                 onChange={(e) => setTicketConfig({ priceLabel: e.target.value })}
-320:               />
-321:             </div>
-322:           </div>
-323: 
-324:           {/* Total Tickets & Start Number */}
-325:           <div className="grid grid-cols-2 gap-3">
-326:             <div className="space-y-1.5">
-327:               <Label htmlFor="totalTickets" className="flex items-center gap-1.5 text-xs text-slate-300">
-328:                 <Hash className="h-3 w-3 text-amber-400/80" />
-329:                 Cantidad de Tickets
-330:               </Label>
-331:               <NumberInput
-332:                 id="totalTickets"
-333:                 min={1}
-334:                 max={50000}
-335:                 step={50}
-336:                 value={ticketConfig.totalTickets}
-337:                 onChange={(val) => setTicketConfig({ totalTickets: val })}
-338:               />
-339:             </div>
-340:             <div className="space-y-1.5">
-341:               <Label htmlFor="startNumber" className="text-xs text-slate-300">
-342:                 Número Inicial
-343:               </Label>
-344:               <NumberInput
-345:                 id="startNumber"
-346:                 min={0}
-347:                 max={10000}
-348:                 step={1}
-349:                 value={ticketConfig.startNumber}
-350:                 onChange={(val) => setTicketConfig({ startNumber: val })}
-351:               />
-352:             </div>
-353:           </div>
-354:         </div>
-355: 
-356:         {/* Sección: Tipografía y Tamaños de Fuente */}
-357:         <div className="space-y-3 pt-2 border-t border-slate-800">
-358:           <div className="flex items-center justify-between">
-359:             <button
-360:               type="button"
-361:               onClick={() => setShowTypography(!showTypography)}
-362:               className="flex items-center gap-2 text-xs font-semibold text-amber-400/90 uppercase tracking-wider hover:text-amber-300 transition-colors cursor-pointer"
-363:             >
-364:               <Type className="h-3.5 w-3.5" />
-365:               <span>Tamaño de Letra del Boleto</span>
-366:               {showTypography ? (
-367:                 <ChevronUp className="h-3.5 w-3.5 text-slate-400" />
-368:               ) : (
-369:                 <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
-370:               )}
-371:             </button>
-372: 
-373:             {showTypography && (
-374:               <button
-375:                 type="button"
-376:                 onClick={handleResetTypography}
-377:                 className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-amber-400 transition-colors cursor-pointer"
-378:                 title="Restablecer tamaños sugeridos"
-379:               >
-380:                 <RotateCcw className="h-3 w-3" />
-381:                 <span>Restablecer</span>
-382:               </button>
-383:             )}
-384:           </div>
-385: 
-386:           {showTypography && (
-387:             <div className="rounded-lg border border-slate-700/80 bg-slate-900/50 p-3.5 space-y-4 shadow-inner">
-388:               {/* Tamaño de Premios */}
-389:               <div className="space-y-1.5">
-390:                 <div className="flex items-center justify-between text-xs">
-391:                   <span className="text-slate-200 font-medium">Tamaño de Premios:</span>
-392:                   <div className="flex items-center gap-1.5">
-393:                     {isPrizesSizeAutoAdjusted && (
-394:                       <span className="text-[10px] text-amber-400 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded font-mono">
-395:                         Auto: {effectivePrizesSize} px
-396:                       </span>
-397:                     )}
-398:                     <span className="font-mono text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">
-399:                       {prizesSize} px
-400:                     </span>
-401:                   </div>
-402:                 </div>
-403:                 <Slider
-404:                   min={6}
-405:                   max={14}
-406:                   step={1}
-407:                   value={prizesSize}
-408:                   onChange={(val) => setTicketConfig({ prizesFontSize: val })}
-409:                   showValueBadge={false}
-410:                 />
-411:                 {/* Selector de columnas de premios */}
-412:                 <div className="flex items-center justify-between pt-1 text-xs">
-413:                   <span className="text-slate-300">Columnas de premios:</span>
-414:                   <div className="flex rounded bg-slate-800 p-0.5 border border-slate-700/60">
-415:                     {[
-416:                       { id: "auto", label: `Auto (${numCols})` },
-417:                       { id: 2, label: "2 col" },
-418:                       { id: 3, label: "3 col" },
-419:                       { id: 4, label: "4 col" },
-420:                     ].map((colOpt) => {
-421:                       const active = (ticketConfig.prizeColumns ?? "auto") === colOpt.id;
-422:                       return (
-423:                         <button
-424:                           key={String(colOpt.id)}
-425:                           type="button"
-426:                           onClick={() => setTicketConfig({ prizeColumns: colOpt.id as 2 | 3 | 4 | "auto" })}
-427:                           className={`px-2 py-0.5 text-[10px] font-medium rounded transition-colors cursor-pointer ${
-428:                             active
-429:                               ? "bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold"
-430:                               : "text-slate-400 hover:text-slate-200"
-431:                           }`}
-432:                         >
-433:                           {colOpt.label}
-434:                         </button>
-435:                       );
-436:                     })}
-437:                   </div>
-438:                 </div>
-439: 
-440:                 {isPrizesSizeAutoAdjusted ? (
-441:                   <div className="space-y-1 bg-amber-950/20 border border-amber-500/30 rounded p-2">
-442:                     <p className="text-[10px] text-amber-400/90 leading-tight">
-443:                       💡 Con {numPrizes} premios en {numCols} columnas ({prizeRows} filas) y boleto de {printConfig.ticketHeight}mm, el sistema ajusta a {effectivePrizesSize}px para garantizar que <strong>aparezcan todos completos sin cortarse</strong>.
-444:                     </p>
-445:                     <div className="flex flex-wrap gap-1.5 pt-0.5">
-446:                       {numCols < 4 && (
-447:                         <button
-448:                           type="button"
-449:                           onClick={() => setTicketConfig({ prizeColumns: (numCols + 1) as 3 | 4 })}
-450:                           className="text-[10px] bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 px-2 py-0.5 rounded border border-amber-500/40 transition-colors cursor-pointer"
-451:                         >
-452:                           Usar {numCols + 1} columnas (letra más grande)
-453:                         </button>
-454:                       )}
-455:                       {printConfig.ticketHeight < 65 && (
-456:                         <button
-457:                           type="button"
-458:                           onClick={() => setPrintConfig({ ticketHeight: 65 })}
-459:                           className="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-0.5 rounded border border-slate-600 transition-colors cursor-pointer"
-460:                         >
-461:                           Aumentar alto a 65mm
-462:                         </button>
-463:                       )}
-464:                     </div>
-465:                   </div>
-466:                 ) : (
-467:                   <p className="text-[10px] text-emerald-400/90 flex items-center gap-1">
-468:                     ✓ Todos los {numPrizes} premios se muestran completos a {prizesSize}px en {numCols} columnas.
-469:                   </p>
-470:                 )}
-471:               </div>
-472: 
-473:               {/* Tamaño del Título */}
-474:               <div className="space-y-1.5">
-475:                 <div className="flex items-center justify-between text-xs">
-476:                   <span className="text-slate-200 font-medium">Tamaño de Título:</span>
-477:                   <span className="font-mono text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">
-478:                     {titleSize} px
-479:                   </span>
-480:                 </div>
-481:                 <Slider
-482:                   min={10}
-483:                   max={22}
-484:                   step={1}
-485:                   value={titleSize}
-486:                   onChange={(val) => setTicketConfig({ titleFontSize: val })}
-487:                   showValueBadge={false}
-488:                 />
-489:               </div>
-490: 
-491:               {/* Tamaño del Subtítulo */}
-492:               <div className="space-y-1.5">
-493:                 <div className="flex items-center justify-between text-xs">
-494:                   <span className="text-slate-200 font-medium">Tamaño de Subtítulo:</span>
-495:                   <span className="font-mono text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">
-496:                     {subtitleSize} px
-497:                   </span>
-498:                 </div>
-499:                 <Slider
-500:                   min={9}
-501:                   max={18}
-502:                   step={1}
-503:                   value={subtitleSize}
-504:                   onChange={(val) => setTicketConfig({ subtitleFontSize: val })}
-505:                   showValueBadge={false}
-506:                 />
-507:               </div>
-508: 
-509:               {/* Tamaño de Texto del Talón */}
-510:               <div className="space-y-1.5">
-511:                 <div className="flex items-center justify-between text-xs">
-512:                   <span className="text-slate-200 font-medium">Tamaño de Texto del Talón:</span>
-513:                   <span className="font-mono text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">
-514:                     {stubFontSize} px
-515:                   </span>
-516:                 </div>
-517:                 <Slider
-518:                   min={7}
-519:                   max={14}
-520:                   step={1}
-521:                   value={stubFontSize}
-522:                   onChange={(val) => setTicketConfig({ stubFontSize: val })}
-523:                   showValueBadge={false}
-524:                 />
-525:               </div>
-526: 
-527:               {/* Presets rápidos de escala */}
-528:               <div className="pt-1 border-t border-slate-800/80 flex items-center justify-between">
-529:                 <span className="text-[11px] text-slate-400">Escala general:</span>
-530:                 <div className="flex gap-1">
-531:                   {[
-532:                     { label: "Compacto", scale: 85 },
-533:                     { label: "Normal", scale: 100 },
-534:                     { label: "Grande", scale: 115 },
-535:                   ].map((preset) => (
-536:                     <button
-537:                       key={preset.scale}
-538:                       type="button"
-539:                       onClick={() => setTicketConfig({ generalFontScale: preset.scale })}
-540:                       className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors cursor-pointer ${
-541:                         fontScale === preset.scale
-542:                           ? "bg-amber-500/20 text-amber-400 border border-amber-500/40"
-543:                           : "bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700"
-544:                       }`}
-545:                     >
-546:                       {preset.label}
-547:                     </button>
-548:                   ))}
-549:                 </div>
-550:               </div>
-551:             </div>
-552:           )}
-553:         </div>
-554: 
-555:         {/* Sección: Tamaño del Talón de Control */}
-556:         <div className="space-y-3 pt-2 border-t border-slate-800">
-557:           <div className="flex items-center justify-between">
-558:             <button
-559:               type="button"
-560:               onClick={() => setShowStubConfig(!showStubConfig)}
-561:               className="flex items-center gap-2 text-xs font-semibold text-amber-400/90 uppercase tracking-wider hover:text-amber-300 transition-colors cursor-pointer"
-562:             >
-563:               <Scissors className="h-3.5 w-3.5" />
-564:               <span>Tamaño del Talón de Control</span>
-565:               {showStubConfig ? (
-566:                 <ChevronUp className="h-3.5 w-3.5 text-slate-400" />
-567:               ) : (
-568:                 <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
-569:               )}
-570:             </button>
-571: 
-572:             <span className="font-mono text-xs font-bold text-amber-400 bg-slate-900/80 border border-slate-700/80 px-2 py-0.5 rounded">
-573:               {stubWidth} mm ({stubPercent}%)
-574:             </span>
-575:           </div>
-576: 
-577:           {showStubConfig && (
-578:             <div className="rounded-lg border border-slate-700/80 bg-slate-900/50 p-3.5 space-y-3 shadow-inner">
-579:               <div className="space-y-1.5">
-580:                 <div className="flex items-center justify-between text-xs">
-581:                   <span className="text-slate-200 font-medium">Ancho del Talón:</span>
-582:                   <span className="font-mono text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">
-583:                     {stubWidth} mm ({stubPercent}%)
-584:                   </span>
-585:                 </div>
-586:                 <Slider
-587:                   min={18}
-588:                   max={Math.max(25, Math.round(printConfig.ticketWidth * 0.48))}
-589:                   step={1}
-590:                   value={stubWidth}
-591:                   onChange={(val) => setPrintConfig({ stubWidth: val })}
-592:                   showValueBadge={false}
-593:                 />
-594:                 <p className="text-[10px] text-slate-400">
-595:                   Modifica el ancho del talón desprendible respecto al cuerpo principal del boleto.
-596:                 </p>
-597:               </div>
-598: 
-599:               {/* Presets rápidos */}
-600:               <div className="pt-1 border-t border-slate-800/80 flex items-center justify-between">
-601:                 <span className="text-[11px] text-slate-400">Preajustes:</span>
-602:                 <div className="flex flex-wrap gap-1">
-603:                   {[
-604:                     { label: "Estrecho (28mm)", w: 28 },
-605:                     { label: "Estándar (36mm)", w: 36 },
-606:                     { label: "Medio (42mm)", w: 42 },
-607:                     { label: "Amplio (48mm)", w: 48 },
-608:                   ].map((preset) => (
-609:                     <button
-610:                       key={preset.w}
-611:                       type="button"
-612:                       onClick={() => setPrintConfig({ stubWidth: preset.w })}
-613:                       className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors cursor-pointer ${
-614:                         stubWidth === preset.w
-615:                           ? "bg-amber-500/20 text-amber-400 border border-amber-500/40"
-616:                           : "bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700"
-617:                       }`}
-618:                     >
-619:                       {preset.label}
-620:                     </button>
-621:                   ))}
-622:                 </div>
-623:               </div>
-624:             </div>
-625:           )}
-626:         </div>
-627: 
-628:         {/* Sección: Lista de Premios */}
-629:         <div className="pt-2 border-t border-slate-800">
-630:           <PrizeEditor />
-631:         </div>
-632:       </CardContent>
-633:     </Card>
-634:   );
-635: }
-````
-
-## File: src/components/Header.tsx
-````typescript
-  1: "use client";
-  2: 
-  3: import { useState, useEffect } from "react";
-  4: import Image from "next/image";
-  5: import {
-  6:   FolderOpen,
-  7:   Save,
-  8:   LogIn,
-  9:   LogOut,
- 10:   User as UserIcon,
- 11:   Check,
- 12:   Sparkles,
- 13:   Database
- 14: } from "lucide-react";
- 15: import { Button } from "@/components/ui/button";
- 16: import { useAuth } from "@/hooks/useAuth";
- 17: import { AuthModal } from "@/components/auth/AuthModal";
- 18: import { ProfileModal } from "@/components/auth/ProfileModal";
- 19: import { SavedTicketsDrawer } from "@/components/SavedTicketsDrawer";
- 20: import { useRifaStore } from "@/store/useRifaStore";
- 21: import { saveTicketDesign, getSavedTickets } from "@/services/tickets-service";
- 22: 
- 23: export function Header() {
- 24:   const { user, signOut, isConfigured } = useAuth();
- 25:   const { ticketConfig, printConfig } = useRifaStore();
- 26: 
- 27:   const [isAuthOpen, setIsAuthOpen] = useState(false);
- 28:   const [isProfileOpen, setIsProfileOpen] = useState(false);
- 29:   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
- 30:   const [saving, setSaving] = useState(false);
- 31:   const [saveSuccess, setSaveSuccess] = useState(false);
- 32:   const [savedCount, setSavedCount] = useState(0);
- 33: 
- 34:   // Cargar cantidad de boletos guardados
- 35:   const refreshCount = async () => {
- 36:     try {
- 37:       const list = await getSavedTickets();
- 38:       setSavedCount(list.length);
- 39:     } catch {
- 40:       // Ignorar error silencioso
- 41:     }
- 42:   };
- 43: 
- 44:   useEffect(() => {
- 45:     refreshCount();
- 46:   }, [user]);
- 47: 
- 48:   const handleSave = async () => {
- 49:     if (!user) {
- 50:       setIsAuthOpen(true);
- 51:       return;
- 52:     }
- 53: 
- 54:     setSaving(true);
- 55:     try {
- 56:       await saveTicketDesign(
- 57:         ticketConfig.eventName || "Mi Rifa",
- 58:         ticketConfig,
- 59:         printConfig
- 60:       );
- 61:       setSaveSuccess(true);
- 62:       refreshCount();
- 63:       setTimeout(() => setSaveSuccess(false), 2500);
- 64:     } catch (e) {
- 65:       console.error("Error al guardar:", e);
- 66:     } finally {
- 67:       setSaving(false);
- 68:     }
+ 17:   Trash2,
+ 18: } from "lucide-react";
+ 19: import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+ 20: import { Input } from "@/components/ui/input";
+ 21: import { NumberInput } from "@/components/ui/number-input";
+ 22: import { Slider } from "@/components/ui/slider";
+ 23: import { Label } from "@/components/ui/label";
+ 24: import { useRifaStore } from "@/store/useRifaStore";
+ 25: import { PrizeEditor } from "@/components/PrizeEditor";
+ 26: import { COLOR_PRESETS } from "@/lib/constants";
+ 27: import { formatSpanishDate, formatShortDate, resolvePrizeColumns } from "@/lib/utils";
+ 28: 
+ 29: export function ConfigPanel() {
+ 30:   const {
+ 31:     ticketConfig,
+ 32:     setTicketConfig,
+ 33:     printConfig,
+ 34:     setPrintConfig,
+ 35:     clearConfig,
+ 36:     resetConfig,
+ 37:   } = useRifaStore();
+ 38:   const [showTypography, setShowTypography] = useState(true);
+ 39:   const [showColorPicker, setShowColorPicker] = useState(true);
+ 40:   const [showStubConfig, setShowStubConfig] = useState(true);
+ 41: 
+ 42:   // Defaults fallback
+ 43:   const titleSize = ticketConfig.titleFontSize ?? 14;
+ 44:   const subtitleSize = ticketConfig.subtitleFontSize ?? 12;
+ 45:   const prizesSize = ticketConfig.prizesFontSize ?? 8;
+ 46:   const stubFontSize = ticketConfig.stubFontSize ?? 10;
+ 47:   const fontScale = ticketConfig.generalFontScale ?? 100;
+ 48:   const currentColor = ticketConfig.primaryColor ?? "#991b1b";
+ 49:   const stubWidth = printConfig.stubWidth ?? 36;
+ 50:   const stubPercent = Math.round((stubWidth / printConfig.ticketWidth) * 100);
+ 51: 
+ 52:   // Auto-fitting prize font size calculation for guidance in UI
+ 53:   const numPrizes = ticketConfig.prizes.length;
+ 54:   const numCols = resolvePrizeColumns(ticketConfig.prizeColumns, numPrizes, prizesSize);
+ 55:   const prizeRows = Math.max(1, Math.ceil(numPrizes / numCols));
+ 56:   const heightFactor = (printConfig.ticketHeight || 50) / 50;
+ 57:   const maxFittingPrizesPx = Math.max(6, Math.floor((78 * heightFactor) / prizeRows));
+ 58:   const effectivePrizesSize = Math.max(5.5, Math.min(prizesSize, maxFittingPrizesPx));
+ 59:   const isPrizesSizeAutoAdjusted = prizesSize > effectivePrizesSize;
+ 60: 
+ 61:   const handleResetTypography = () => {
+ 62:     setTicketConfig({
+ 63:       titleFontSize: 14,
+ 64:       subtitleFontSize: 12,
+ 65:       prizesFontSize: 8,
+ 66:       stubFontSize: 10,
+ 67:       generalFontScale: 100,
+ 68:     });
  69:   };
  70: 
- 71:   return (
- 72:     <>
- 73:       <header className="sticky top-0 z-40 border-b border-slate-700/60 bg-slate-900/90 backdrop-blur-md">
- 74:         <div className="container mx-auto flex h-14 sm:h-16 items-center justify-between px-3 sm:px-4">
- 75:           {/* Logo & Marca */}
- 76:           <div className="flex items-center gap-2 sm:gap-3">
- 77:             <div className="relative">
- 78:               <Image
- 79:                 src="/icon.svg"
- 80:                 alt="Eventazo"
- 81:                 width={40}
- 82:                 height={40}
- 83:                 className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl shadow-lg shadow-amber-500/20"
- 84:               />
- 85:               <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-amber-400 text-[8px] font-black text-slate-950">
- 86:                 ★
- 87:               </span>
- 88:             </div>
- 89:             <div>
- 90:               <div className="flex items-center gap-1.5">
- 91:                 <h1 className="text-sm sm:text-lg font-black text-slate-100 tracking-tight">
- 92:                   Eventazo
- 93:                 </h1>
- 94:                 <span className="rounded bg-gradient-to-r from-amber-500/20 to-amber-300/20 border border-amber-500/40 px-1.5 py-0.2 text-[9px] font-bold text-amber-300">
- 95:                   PRO
- 96:                 </span>
- 97:               </div>
- 98:               <p className="text-[10px] text-slate-400 hidden sm:block">
- 99:                 Diseño & Impresión de Rifas Profesionales
-100:               </p>
-101:             </div>
-102:           </div>
+ 71:   const handleDatePickerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+ 72:     if (e.target.value) {
+ 73:       const formatted = formatSpanishDate(e.target.value);
+ 74:       setTicketConfig({ drawDate: formatted });
+ 75:     }
+ 76:   };
+ 77: 
+ 78:   const handleClearAll = () => {
+ 79:     if (typeof window !== "undefined" && window.confirm("¿Deseas vaciar todos los campos para comenzar tu rifa desde cero?")) {
+ 80:       clearConfig();
+ 81:     }
+ 82:   };
+ 83: 
+ 84:   return (
+ 85:     <Card className="shadow-lg border-slate-700/80">
+ 86:       <CardHeader className="pb-3 border-b border-slate-800">
+ 87:         <div className="flex items-center justify-between gap-2">
+ 88:           <CardTitle className="flex items-center gap-2">
+ 89:             <Settings className="h-5 w-5 text-amber-400" />
+ 90:             <span className="text-sm sm:text-base">Configuración</span>
+ 91:           </CardTitle>
+ 92: 
+ 93:           <div className="flex items-center gap-1.5">
+ 94:             <button
+ 95:               type="button"
+ 96:               onClick={handleClearAll}
+ 97:               title="Borrar todos los campos y empezar en blanco"
+ 98:               className="text-xs font-semibold px-2.5 py-1 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-rose-500/20 hover:border-rose-500/40 text-slate-300 hover:text-rose-300 transition-colors flex items-center gap-1.5"
+ 99:             >
+100:               <Trash2 className="h-3.5 w-3.5 text-rose-400" />
+101:               <span>Borrar Todo</span>
+102:             </button>
 103: 
-104:           {/* Acciones del Header */}
-105:           <div className="flex items-center gap-1.5 sm:gap-3">
-106:             {/* Botón Mis Rifas */}
-107:             <Button
-108:               variant="outline"
-109:               size="sm"
-110:               onClick={() => setIsDrawerOpen(true)}
-111:               className="border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-slate-200 hover:text-amber-400 text-xs h-8 sm:h-9 px-2 sm:px-3 rounded-xl gap-1.5"
-112:             >
-113:               <FolderOpen className="h-3.5 w-3.5 text-amber-400" />
-114:               <span className="hidden sm:inline">Mis Rifas</span>
-115:               {savedCount > 0 && (
-116:                 <span className="ml-1 rounded-full bg-amber-500/20 px-1.5 py-0.2 text-[10px] font-mono font-bold text-amber-400">
-117:                   {savedCount}
-118:                 </span>
-119:               )}
-120:             </Button>
-121: 
-122:             {/* Botón Guardar Rifa */}
-123:             <Button
-124:               size="sm"
-125:               onClick={handleSave}
-126:               disabled={saving}
-127:               className={`h-8 sm:h-9 px-2 sm:px-3 text-xs font-bold rounded-xl gap-1.5 transition-all shadow-md ${
-128:                 saveSuccess
-129:                   ? "bg-emerald-500 text-white shadow-emerald-500/20"
-130:                   : "bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 shadow-amber-500/20"
-131:               }`}
-132:             >
-133:               {saveSuccess ? (
-134:                 <>
-135:                   <Check className="h-3.5 w-3.5" />
-136:                   <span>¡Guardado!</span>
-137:                 </>
-138:               ) : (
-139:                 <>
-140:                   <Save className="h-3.5 w-3.5" />
-141:                   <span>{saving ? "Guardando..." : "Guardar"}</span>
-142:                 </>
-143:               )}
-144:             </Button>
-145: 
-146:             {/* Usuario / Login */}
-147:             {user ? (
-148:               <div className="flex items-center gap-1 sm:gap-2 pl-1 border-l border-slate-800">
-149:                 <button
-150:                   type="button"
-151:                   onClick={() => setIsProfileOpen(true)}
-152:                   className="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 hover:border-amber-500/40 transition-colors text-left group"
-153:                   title="Ver y editar mi perfil"
-154:                 >
-155:                   <div className="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px] font-bold border border-amber-500/30 group-hover:scale-105 transition-transform">
-156:                     {user.name ? user.name[0].toUpperCase() : user.email[0].toUpperCase()}
-157:                   </div>
-158:                   <span className="text-xs font-medium text-slate-300 group-hover:text-amber-300 max-w-[95px] truncate hidden md:inline transition-colors">
-159:                     {user.name || user.email.split("@")[0]}
-160:                   </span>
-161:                   {user.isDemo && (
-162:                     <span className="text-[9px] bg-slate-700 text-amber-300 px-1 rounded">
-163:                       Demo
-164:                     </span>
-165:                   )}
-166:                 </button>
-167: 
-168:                 <Button
-169:                   variant="ghost"
-170:                   size="sm"
-171:                   onClick={() => signOut()}
-172:                   title="Cerrar sesión"
-173:                   className="h-8 w-8 p-0 text-slate-400 hover:text-rose-400 rounded-xl"
-174:                 >
-175:                   <LogOut className="h-3.5 w-3.5" />
-176:                 </Button>
-177:               </div>
-178:             ) : (
-179:               <Button
-180:                 variant="ghost"
-181:                 size="sm"
-182:                 onClick={() => setIsAuthOpen(true)}
-183:                 className="h-8 sm:h-9 px-2 sm:px-3 text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-800/80 rounded-xl gap-1.5"
-184:               >
-185:                 <LogIn className="h-3.5 w-3.5" />
-186:                 <span>Ingresar</span>
-187:               </Button>
-188:             )}
-189:           </div>
-190:         </div>
-191:       </header>
-192: 
-193:       {/* Modal de Autenticación */}
-194:       <AuthModal
-195:         isOpen={isAuthOpen}
-196:         onClose={() => setIsAuthOpen(false)}
-197:         onSuccess={() => {
-198:           refreshCount();
-199:         }}
-200:       />
-201: 
-202:       {/* Modal de Perfil de Usuario */}
-203:       <ProfileModal
-204:         isOpen={isProfileOpen}
-205:         onClose={() => setIsProfileOpen(false)}
-206:       />
-207: 
-208:       {/* Cajón de Rifas Guardadas */}
-209:       <SavedTicketsDrawer
-210:         isOpen={isDrawerOpen}
-211:         onClose={() => setIsDrawerOpen(false)}
-212:         onSelectTicket={() => {
-213:           refreshCount();
-214:         }}
-215:       />
-216:     </>
-217:   );
-218: }
+104:             <button
+105:               type="button"
+106:               onClick={() => resetConfig()}
+107:               title="Restaurar datos de ejemplo"
+108:               className="text-xs font-semibold px-2 py-1 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-amber-300 transition-colors flex items-center gap-1"
+109:             >
+110:               <RotateCcw className="h-3.5 w-3.5" />
+111:               <span className="hidden sm:inline">Ejemplo</span>
+112:             </button>
+113:           </div>
+114:         </div>
+115:       </CardHeader>
+116: 
+117:       <CardContent className="space-y-5 pt-4">
+118:         {/* Sección: Información Principal */}
+119:         <div className="space-y-3.5">
+120:           <div className="flex items-center gap-2 text-xs font-semibold text-amber-400/90 uppercase tracking-wider">
+121:             <Building2 className="h-3.5 w-3.5" />
+122:             <span>Datos del Evento</span>
+123:           </div>
+124: 
+125:           {/* Event Name */}
+126:           <div className="space-y-1.5">
+127:             <Label htmlFor="eventName" className="text-xs text-slate-300">
+128:               Nombre del Evento
+129:             </Label>
+130:             <Input
+131:               id="eventName"
+132:               value={ticketConfig.eventName}
+133:               placeholder="Ej: GRAN RIFA ANUAL..."
+134:               onChange={(e) => setTicketConfig({ eventName: e.target.value })}
+135:             />
+136:           </div>
+137: 
+138:           {/* Subtitle */}
+139:           <div className="space-y-1.5">
+140:             <Label htmlFor="subtitle" className="text-xs text-slate-300">
+141:               Subtítulo o Lema
+142:             </Label>
+143:             <Input
+144:               id="subtitle"
+145:               value={ticketConfig.subtitle}
+146:               placeholder="Ej: Especial Día del Padre"
+147:               onChange={(e) => setTicketConfig({ subtitle: e.target.value })}
+148:             />
+149:           </div>
+150: 
+151:           {/* Organizer & Date */}
+152:           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+153:             <div className="space-y-1.5">
+154:               <Label htmlFor="organizer" className="text-xs text-slate-300">
+155:                 Organiza
+156:               </Label>
+157:               <Input
+158:                 id="organizer"
+159:                 value={ticketConfig.organizer}
+160:                 onChange={(e) => setTicketConfig({ organizer: e.target.value })}
+161:               />
+162:             </div>
+163: 
+164:             {/* Fecha del Sorteo con selector interactivo y texto libre */}
+165:             <div className="space-y-1.5">
+166:               <div className="flex items-center justify-between">
+167:                 <Label htmlFor="drawDate" className="flex items-center gap-1.5 text-xs text-slate-300">
+168:                   <Calendar className="h-3 w-3 text-amber-400/80" />
+169:                   Fecha del Sorteo
+170:                 </Label>
+171:                 <label
+172:                   htmlFor="datePickerHidden"
+173:                   className="text-[11px] text-amber-400 hover:text-amber-300 cursor-pointer flex items-center gap-1 underline underline-offset-2"
+174:                   title="Abrir calendario para autocompletar"
+175:                 >
+176:                   <Calendar className="h-3 w-3" />
+177:                   <span>Calendario</span>
+178:                 </label>
+179:                 <input
+180:                   id="datePickerHidden"
+181:                   type="date"
+182:                   className="sr-only"
+183:                   onChange={handleDatePickerChange}
+184:                 />
+185:               </div>
+186: 
+187:               <div className="relative">
+188:                 <Input
+189:                   id="drawDate"
+190:                   value={ticketConfig.drawDate}
+191:                   placeholder="Viernes 19 de Junio de 2026..."
+192:                   onChange={(e) => setTicketConfig({ drawDate: e.target.value })}
+193:                   className="pr-8"
+194:                 />
+195:                 <input
+196:                   type="date"
+197:                   tabIndex={-1}
+198:                   onChange={handleDatePickerChange}
+199:                   className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 opacity-0 cursor-pointer"
+200:                   title="Elegir fecha"
+201:                 />
+202:                 <Calendar className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+203:               </div>
+204: 
+205:               <div className="flex items-center justify-between text-[10px] text-slate-400 px-0.5">
+206:                 <span>En el talón se verá:</span>
+207:                 <span className="font-mono text-amber-300/90 font-semibold bg-slate-900/60 px-1.5 py-0.5 rounded border border-slate-800">
+208:                   Sorteo: {formatShortDate(ticketConfig.drawDate)}
+209:                 </span>
+210:               </div>
+211:             </div>
+212:           </div>
+213: 
+214:           {/* Contribution Text */}
+215:           <div className="space-y-1.5">
+216:             <Label htmlFor="contribution" className="text-xs text-slate-300">
+217:               Texto de Contribución
+218:             </Label>
+219:             <Input
+220:               id="contribution"
+221:               value={ticketConfig.contributionText}
+222:               placeholder="Tu colaboración apoya..."
+223:               onChange={(e) => setTicketConfig({ contributionText: e.target.value })}
+224:             />
+225:           </div>
+226:         </div>
+227: 
+228:         {/* Sección: Color del Boleto */}
+229:         <div className="space-y-3 pt-2 border-t border-slate-800">
+230:           <div className="flex items-center justify-between">
+231:             <button
+232:               type="button"
+233:               onClick={() => setShowColorPicker(!showColorPicker)}
+234:               className="flex items-center gap-2 text-xs font-semibold text-amber-400/90 uppercase tracking-wider hover:text-amber-300 transition-colors cursor-pointer"
+235:             >
+236:               <Palette className="h-3.5 w-3.5" />
+237:               <span>Color de Acento del Boleto</span>
+238:               {showColorPicker ? (
+239:                 <ChevronUp className="h-3.5 w-3.5 text-slate-400" />
+240:               ) : (
+241:                 <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+242:               )}
+243:             </button>
+244: 
+245:             {/* Muestra del color actual */}
+246:             <div className="flex items-center gap-2">
+247:               <span
+248:                 className="h-4 w-4 rounded-full border border-white/30 shadow-sm"
+249:                 style={{ backgroundColor: currentColor }}
+250:               />
+251:               <span className="text-[11px] font-mono text-slate-300">
+252:                 {currentColor.toUpperCase()}
+253:               </span>
+254:             </div>
+255:           </div>
+256: 
+257:           {showColorPicker && (
+258:             <div className="rounded-lg border border-slate-700/80 bg-slate-900/50 p-3.5 space-y-3 shadow-inner">
+259:               <div className="text-[11px] text-slate-400">
+260:                 Selecciona un color predefinido o elige uno personalizado:
+261:               </div>
+262: 
+263:               {/* Paleta de colores predefinidos */}
+264:               <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
+265:                 {COLOR_PRESETS.map((preset) => {
+266:                   const isSelected = currentColor.toLowerCase() === preset.hex.toLowerCase();
+267:                   return (
+268:                     <button
+269:                       key={preset.hex}
+270:                       type="button"
+271:                       onClick={() => setTicketConfig({ primaryColor: preset.hex })}
+272:                       className={`group relative flex flex-col items-center justify-center p-1 rounded-lg border transition-all cursor-pointer ${
+273:                         isSelected
+274:                           ? "border-amber-400 bg-slate-800 ring-2 ring-amber-400/40 scale-105"
+275:                           : "border-slate-700/80 bg-slate-800/50 hover:border-slate-500 hover:scale-105"
+276:                       }`}
+277:                       title={preset.name}
+278:                     >
+279:                       <span
+280:                         className="h-6 w-6 rounded-full flex items-center justify-center shadow-md border border-white/20"
+281:                         style={{ backgroundColor: preset.hex }}
+282:                       >
+283:                         {isSelected && <Check className="h-3.5 w-3.5 text-white drop-shadow stroke-[3]" />}
+284:                       </span>
+285:                     </button>
+286:                   );
+287:                 })}
+288:               </div>
+289: 
+290:               {/* Selector personalizado de color */}
+291:               <div className="flex items-center justify-between pt-2 border-t border-slate-800/80">
+292:                 <span className="text-xs text-slate-300">Color personalizado:</span>
+293:                 <div className="flex items-center gap-2">
+294:                   <input
+295:                     type="color"
+296:                     value={currentColor}
+297:                     onChange={(e) => setTicketConfig({ primaryColor: e.target.value })}
+298:                     className="h-8 w-10 rounded border border-slate-600 bg-transparent p-0.5 cursor-pointer"
+299:                     title="Elegir color personalizado en la rueda de colores"
+300:                   />
+301:                   <input
+302:                     type="text"
+303:                     value={currentColor}
+304:                     onChange={(e) => setTicketConfig({ primaryColor: e.target.value })}
+305:                     className="w-20 rounded bg-slate-800 px-2 py-1 text-center font-mono text-xs text-slate-200 uppercase border border-slate-700 focus:outline-none focus:border-amber-500"
+306:                     placeholder="#991B1B"
+307:                   />
+308:                   <button
+309:                     type="button"
+310:                     onClick={() => setTicketConfig({ primaryColor: "#991b1b" })}
+311:                     className="text-[11px] text-slate-400 hover:text-amber-400 cursor-pointer"
+312:                     title="Restablecer al rojo predeterminado"
+313:                   >
+314:                     Restablecer
+315:                   </button>
+316:                 </div>
+317:               </div>
+318:             </div>
+319:           )}
+320:         </div>
+321: 
+322:         {/* Sección: Valores y Numeración */}
+323:         <div className="space-y-3.5 pt-2 border-t border-slate-800">
+324:           <div className="flex items-center gap-2 text-xs font-semibold text-amber-400/90 uppercase tracking-wider">
+325:             <DollarSign className="h-3.5 w-3.5" />
+326:             <span>Valores y Numeración</span>
+327:           </div>
+328: 
+329:           {/* Price & Price Label */}
+330:           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+331:             <div className="space-y-1.5">
+332:               <Label htmlFor="price" className="text-xs text-slate-300">
+333:                 Precio Unitario ($)
+334:               </Label>
+335:               <NumberInput
+336:                 id="price"
+337:                 min={0}
+338:                 max={1000000}
+339:                 step={500}
+340:                 prefix="$"
+341:                 value={ticketConfig.price}
+342:                 onChange={(val) => {
+343:                   setTicketConfig({
+344:                     price: val,
+345:                     priceLabel: `VALOR: $${val.toLocaleString("es-AR")}`,
+346:                   });
+347:                 }}
+348:               />
+349:             </div>
+350:             <div className="space-y-1.5">
+351:               <Label htmlFor="priceLabel" className="text-xs text-slate-300">
+352:                 Texto en el Boleto
+353:               </Label>
+354:               <Input
+355:                 id="priceLabel"
+356:                 value={ticketConfig.priceLabel}
+357:                 onChange={(e) => setTicketConfig({ priceLabel: e.target.value })}
+358:               />
+359:             </div>
+360:           </div>
+361: 
+362:           {/* Total Tickets & Start Number */}
+363:           <div className="grid grid-cols-2 gap-3">
+364:             <div className="space-y-1.5">
+365:               <Label htmlFor="totalTickets" className="flex items-center gap-1.5 text-xs text-slate-300">
+366:                 <Hash className="h-3 w-3 text-amber-400/80" />
+367:                 Cantidad de Tickets
+368:               </Label>
+369:               <NumberInput
+370:                 id="totalTickets"
+371:                 min={1}
+372:                 max={50000}
+373:                 step={50}
+374:                 value={ticketConfig.totalTickets}
+375:                 onChange={(val) => setTicketConfig({ totalTickets: val })}
+376:               />
+377:             </div>
+378:             <div className="space-y-1.5">
+379:               <Label htmlFor="startNumber" className="text-xs text-slate-300">
+380:                 Número Inicial
+381:               </Label>
+382:               <NumberInput
+383:                 id="startNumber"
+384:                 min={0}
+385:                 max={10000}
+386:                 step={1}
+387:                 value={ticketConfig.startNumber}
+388:                 onChange={(val) => setTicketConfig({ startNumber: val })}
+389:               />
+390:             </div>
+391:           </div>
+392:         </div>
+393: 
+394:         {/* Sección: Tipografía y Tamaños de Fuente */}
+395:         <div className="space-y-3 pt-2 border-t border-slate-800">
+396:           <div className="flex items-center justify-between">
+397:             <button
+398:               type="button"
+399:               onClick={() => setShowTypography(!showTypography)}
+400:               className="flex items-center gap-2 text-xs font-semibold text-amber-400/90 uppercase tracking-wider hover:text-amber-300 transition-colors cursor-pointer"
+401:             >
+402:               <Type className="h-3.5 w-3.5" />
+403:               <span>Tamaño de Letra del Boleto</span>
+404:               {showTypography ? (
+405:                 <ChevronUp className="h-3.5 w-3.5 text-slate-400" />
+406:               ) : (
+407:                 <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+408:               )}
+409:             </button>
+410: 
+411:             {showTypography && (
+412:               <button
+413:                 type="button"
+414:                 onClick={handleResetTypography}
+415:                 className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-amber-400 transition-colors cursor-pointer"
+416:                 title="Restablecer tamaños sugeridos"
+417:               >
+418:                 <RotateCcw className="h-3 w-3" />
+419:                 <span>Restablecer</span>
+420:               </button>
+421:             )}
+422:           </div>
+423: 
+424:           {showTypography && (
+425:             <div className="rounded-lg border border-slate-700/80 bg-slate-900/50 p-3.5 space-y-4 shadow-inner">
+426:               {/* Tamaño de Premios */}
+427:               <div className="space-y-1.5">
+428:                 <div className="flex items-center justify-between text-xs">
+429:                   <span className="text-slate-200 font-medium">Tamaño de Premios:</span>
+430:                   <div className="flex items-center gap-1.5">
+431:                     {isPrizesSizeAutoAdjusted && (
+432:                       <span className="text-[10px] text-amber-400 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded font-mono">
+433:                         Auto: {effectivePrizesSize} px
+434:                       </span>
+435:                     )}
+436:                     <span className="font-mono text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">
+437:                       {prizesSize} px
+438:                     </span>
+439:                   </div>
+440:                 </div>
+441:                 <Slider
+442:                   min={6}
+443:                   max={14}
+444:                   step={1}
+445:                   value={prizesSize}
+446:                   onChange={(val) => setTicketConfig({ prizesFontSize: val })}
+447:                   showValueBadge={false}
+448:                 />
+449:                 {/* Selector de columnas de premios */}
+450:                 <div className="flex items-center justify-between pt-1 text-xs">
+451:                   <span className="text-slate-300">Columnas de premios:</span>
+452:                   <div className="flex rounded bg-slate-800 p-0.5 border border-slate-700/60">
+453:                     {[
+454:                       { id: "auto", label: `Auto (${numCols})` },
+455:                       { id: 2, label: "2 col" },
+456:                       { id: 3, label: "3 col" },
+457:                       { id: 4, label: "4 col" },
+458:                     ].map((colOpt) => {
+459:                       const active = (ticketConfig.prizeColumns ?? "auto") === colOpt.id;
+460:                       return (
+461:                         <button
+462:                           key={String(colOpt.id)}
+463:                           type="button"
+464:                           onClick={() => setTicketConfig({ prizeColumns: colOpt.id as 2 | 3 | 4 | "auto" })}
+465:                           className={`px-2 py-0.5 text-[10px] font-medium rounded transition-colors cursor-pointer ${
+466:                             active
+467:                               ? "bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold"
+468:                               : "text-slate-400 hover:text-slate-200"
+469:                           }`}
+470:                         >
+471:                           {colOpt.label}
+472:                         </button>
+473:                       );
+474:                     })}
+475:                   </div>
+476:                 </div>
+477: 
+478:                 {isPrizesSizeAutoAdjusted ? (
+479:                   <div className="space-y-1 bg-amber-950/20 border border-amber-500/30 rounded p-2">
+480:                     <p className="text-[10px] text-amber-400/90 leading-tight">
+481:                       💡 Con {numPrizes} premios en {numCols} columnas ({prizeRows} filas) y boleto de {printConfig.ticketHeight}mm, el sistema ajusta a {effectivePrizesSize}px para garantizar que <strong>aparezcan todos completos sin cortarse</strong>.
+482:                     </p>
+483:                     <div className="flex flex-wrap gap-1.5 pt-0.5">
+484:                       {numCols < 4 && (
+485:                         <button
+486:                           type="button"
+487:                           onClick={() => setTicketConfig({ prizeColumns: (numCols + 1) as 3 | 4 })}
+488:                           className="text-[10px] bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 px-2 py-0.5 rounded border border-amber-500/40 transition-colors cursor-pointer"
+489:                         >
+490:                           Usar {numCols + 1} columnas (letra más grande)
+491:                         </button>
+492:                       )}
+493:                       {printConfig.ticketHeight < 65 && (
+494:                         <button
+495:                           type="button"
+496:                           onClick={() => setPrintConfig({ ticketHeight: 65 })}
+497:                           className="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-0.5 rounded border border-slate-600 transition-colors cursor-pointer"
+498:                         >
+499:                           Aumentar alto a 65mm
+500:                         </button>
+501:                       )}
+502:                     </div>
+503:                   </div>
+504:                 ) : (
+505:                   <p className="text-[10px] text-emerald-400/90 flex items-center gap-1">
+506:                     ✓ Todos los {numPrizes} premios se muestran completos a {prizesSize}px en {numCols} columnas.
+507:                   </p>
+508:                 )}
+509:               </div>
+510: 
+511:               {/* Tamaño del Título */}
+512:               <div className="space-y-1.5">
+513:                 <div className="flex items-center justify-between text-xs">
+514:                   <span className="text-slate-200 font-medium">Tamaño de Título:</span>
+515:                   <span className="font-mono text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">
+516:                     {titleSize} px
+517:                   </span>
+518:                 </div>
+519:                 <Slider
+520:                   min={10}
+521:                   max={22}
+522:                   step={1}
+523:                   value={titleSize}
+524:                   onChange={(val) => setTicketConfig({ titleFontSize: val })}
+525:                   showValueBadge={false}
+526:                 />
+527:               </div>
+528: 
+529:               {/* Tamaño del Subtítulo */}
+530:               <div className="space-y-1.5">
+531:                 <div className="flex items-center justify-between text-xs">
+532:                   <span className="text-slate-200 font-medium">Tamaño de Subtítulo:</span>
+533:                   <span className="font-mono text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">
+534:                     {subtitleSize} px
+535:                   </span>
+536:                 </div>
+537:                 <Slider
+538:                   min={9}
+539:                   max={18}
+540:                   step={1}
+541:                   value={subtitleSize}
+542:                   onChange={(val) => setTicketConfig({ subtitleFontSize: val })}
+543:                   showValueBadge={false}
+544:                 />
+545:               </div>
+546: 
+547:               {/* Tamaño de Texto del Talón */}
+548:               <div className="space-y-1.5">
+549:                 <div className="flex items-center justify-between text-xs">
+550:                   <span className="text-slate-200 font-medium">Tamaño de Texto del Talón:</span>
+551:                   <span className="font-mono text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">
+552:                     {stubFontSize} px
+553:                   </span>
+554:                 </div>
+555:                 <Slider
+556:                   min={7}
+557:                   max={14}
+558:                   step={1}
+559:                   value={stubFontSize}
+560:                   onChange={(val) => setTicketConfig({ stubFontSize: val })}
+561:                   showValueBadge={false}
+562:                 />
+563:               </div>
+564: 
+565:               {/* Presets rápidos de escala */}
+566:               <div className="pt-1 border-t border-slate-800/80 flex items-center justify-between">
+567:                 <span className="text-[11px] text-slate-400">Escala general:</span>
+568:                 <div className="flex gap-1">
+569:                   {[
+570:                     { label: "Compacto", scale: 85 },
+571:                     { label: "Normal", scale: 100 },
+572:                     { label: "Grande", scale: 115 },
+573:                   ].map((preset) => (
+574:                     <button
+575:                       key={preset.scale}
+576:                       type="button"
+577:                       onClick={() => setTicketConfig({ generalFontScale: preset.scale })}
+578:                       className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors cursor-pointer ${
+579:                         fontScale === preset.scale
+580:                           ? "bg-amber-500/20 text-amber-400 border border-amber-500/40"
+581:                           : "bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700"
+582:                       }`}
+583:                     >
+584:                       {preset.label}
+585:                     </button>
+586:                   ))}
+587:                 </div>
+588:               </div>
+589:             </div>
+590:           )}
+591:         </div>
+592: 
+593:         {/* Sección: Tamaño del Talón de Control */}
+594:         <div className="space-y-3 pt-2 border-t border-slate-800">
+595:           <div className="flex items-center justify-between">
+596:             <button
+597:               type="button"
+598:               onClick={() => setShowStubConfig(!showStubConfig)}
+599:               className="flex items-center gap-2 text-xs font-semibold text-amber-400/90 uppercase tracking-wider hover:text-amber-300 transition-colors cursor-pointer"
+600:             >
+601:               <Scissors className="h-3.5 w-3.5" />
+602:               <span>Tamaño del Talón de Control</span>
+603:               {showStubConfig ? (
+604:                 <ChevronUp className="h-3.5 w-3.5 text-slate-400" />
+605:               ) : (
+606:                 <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+607:               )}
+608:             </button>
+609: 
+610:             <span className="font-mono text-xs font-bold text-amber-400 bg-slate-900/80 border border-slate-700/80 px-2 py-0.5 rounded">
+611:               {stubWidth} mm ({stubPercent}%)
+612:             </span>
+613:           </div>
+614: 
+615:           {showStubConfig && (
+616:             <div className="rounded-lg border border-slate-700/80 bg-slate-900/50 p-3.5 space-y-3 shadow-inner">
+617:               <div className="space-y-1.5">
+618:                 <div className="flex items-center justify-between text-xs">
+619:                   <span className="text-slate-200 font-medium">Ancho del Talón:</span>
+620:                   <span className="font-mono text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">
+621:                     {stubWidth} mm ({stubPercent}%)
+622:                   </span>
+623:                 </div>
+624:                 <Slider
+625:                   min={18}
+626:                   max={Math.max(25, Math.round(printConfig.ticketWidth * 0.48))}
+627:                   step={1}
+628:                   value={stubWidth}
+629:                   onChange={(val) => setPrintConfig({ stubWidth: val })}
+630:                   showValueBadge={false}
+631:                 />
+632:                 <p className="text-[10px] text-slate-400">
+633:                   Modifica el ancho del talón desprendible respecto al cuerpo principal del boleto.
+634:                 </p>
+635:               </div>
+636: 
+637:               {/* Presets rápidos */}
+638:               <div className="pt-1 border-t border-slate-800/80 flex items-center justify-between">
+639:                 <span className="text-[11px] text-slate-400">Preajustes:</span>
+640:                 <div className="flex flex-wrap gap-1">
+641:                   {[
+642:                     { label: "Estrecho (28mm)", w: 28 },
+643:                     { label: "Estándar (36mm)", w: 36 },
+644:                     { label: "Medio (42mm)", w: 42 },
+645:                     { label: "Amplio (48mm)", w: 48 },
+646:                   ].map((preset) => (
+647:                     <button
+648:                       key={preset.w}
+649:                       type="button"
+650:                       onClick={() => setPrintConfig({ stubWidth: preset.w })}
+651:                       className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors cursor-pointer ${
+652:                         stubWidth === preset.w
+653:                           ? "bg-amber-500/20 text-amber-400 border border-amber-500/40"
+654:                           : "bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700"
+655:                       }`}
+656:                     >
+657:                       {preset.label}
+658:                     </button>
+659:                   ))}
+660:                 </div>
+661:               </div>
+662:             </div>
+663:           )}
+664:         </div>
+665: 
+666:         {/* Sección: Lista de Premios */}
+667:         <div className="pt-2 border-t border-slate-800">
+668:           <PrizeEditor />
+669:         </div>
+670:       </CardContent>
+671:     </Card>
+672:   );
+673: }
 ````
 
 ## File: src/components/PageLayoutPreview.tsx
@@ -6068,6 +6030,229 @@ tsconfig.json
 276: }
 ````
 
+## File: src/components/Header.tsx
+````typescript
+  1: "use client";
+  2: 
+  3: import { useState, useEffect } from "react";
+  4: import Image from "next/image";
+  5: import {
+  6:   FolderOpen,
+  7:   Save,
+  8:   LogIn,
+  9:   LogOut,
+ 10:   User as UserIcon,
+ 11:   Check,
+ 12:   Sparkles,
+ 13:   Database
+ 14: } from "lucide-react";
+ 15: import { Button } from "@/components/ui/button";
+ 16: import { useAuth } from "@/hooks/useAuth";
+ 17: import { AuthModal } from "@/components/auth/AuthModal";
+ 18: import { ProfileModal } from "@/components/auth/ProfileModal";
+ 19: import { SavedTicketsDrawer } from "@/components/SavedTicketsDrawer";
+ 20: import { useRifaStore } from "@/store/useRifaStore";
+ 21: import { saveTicketDesign, getSavedTickets } from "@/services/tickets-service";
+ 22: 
+ 23: export function Header() {
+ 24:   const { user, signOut, isConfigured } = useAuth();
+ 25:   const { ticketConfig, printConfig } = useRifaStore();
+ 26: 
+ 27:   const [isAuthOpen, setIsAuthOpen] = useState(false);
+ 28:   const [isProfileOpen, setIsProfileOpen] = useState(false);
+ 29:   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+ 30:   const [saving, setSaving] = useState(false);
+ 31:   const [saveSuccess, setSaveSuccess] = useState(false);
+ 32:   const [savedCount, setSavedCount] = useState(0);
+ 33: 
+ 34:   // Cargar cantidad de boletos guardados
+ 35:   const refreshCount = async () => {
+ 36:     try {
+ 37:       const list = await getSavedTickets();
+ 38:       setSavedCount(list.length);
+ 39:     } catch {
+ 40:       // Ignorar error silencioso
+ 41:     }
+ 42:   };
+ 43: 
+ 44:   useEffect(() => {
+ 45:     refreshCount();
+ 46:   }, [user]);
+ 47: 
+ 48:   const handleSave = async () => {
+ 49:     if (!user) {
+ 50:       setIsAuthOpen(true);
+ 51:       return;
+ 52:     }
+ 53: 
+ 54:     setSaving(true);
+ 55:     try {
+ 56:       await saveTicketDesign(
+ 57:         ticketConfig.eventName || "Mi Rifa",
+ 58:         ticketConfig,
+ 59:         printConfig
+ 60:       );
+ 61:       setSaveSuccess(true);
+ 62:       refreshCount();
+ 63:       setTimeout(() => setSaveSuccess(false), 2500);
+ 64:     } catch (e) {
+ 65:       console.error("Error al guardar:", e);
+ 66:     } finally {
+ 67:       setSaving(false);
+ 68:     }
+ 69:   };
+ 70: 
+ 71:   return (
+ 72:     <>
+ 73:       <header className="sticky top-0 z-40 border-b border-slate-700/60 bg-slate-900/90 backdrop-blur-md">
+ 74:         <div className="container mx-auto flex h-14 sm:h-16 items-center justify-between px-3 sm:px-4">
+ 75:           {/* Logo & Marca */}
+ 76:           <div className="flex items-center gap-2 sm:gap-3">
+ 77:             <div className="relative">
+ 78:               <Image
+ 79:                 src="/icon.svg"
+ 80:                 alt="Eventazo"
+ 81:                 width={40}
+ 82:                 height={40}
+ 83:                 className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl shadow-lg shadow-amber-500/20"
+ 84:               />
+ 85:               <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-amber-400 text-[8px] font-black text-slate-950">
+ 86:                 ★
+ 87:               </span>
+ 88:             </div>
+ 89:             <div>
+ 90:               <div className="flex items-center gap-1.5">
+ 91:                 <h1 className="text-sm sm:text-lg font-black text-slate-100 tracking-tight">
+ 92:                   Eventazo
+ 93:                 </h1>
+ 94:                 <span className="rounded bg-gradient-to-r from-amber-500/20 to-amber-300/20 border border-amber-500/40 px-1.5 py-0.2 text-[9px] font-bold text-amber-300">
+ 95:                   PRO
+ 96:                 </span>
+ 97:               </div>
+ 98:               <p className="text-[10px] text-slate-400 hidden sm:block">
+ 99:                 Diseño & Impresión de Rifas Profesionales
+100:               </p>
+101:             </div>
+102:           </div>
+103: 
+104:           {/* Acciones del Header */}
+105:           <div className="flex items-center gap-1.5 sm:gap-3">
+106:             {/* Botón Mis Rifas */}
+107:             <Button
+108:               variant="outline"
+109:               size="sm"
+110:               onClick={() => setIsDrawerOpen(true)}
+111:               className="border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-slate-200 hover:text-amber-400 text-xs h-8 sm:h-9 px-2 sm:px-3 rounded-xl gap-1.5"
+112:             >
+113:               <FolderOpen className="h-3.5 w-3.5 text-amber-400" />
+114:               <span className="hidden sm:inline">Mis Rifas</span>
+115:               {savedCount > 0 && (
+116:                 <span className="ml-1 rounded-full bg-amber-500/20 px-1.5 py-0.2 text-[10px] font-mono font-bold text-amber-400">
+117:                   {savedCount}
+118:                 </span>
+119:               )}
+120:             </Button>
+121: 
+122:             {/* Botón Guardar Rifa */}
+123:             <Button
+124:               size="sm"
+125:               onClick={handleSave}
+126:               disabled={saving}
+127:               className={`h-8 sm:h-9 px-2 sm:px-3 text-xs font-bold rounded-xl gap-1.5 transition-all shadow-md ${
+128:                 saveSuccess
+129:                   ? "bg-emerald-500 text-white shadow-emerald-500/20"
+130:                   : "bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 shadow-amber-500/20"
+131:               }`}
+132:             >
+133:               {saveSuccess ? (
+134:                 <>
+135:                   <Check className="h-3.5 w-3.5" />
+136:                   <span>¡Guardado!</span>
+137:                 </>
+138:               ) : (
+139:                 <>
+140:                   <Save className="h-3.5 w-3.5" />
+141:                   <span>{saving ? "Guardando..." : "Guardar"}</span>
+142:                 </>
+143:               )}
+144:             </Button>
+145: 
+146:             {/* Usuario / Login */}
+147:             {user ? (
+148:               <div className="flex items-center gap-1 sm:gap-2 pl-1 border-l border-slate-800">
+149:                 <button
+150:                   type="button"
+151:                   onClick={() => setIsProfileOpen(true)}
+152:                   className="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 hover:border-amber-500/40 transition-colors text-left group"
+153:                   title="Ver y editar mi perfil"
+154:                 >
+155:                   <div className="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px] font-bold border border-amber-500/30 group-hover:scale-105 transition-transform">
+156:                     {user.name ? user.name[0].toUpperCase() : user.email[0].toUpperCase()}
+157:                   </div>
+158:                   <span className="text-xs font-medium text-slate-300 group-hover:text-amber-300 max-w-[95px] truncate hidden md:inline transition-colors">
+159:                     {user.name || user.email.split("@")[0]}
+160:                   </span>
+161:                   {user.isDemo && (
+162:                     <span className="text-[9px] bg-slate-700 text-amber-300 px-1 rounded">
+163:                       Demo
+164:                     </span>
+165:                   )}
+166:                 </button>
+167: 
+168:                 <Button
+169:                   variant="ghost"
+170:                   size="sm"
+171:                   onClick={() => signOut()}
+172:                   title="Cerrar sesión"
+173:                   className="h-8 w-8 p-0 text-slate-400 hover:text-rose-400 rounded-xl"
+174:                 >
+175:                   <LogOut className="h-3.5 w-3.5" />
+176:                 </Button>
+177:               </div>
+178:             ) : (
+179:               <Button
+180:                 variant="ghost"
+181:                 size="sm"
+182:                 onClick={() => setIsAuthOpen(true)}
+183:                 className="h-8 sm:h-9 px-2 sm:px-3 text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-800/80 rounded-xl gap-1.5"
+184:               >
+185:                 <LogIn className="h-3.5 w-3.5" />
+186:                 <span>Ingresar</span>
+187:               </Button>
+188:             )}
+189:           </div>
+190:         </div>
+191:       </header>
+192: 
+193:       {/* Modal de Autenticación */}
+194:       <AuthModal
+195:         isOpen={isAuthOpen}
+196:         onClose={() => setIsAuthOpen(false)}
+197:         onSuccess={() => {
+198:           refreshCount();
+199:         }}
+200:       />
+201: 
+202:       {/* Modal de Perfil de Usuario */}
+203:       <ProfileModal
+204:         isOpen={isProfileOpen}
+205:         onClose={() => setIsProfileOpen(false)}
+206:       />
+207: 
+208:       {/* Cajón de Rifas Guardadas */}
+209:       <SavedTicketsDrawer
+210:         isOpen={isDrawerOpen}
+211:         onClose={() => setIsDrawerOpen(false)}
+212:         onSelectTicket={() => {
+213:           refreshCount();
+214:         }}
+215:         onOpenAuth={() => setIsAuthOpen(true)}
+216:       />
+217:     </>
+218:   );
+219: }
+````
+
 ## File: src/lib/constants.ts
 ````typescript
  1: import { Prize, TicketConfig, PrintConfig } from "@/types";
@@ -6115,38 +6300,58 @@ tsconfig.json
 43:   primaryColor: "#991b1b",
 44: };
 45: 
-46: export const COLOR_PRESETS = [
-47:   { name: "Rojo Carmesí", hex: "#991b1b", preview: "bg-red-800" },
-48:   { name: "Rojo Fuego", hex: "#dc2626", preview: "bg-red-600" },
-49:   { name: "Azul Real", hex: "#1d4ed8", preview: "bg-blue-700" },
-50:   { name: "Azul Marino", hex: "#1e3a8a", preview: "bg-blue-900" },
-51:   { name: "Verde Esmeralda", hex: "#047857", preview: "bg-emerald-700" },
-52:   { name: "Verde Bosque", hex: "#14532d", preview: "bg-green-900" },
-53:   { name: "Borgoña / Vino", hex: "#831843", preview: "bg-pink-900" },
-54:   { name: "Dorado / Ámbar", hex: "#b45309", preview: "bg-amber-700" },
-55:   { name: "Púrpura / Violeta", hex: "#6b21a8", preview: "bg-purple-800" },
-56:   { name: "Negro Carbón", hex: "#18181b", preview: "bg-zinc-900" },
-57: ];
-58: 
-59: export const DEFAULT_PRINT_CONFIG: PrintConfig = {
-60:   ticketsPerRow: 1,
-61:   ticketsPerColumn: 5,
-62:   pageWidth: 210, // A4
-63:   pageHeight: 297, // A4
-64:   marginTop: 3,
-65:   marginBottom: 3,
-66:   marginLeft: 3,
-67:   marginRight: 3,
-68:   ticketWidth: 130,
-69:   ticketHeight: 50,
-70:   stubWidth: 36,
-71:   allowSideTickets: true,
-72:   gap: 2,
-73: };
-74: 
-75: export const A4_WIDTH_PT = 595.28;
-76: export const A4_HEIGHT_PT = 841.89;
-77: export const MM_TO_PT = 2.8346;
+46: export const EMPTY_TICKET_CONFIG: TicketConfig = {
+47:   eventName: "",
+48:   subtitle: "",
+49:   organizer: "",
+50:   drawDate: "",
+51:   price: 0,
+52:   priceLabel: "",
+53:   totalTickets: 100,
+54:   startNumber: 1,
+55:   contributionText: "",
+56:   prizes: [],
+57:   prizesFontSize: 8,
+58:   titleFontSize: 14,
+59:   subtitleFontSize: 12,
+60:   stubFontSize: 10,
+61:   generalFontScale: 100,
+62:   prizeColumns: "auto",
+63:   primaryColor: "#991b1b",
+64: };
+65: 
+66: export const COLOR_PRESETS = [
+67:   { name: "Rojo Carmesí", hex: "#991b1b", preview: "bg-red-800" },
+68:   { name: "Rojo Fuego", hex: "#dc2626", preview: "bg-red-600" },
+69:   { name: "Azul Real", hex: "#1d4ed8", preview: "bg-blue-700" },
+70:   { name: "Azul Marino", hex: "#1e3a8a", preview: "bg-blue-900" },
+71:   { name: "Verde Esmeralda", hex: "#047857", preview: "bg-emerald-700" },
+72:   { name: "Verde Bosque", hex: "#14532d", preview: "bg-green-900" },
+73:   { name: "Borgoña / Vino", hex: "#831843", preview: "bg-pink-900" },
+74:   { name: "Dorado / Ámbar", hex: "#b45309", preview: "bg-amber-700" },
+75:   { name: "Púrpura / Violeta", hex: "#6b21a8", preview: "bg-purple-800" },
+76:   { name: "Negro Carbón", hex: "#18181b", preview: "bg-zinc-900" },
+77: ];
+78: 
+79: export const DEFAULT_PRINT_CONFIG: PrintConfig = {
+80:   ticketsPerRow: 1,
+81:   ticketsPerColumn: 5,
+82:   pageWidth: 210, // A4
+83:   pageHeight: 297, // A4
+84:   marginTop: 3,
+85:   marginBottom: 3,
+86:   marginLeft: 3,
+87:   marginRight: 3,
+88:   ticketWidth: 130,
+89:   ticketHeight: 50,
+90:   stubWidth: 36,
+91:   allowSideTickets: true,
+92:   gap: 2,
+93: };
+94: 
+95: export const A4_WIDTH_PT = 595.28;
+96: export const A4_HEIGHT_PT = 841.89;
+97: export const MM_TO_PT = 2.8346;
 ````
 
 ## File: src/types/index.ts

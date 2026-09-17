@@ -173,6 +173,7 @@ export function MobileBottomNav() {
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
         onSelectTicket={() => refreshCount()}
+        onOpenAuth={() => setIsAuthOpen(true)}
       />
     </>
   );
