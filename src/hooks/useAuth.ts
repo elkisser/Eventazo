@@ -147,6 +147,67 @@ export function useAuth() {
     setUser(demoUser);
   }, []);
 
+  const updateProfile = useCallback(async (newName: string, newEmail?: string): Promise<{ error: string | null; message?: string }> => {
+    const supabase = getSupabase();
+
+    if (!supabase || user?.isDemo) {
+      const updated: AppUser = {
+        id: user?.id || "demo-user",
+        email: newEmail || user?.email || "",
+        name: newName,
+        isDemo: true,
+      };
+      localStorage.setItem(DEMO_USER_KEY, JSON.stringify(updated));
+      setUser(updated);
+      return { error: null, message: "Perfil actualizado exitosamente" };
+    }
+
+    try {
+      const updateData: { data?: { full_name: string }; email?: string } = {
+        data: { full_name: newName },
+      };
+      if (newEmail && newEmail !== user?.email) {
+        updateData.email = newEmail;
+      }
+
+      const { data, error } = await supabase.auth.updateUser(updateData);
+      if (error) return { error: error.message };
+
+      if (data.user) {
+        setUser({
+          id: data.user.id,
+          email: data.user.email || "",
+          name: data.user.user_metadata?.full_name || newName,
+        });
+      }
+
+      return {
+        error: null,
+        message: newEmail && newEmail !== user?.email
+          ? "Perfil actualizado. Se envió un correo de confirmación al nuevo email."
+          : "Perfil actualizado exitosamente",
+      };
+    } catch (e) {
+      return { error: e instanceof Error ? e.message : "Error al actualizar perfil" };
+    }
+  }, [user]);
+
+  const updatePassword = useCallback(async (newPassword: string): Promise<{ error: string | null }> => {
+    const supabase = getSupabase();
+
+    if (!supabase || user?.isDemo) {
+      return { error: null };
+    }
+
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) return { error: error.message };
+      return { error: null };
+    } catch (e) {
+      return { error: e instanceof Error ? e.message : "Error al cambiar contraseña" };
+    }
+  }, [user]);
+
   const signOut = useCallback(async () => {
     const supabase = getSupabase();
     if (supabase) {
@@ -163,6 +224,8 @@ export function useAuth() {
     signIn,
     signUp,
     signInDemo,
+    updateProfile,
+    updatePassword,
     signOut,
   };
 }

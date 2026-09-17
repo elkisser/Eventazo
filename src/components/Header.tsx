@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { AuthModal } from "@/components/auth/AuthModal";
+import { ProfileModal } from "@/components/auth/ProfileModal";
 import { SavedTicketsDrawer } from "@/components/SavedTicketsDrawer";
 import { useRifaStore } from "@/store/useRifaStore";
 import { saveTicketDesign, getSavedTickets } from "@/services/tickets-service";
@@ -24,6 +25,7 @@ export function Header() {
   const { ticketConfig, printConfig } = useRifaStore();
 
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -144,22 +146,24 @@ export function Header() {
             {/* Usuario / Login */}
             {user ? (
               <div className="flex items-center gap-1 sm:gap-2 pl-1 border-l border-slate-800">
-                <div
-                  className="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-slate-800/80 border border-slate-700/60"
-                  title={user.email}
+                <button
+                  type="button"
+                  onClick={() => setIsProfileOpen(true)}
+                  className="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 hover:border-amber-500/40 transition-colors text-left group"
+                  title="Ver y editar mi perfil"
                 >
-                  <div className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px] font-bold">
-                    {user.name ? user.name[0].toUpperCase() : "U"}
+                  <div className="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px] font-bold border border-amber-500/30 group-hover:scale-105 transition-transform">
+                    {user.name ? user.name[0].toUpperCase() : user.email[0].toUpperCase()}
                   </div>
-                  <span className="text-xs font-medium text-slate-300 max-w-[90px] truncate hidden md:inline">
-                    {user.name || user.email}
+                  <span className="text-xs font-medium text-slate-300 group-hover:text-amber-300 max-w-[95px] truncate hidden md:inline transition-colors">
+                    {user.name || user.email.split("@")[0]}
                   </span>
                   {user.isDemo && (
                     <span className="text-[9px] bg-slate-700 text-amber-300 px-1 rounded">
                       Demo
                     </span>
                   )}
-                </div>
+                </button>
 
                 <Button
                   variant="ghost"
@@ -193,6 +197,12 @@ export function Header() {
         onSuccess={() => {
           refreshCount();
         }}
+      />
+
+      {/* Modal de Perfil de Usuario */}
+      <ProfileModal
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
       />
 
       {/* Cajón de Rifas Guardadas */}

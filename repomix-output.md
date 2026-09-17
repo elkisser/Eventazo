@@ -49,6 +49,7 @@ src/
   components/
     auth/
       AuthModal.tsx
+      ProfileModal.tsx
     ui/
       button.tsx
       card.tsx
@@ -64,6 +65,7 @@ src/
     GeneratePanel.tsx
     Header.tsx
     ImageUpload.tsx
+    MobileBottomNav.tsx
     PageLayoutPreview.tsx
     PresetSelector.tsx
     PrintConfigPanel.tsx
@@ -90,6 +92,473 @@ tsconfig.json
 ````
 
 # Files
+
+## File: src/components/auth/ProfileModal.tsx
+````typescript
+  1: "use client";
+  2: 
+  3: import { useState, useEffect } from "react";
+  4: import {
+  5:   X,
+  6:   User,
+  7:   Mail,
+  8:   Lock,
+  9:   CheckCircle2,
+ 10:   AlertCircle,
+ 11:   LogOut,
+ 12:   Sparkles,
+ 13:   Database,
+ 14:   Ticket,
+ 15:   KeyRound
+ 16: } from "lucide-react";
+ 17: import { Button } from "@/components/ui/button";
+ 18: import { useAuth } from "@/hooks/useAuth";
+ 19: import { getSavedTickets } from "@/services/tickets-service";
+ 20: 
+ 21: interface ProfileModalProps {
+ 22:   isOpen: boolean;
+ 23:   onClose: () => void;
+ 24: }
+ 25: 
+ 26: export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
+ 27:   const { user, updateProfile, updatePassword, signOut, isConfigured } = useAuth();
+ 28: 
+ 29:   const [name, setName] = useState("");
+ 30:   const [email, setEmail] = useState("");
+ 31:   const [newPassword, setNewPassword] = useState("");
+ 32:   const [confirmPassword, setConfirmPassword] = useState("");
+ 33:   const [savedTicketsCount, setSavedTicketsCount] = useState(0);
+ 34: 
+ 35:   const [profileLoading, setProfileLoading] = useState(false);
+ 36:   const [passwordLoading, setPasswordLoading] = useState(false);
+ 37:   const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+ 38: 
+ 39:   useEffect(() => {
+ 40:     if (user) {
+ 41:       setName(user.name || "");
+ 42:       setEmail(user.email || "");
+ 43:       getSavedTickets().then((tickets) => setSavedTicketsCount(tickets.length)).catch(() => {});
+ 44:     }
+ 45:   }, [user, isOpen]);
+ 46: 
+ 47:   if (!isOpen || !user) return null;
+ 48: 
+ 49:   const handleUpdateProfile = async (e: React.FormEvent) => {
+ 50:     e.preventDefault();
+ 51:     setStatusMessage(null);
+ 52:     setProfileLoading(true);
+ 53: 
+ 54:     try {
+ 55:       const res = await updateProfile(name, email);
+ 56:       if (res.error) {
+ 57:         setStatusMessage({ type: "error", text: res.error });
+ 58:       } else {
+ 59:         setStatusMessage({ type: "success", text: res.message || "Perfil actualizado exitosamente" });
+ 60:         setTimeout(() => setStatusMessage(null), 3000);
+ 61:       }
+ 62:     } finally {
+ 63:       setProfileLoading(false);
+ 64:     }
+ 65:   };
+ 66: 
+ 67:   const handleChangePassword = async (e: React.FormEvent) => {
+ 68:     e.preventDefault();
+ 69:     setStatusMessage(null);
+ 70: 
+ 71:     if (newPassword.length < 6) {
+ 72:       setStatusMessage({ type: "error", text: "La contraseña debe tener al menos 6 caracteres" });
+ 73:       return;
+ 74:     }
+ 75: 
+ 76:     if (newPassword !== confirmPassword) {
+ 77:       setStatusMessage({ type: "error", text: "Las contraseñas no coinciden" });
+ 78:       return;
+ 79:     }
+ 80: 
+ 81:     setPasswordLoading(true);
+ 82:     try {
+ 83:       const res = await updatePassword(newPassword);
+ 84:       if (res.error) {
+ 85:         setStatusMessage({ type: "error", text: res.error });
+ 86:       } else {
+ 87:         setStatusMessage({ type: "success", text: "Contraseña actualizada exitosamente" });
+ 88:         setNewPassword("");
+ 89:         setConfirmPassword("");
+ 90:         setTimeout(() => setStatusMessage(null), 3000);
+ 91:       }
+ 92:     } finally {
+ 93:       setPasswordLoading(false);
+ 94:     }
+ 95:   };
+ 96: 
+ 97:   const handleSignOut = async () => {
+ 98:     await signOut();
+ 99:     onClose();
+100:   };
+101: 
+102:   return (
+103:     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
+104:       <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto rounded-3xl border border-slate-700/80 bg-slate-900 p-5 sm:p-6 shadow-2xl shadow-amber-500/10 backdrop-blur-xl">
+105:         {/* Botón Cerrar */}
+106:         <button
+107:           onClick={onClose}
+108:           className="absolute top-4 right-4 text-slate-400 hover:text-slate-200 p-1.5 rounded-xl hover:bg-slate-800 transition-colors"
+109:         >
+110:           <X className="h-5 w-5" />
+111:         </button>
+112: 
+113:         {/* Header con Avatar */}
+114:         <div className="flex items-center gap-3.5 pb-4 border-b border-slate-800">
+115:           <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center text-xl font-black shadow-lg shadow-amber-500/30">
+116:             {name ? name[0].toUpperCase() : user.email[0].toUpperCase()}
+117:           </div>
+118:           <div>
+119:             <div className="flex items-center gap-1.5">
+120:               <h3 className="text-base font-bold text-slate-100">{name || "Mi Cuenta"}</h3>
+121:               <span className="rounded-full bg-amber-500/20 border border-amber-500/40 px-2 py-0.2 text-[9px] font-bold text-amber-300">
+122:                 PRO
+123:               </span>
+124:             </div>
+125:             <p className="text-xs text-slate-400 mt-0.5 truncate max-w-[220px]">{user.email}</p>
+126:           </div>
+127:         </div>
+128: 
+129:         {/* Métricas de la cuenta */}
+130:         <div className="grid grid-cols-2 gap-2.5 my-4">
+131:           <div className="p-3 rounded-2xl bg-slate-800/60 border border-slate-800 flex items-center gap-2.5">
+132:             <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400">
+133:               <Ticket className="h-4 w-4" />
+134:             </div>
+135:             <div>
+136:               <p className="text-xs font-bold text-slate-200">{savedTicketsCount}</p>
+137:               <p className="text-[10px] text-slate-400">Rifas Guardadas</p>
+138:             </div>
+139:           </div>
+140: 
+141:           <div className="p-3 rounded-2xl bg-slate-800/60 border border-slate-800 flex items-center gap-2.5">
+142:             <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
+143:               <Database className="h-4 w-4" />
+144:             </div>
+145:             <div>
+146:               <p className="text-xs font-bold text-slate-200">{isConfigured ? "Supabase Cloud" : "Local Demo"}</p>
+147:               <p className="text-[10px] text-slate-400">Almacenamiento</p>
+148:             </div>
+149:           </div>
+150:         </div>
+151: 
+152:         {/* Alerta de Feedback */}
+153:         {statusMessage && (
+154:           <div
+155:             className={`mb-4 flex items-center gap-2 p-3 rounded-2xl text-xs ${
+156:               statusMessage.type === "success"
+157:                 ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400"
+158:                 : "bg-rose-500/10 border border-rose-500/30 text-rose-400"
+159:             }`}
+160:           >
+161:             {statusMessage.type === "success" ? (
+162:               <CheckCircle2 className="h-4 w-4 shrink-0" />
+163:             ) : (
+164:               <AlertCircle className="h-4 w-4 shrink-0" />
+165:             )}
+166:             <span>{statusMessage.text}</span>
+167:           </div>
+168:         )}
+169: 
+170:         {/* Formulario 1: Datos Personales */}
+171:         <form onSubmit={handleUpdateProfile} className="space-y-3 pt-1">
+172:           <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+173:             <User className="h-3.5 w-3.5 text-amber-400" />
+174:             <span>Datos del Perfil</span>
+175:           </h4>
+176: 
+177:           <div>
+178:             <label className="block text-[11px] font-medium text-slate-300 mb-1">
+179:               Nombre Completo
+180:             </label>
+181:             <input
+182:               type="text"
+183:               required
+184:               value={name}
+185:               onChange={(e) => setName(e.target.value)}
+186:               placeholder="Tu nombre o el de tu organización"
+187:               className="w-full px-3 py-2 bg-slate-800/90 border border-slate-700 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500"
+188:             />
+189:           </div>
+190: 
+191:           <div>
+192:             <label className="block text-[11px] font-medium text-slate-300 mb-1">
+193:               Correo Electrónico
+194:             </label>
+195:             <input
+196:               type="email"
+197:               required
+198:               value={email}
+199:               onChange={(e) => setEmail(e.target.value)}
+200:               placeholder="tu@email.com"
+201:               className="w-full px-3 py-2 bg-slate-800/90 border border-slate-700 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500"
+202:             />
+203:           </div>
+204: 
+205:           <Button
+206:             type="submit"
+207:             disabled={profileLoading}
+208:             size="sm"
+209:             className="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-amber-300 text-xs font-semibold h-9 rounded-xl transition-all"
+210:           >
+211:             {profileLoading ? "Guardando..." : "Guardar Cambios de Perfil"}
+212:           </Button>
+213:         </form>
+214: 
+215:         {/* Separador */}
+216:         <div className="my-5 border-t border-slate-800" />
+217: 
+218:         {/* Formulario 2: Cambiar Contraseña */}
+219:         <form onSubmit={handleChangePassword} className="space-y-3">
+220:           <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+221:             <KeyRound className="h-3.5 w-3.5 text-amber-400" />
+222:             <span>Seguridad y Contraseña</span>
+223:           </h4>
+224: 
+225:           <div>
+226:             <label className="block text-[11px] font-medium text-slate-300 mb-1">
+227:               Nueva Contraseña
+228:             </label>
+229:             <input
+230:               type="password"
+231:               minLength={6}
+232:               value={newPassword}
+233:               onChange={(e) => setNewPassword(e.target.value)}
+234:               placeholder="Mínimo 6 caracteres"
+235:               className="w-full px-3 py-2 bg-slate-800/90 border border-slate-700 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500"
+236:             />
+237:           </div>
+238: 
+239:           <div>
+240:             <label className="block text-[11px] font-medium text-slate-300 mb-1">
+241:               Confirmar Nueva Contraseña
+242:             </label>
+243:             <input
+244:               type="password"
+245:               minLength={6}
+246:               value={confirmPassword}
+247:               onChange={(e) => setConfirmPassword(e.target.value)}
+248:               placeholder="Repite la nueva contraseña"
+249:               className="w-full px-3 py-2 bg-slate-800/90 border border-slate-700 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500"
+250:             />
+251:           </div>
+252: 
+253:           <Button
+254:             type="submit"
+255:             disabled={passwordLoading || !newPassword}
+256:             size="sm"
+257:             className="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-amber-300 text-xs font-semibold h-9 rounded-xl transition-all"
+258:           >
+259:             {passwordLoading ? "Actualizando..." : "Actualizar Contraseña"}
+260:           </Button>
+261:         </form>
+262: 
+263:         {/* Separador y Cerrar Sesión */}
+264:         <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
+265:           <span className="text-[11px] text-slate-500">Sesión iniciada</span>
+266:           <Button
+267:             type="button"
+268:             variant="ghost"
+269:             size="sm"
+270:             onClick={handleSignOut}
+271:             className="text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 text-xs h-8 rounded-xl flex items-center gap-1.5"
+272:           >
+273:             <LogOut className="h-3.5 w-3.5" />
+274:             <span>Cerrar Sesión</span>
+275:           </Button>
+276:         </div>
+277:       </div>
+278:     </div>
+279:   );
+280: }
+````
+
+## File: src/components/MobileBottomNav.tsx
+````typescript
+  1: "use client";
+  2: 
+  3: import { useState, useEffect } from "react";
+  4: import Link from "next/link";
+  5: import { usePathname } from "next/navigation";
+  6: import {
+  7:   Home,
+  8:   Sliders,
+  9:   FolderOpen,
+ 10:   Save,
+ 11:   User,
+ 12:   Check,
+ 13:   Sparkles
+ 14: } from "lucide-react";
+ 15: import { useAuth } from "@/hooks/useAuth";
+ 16: import { useRifaStore } from "@/store/useRifaStore";
+ 17: import { saveTicketDesign, getSavedTickets } from "@/services/tickets-service";
+ 18: import { AuthModal } from "@/components/auth/AuthModal";
+ 19: import { ProfileModal } from "@/components/auth/ProfileModal";
+ 20: import { SavedTicketsDrawer } from "@/components/SavedTicketsDrawer";
+ 21: 
+ 22: export function MobileBottomNav() {
+ 23:   const pathname = usePathname();
+ 24:   const { user } = useAuth();
+ 25:   const { ticketConfig, printConfig } = useRifaStore();
+ 26: 
+ 27:   const [isAuthOpen, setIsAuthOpen] = useState(false);
+ 28:   const [isProfileOpen, setIsProfileOpen] = useState(false);
+ 29:   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+ 30:   const [saving, setSaving] = useState(false);
+ 31:   const [saveSuccess, setSaveSuccess] = useState(false);
+ 32:   const [savedCount, setSavedCount] = useState(0);
+ 33: 
+ 34:   const refreshCount = async () => {
+ 35:     try {
+ 36:       const list = await getSavedTickets();
+ 37:       setSavedCount(list.length);
+ 38:     } catch {}
+ 39:   };
+ 40: 
+ 41:   useEffect(() => {
+ 42:     refreshCount();
+ 43:   }, [user]);
+ 44: 
+ 45:   const handleSave = async () => {
+ 46:     if (!user) {
+ 47:       setIsAuthOpen(true);
+ 48:       return;
+ 49:     }
+ 50: 
+ 51:     setSaving(true);
+ 52:     try {
+ 53:       await saveTicketDesign(
+ 54:         ticketConfig.eventName || "Mi Rifa",
+ 55:         ticketConfig,
+ 56:         printConfig
+ 57:       );
+ 58:       setSaveSuccess(true);
+ 59:       refreshCount();
+ 60:       setTimeout(() => setSaveSuccess(false), 2500);
+ 61:     } catch (e) {
+ 62:       console.error(e);
+ 63:     } finally {
+ 64:       setSaving(false);
+ 65:     }
+ 66:   };
+ 67: 
+ 68:   const handleProfileClick = () => {
+ 69:     if (user) {
+ 70:       setIsProfileOpen(true);
+ 71:     } else {
+ 72:       setIsAuthOpen(true);
+ 73:     }
+ 74:   };
+ 75: 
+ 76:   return (
+ 77:     <>
+ 78:       {/* Barra de navegación inferior fija estilo Native App */}
+ 79:       <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800/80 px-2 py-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-2xl">
+ 80:         <div className="grid grid-cols-5 items-center justify-items-center">
+ 81:           {/* 1. Inicio / Landing */}
+ 82:           <Link
+ 83:             href="/"
+ 84:             className={`flex flex-col items-center gap-1 py-1 px-2 rounded-xl transition-colors ${
+ 85:               pathname === "/"
+ 86:                 ? "text-amber-400 font-bold"
+ 87:                 : "text-slate-400 hover:text-slate-200"
+ 88:             }`}
+ 89:           >
+ 90:             <Home className="h-5 w-5" />
+ 91:             <span className="text-[10px]">Inicio</span>
+ 92:           </Link>
+ 93: 
+ 94:           {/* 2. Editor */}
+ 95:           <Link
+ 96:             href="/editor"
+ 97:             className={`flex flex-col items-center gap-1 py-1 px-2 rounded-xl transition-colors ${
+ 98:               pathname === "/editor"
+ 99:                 ? "text-amber-400 font-bold"
+100:                 : "text-slate-400 hover:text-slate-200"
+101:             }`}
+102:           >
+103:             <Sliders className="h-5 w-5" />
+104:             <span className="text-[10px]">Editor</span>
+105:           </Link>
+106: 
+107:           {/* 3. Guardar Rifa (Acción central destacada) */}
+108:           <button
+109:             onClick={handleSave}
+110:             disabled={saving}
+111:             className="flex flex-col items-center -mt-4 group"
+112:           >
+113:             <div
+114:               className={`w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg transition-all ${
+115:                 saveSuccess
+116:                   ? "bg-emerald-500 text-white shadow-emerald-500/30 scale-105"
+117:                   : "bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 shadow-amber-500/30 group-active:scale-95"
+118:               }`}
+119:             >
+120:               {saveSuccess ? (
+121:                 <Check className="h-5 w-5" />
+122:               ) : (
+123:                 <Save className="h-5 w-5" />
+124:               )}
+125:             </div>
+126:             <span className="text-[10px] font-bold text-amber-400 mt-1">
+127:               {saveSuccess ? "¡Listo!" : saving ? "..." : "Guardar"}
+128:             </span>
+129:           </button>
+130: 
+131:           {/* 4. Mis Rifas */}
+132:           <button
+133:             onClick={() => setIsDrawerOpen(true)}
+134:             className="flex flex-col items-center gap-1 py-1 px-2 rounded-xl text-slate-400 hover:text-slate-200 relative transition-colors"
+135:           >
+136:             <FolderOpen className="h-5 w-5" />
+137:             <span className="text-[10px]">Mis Rifas</span>
+138:             {savedCount > 0 && (
+139:               <span className="absolute top-0 right-2 w-4 h-4 rounded-full bg-amber-500 text-slate-950 text-[9px] font-mono font-black flex items-center justify-center">
+140:                 {savedCount}
+141:               </span>
+142:             )}
+143:           </button>
+144: 
+145:           {/* 5. Perfil / Cuenta */}
+146:           <button
+147:             onClick={handleProfileClick}
+148:             className="flex flex-col items-center gap-1 py-1 px-2 rounded-xl text-slate-400 hover:text-slate-200 transition-colors"
+149:           >
+150:             {user ? (
+151:               <div className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px] font-bold border border-amber-500/40">
+152:                 {user.name ? user.name[0].toUpperCase() : user.email[0].toUpperCase()}
+153:               </div>
+154:             ) : (
+155:               <User className="h-5 w-5" />
+156:             )}
+157:             <span className="text-[10px]">{user ? "Perfil" : "Entrar"}</span>
+158:           </button>
+159:         </div>
+160:       </nav>
+161: 
+162:       {/* Modales */}
+163:       <AuthModal
+164:         isOpen={isAuthOpen}
+165:         onClose={() => setIsAuthOpen(false)}
+166:         onSuccess={() => refreshCount()}
+167:       />
+168:       <ProfileModal
+169:         isOpen={isProfileOpen}
+170:         onClose={() => setIsProfileOpen(false)}
+171:       />
+172:       <SavedTicketsDrawer
+173:         isOpen={isDrawerOpen}
+174:         onClose={() => setIsDrawerOpen(false)}
+175:         onSelectTicket={() => refreshCount()}
+176:       />
+177:     </>
+178:   );
+179: }
+````
 
 ## File: src/app/editor/page.tsx
 ````typescript
@@ -310,6 +779,50 @@ tsconfig.json
 215:     </button>
 216:   );
 217: }
+````
+
+## File: src/app/icon.svg
+````xml
+ 1: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+ 2:   <defs>
+ 3:     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+ 4:       <stop offset="0%" style="stop-color:#f59e0b"/>
+ 5:       <stop offset="100%" style="stop-color:#d97706"/>
+ 6:     </linearGradient>
+ 7:     <linearGradient id="ticket" x1="0%" y1="0%" x2="100%" y2="100%">
+ 8:       <stop offset="0%" style="stop-color:#ffffff"/>
+ 9:       <stop offset="100%" style="stop-color:#f1f5f9"/>
+10:     </linearGradient>
+11:   </defs>
+12:   <!-- Fondo redondeado -->
+13:   <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+14:   <!-- Ticket principal -->
+15:   <g transform="translate(80, 140)">
+16:     <!-- Cuerpo del ticket -->
+17:     <rect x="0" y="0" width="352" height="180" rx="16" fill="url(#ticket)" opacity="0.95"/>
+18:     <!-- Muesca superior -->
+19:     <circle cx="260" cy="0" r="16" fill="#d97706"/>
+20:     <!-- Muesca inferior -->
+21:     <circle cx="260" cy="180" r="16" fill="#d97706"/>
+22:     <!-- Línea punteada separadora -->
+23:     <line x1="260" y1="20" x2="260" y2="40" stroke="#d97706" stroke-width="3" stroke-linecap="round"/>
+24:     <line x1="260" y1="52" x2="260" y2="72" stroke="#d97706" stroke-width="3" stroke-linecap="round"/>
+25:     <line x1="260" y1="84" x2="260" y2="104" stroke="#d97706" stroke-width="3" stroke-linecap="round"/>
+26:     <line x1="260" y1="116" x2="260" y2="136" stroke="#d97706" stroke-width="3" stroke-linecap="round"/>
+27:     <line x1="260" y1="148" x2="260" y2="164" stroke="#d97706" stroke-width="3" stroke-linecap="round"/>
+28:     <!-- Estrella/premio -->
+29:     <polygon points="80,50 88,74 114,74 93,88 101,112 80,98 59,112 67,88 46,74 72,74" fill="#f59e0b"/>
+30:     <!-- Líneas de texto simuladas -->
+31:     <rect x="40" y="125" width="120" height="8" rx="4" fill="#1e293b" opacity="0.6"/>
+32:     <rect x="40" y="145" width="80" height="8" rx="4" fill="#1e293b" opacity="0.3"/>
+33:     <!-- Número en el talón -->
+34:     <text x="306" y="105" font-family="monospace" font-size="36" font-weight="bold" fill="#1e293b" text-anchor="middle">001</text>
+35:   </g>
+36:   <!-- Segundo ticket detrás (efecto profundidad) -->
+37:   <g transform="translate(96, 200)" opacity="0.3">
+38:     <rect x="0" y="0" width="352" height="180" rx="16" fill="white"/>
+39:   </g>
+40: </svg>
 ````
 
 ## File: src/components/auth/AuthModal.tsx
@@ -533,831 +1046,6 @@ tsconfig.json
 217:     </div>
 218:   );
 219: }
-````
-
-## File: src/components/PresetSelector.tsx
-````typescript
-  1: "use client";
-  2: 
-  3: import { Sparkles, GraduationCap, Trophy, HeartHandshake, Car } from "lucide-react";
-  4: import { TicketConfig, PrintConfig } from "@/types";
-  5: import { useRifaStore } from "@/store/useRifaStore";
-  6: 
-  7: interface Preset {
-  8:   id: string;
-  9:   name: string;
- 10:   category: string;
- 11:   icon: React.ReactNode;
- 12:   ticket: Partial<TicketConfig>;
- 13:   print?: Partial<PrintConfig>;
- 14: }
- 15: 
- 16: const PRESETS: Preset[] = [
- 17:   {
- 18:     id: "escolar",
- 19:     name: "Rifa Escolar y Kermesse",
- 20:     category: "Educación",
- 21:     icon: <GraduationCap className="h-4 w-4 text-amber-400" />,
- 22:     ticket: {
- 23:       eventName: "Gran Rifa Escolar Cooperadora",
- 24:       subtitle: "Escuela Primaria N° 71 • Festejo Comunitario",
- 25:       organizer: "Comisión Cooperadora",
- 26:       drawDate: "20 de Octubre 2026",
- 27:       price: 1500,
- 28:       priceLabel: "Valor: $ 1.500",
- 29:       totalTickets: 500,
- 30:       startNumber: 1,
- 31:       contributionText: "Bono contribución para obras y equipamiento",
- 32:       primaryColor: "#0284c7",
- 33:       prizes: [
- 34:         { position: 1, label: "1° Premio:", description: "Bicicleta Rodado 29" },
- 35:         { position: 2, label: "2° Premio:", description: "Tablet 10 pulgadas" },
- 36:         { position: 3, label: "3° Premio:", description: "Canasta Familiar Completa" },
- 37:         { position: 4, label: "4° Premio:", description: "Juego de Sabanas 2 1/2" },
- 38:       ],
- 39:     },
- 40:   },
- 41:   {
- 42:     id: "deportiva",
- 43:     name: "Bono Club Deportivo",
- 44:     category: "Deportes",
- 45:     icon: <Trophy className="h-4 w-4 text-emerald-400" />,
- 46:     ticket: {
- 47:       eventName: "Gran Bono Contribución Club Atlético",
- 48:       subtitle: "Subcomisión de Fútbol Infantil y Juvenil",
- 49:       organizer: "Club Atlético",
- 50:       drawDate: "15 de Noviembre 2026",
- 51:       price: 3000,
- 52:       priceLabel: "Valor: $ 3.000",
- 53:       totalTickets: 1000,
- 54:       startNumber: 1,
- 55:       contributionText: "Para indumentaria y viajes del plantel",
- 56:       primaryColor: "#059669",
- 57:       prizes: [
- 58:         { position: 1, label: "1° Premio:", description: "Smart TV 50 pulgadas 4K" },
- 59:         { position: 2, label: "2° Premio:", description: "Parrilla Portátil + Set Asador" },
- 60:         { position: 3, label: "3° Premio:", description: "Camiseta Oficial Firmada" },
- 61:         { position: 4, label: "4° Premio:", description: "Pelota Profesional Oficial" },
- 62:         { position: 5, label: "5° Premio:", description: "Cajón de Bebidas Variadas" },
- 63:       ],
- 64:     },
- 65:   },
- 66:   {
- 67:     id: "salud",
- 68:     name: "Sorteo Solidario Pro-Salud",
- 69:     category: "Solidario",
- 70:     icon: <HeartHandshake className="h-4 w-4 text-rose-400" />,
- 71:     ticket: {
- 72:       eventName: "Sorteo Solidario Todos por Sofía",
- 73:       subtitle: "Campaña de Recaudación para Tratamiento Médico",
- 74:       organizer: "Familiares y Amigos",
- 75:       drawDate: "05 de Diciembre 2026",
- 76:       price: 2000,
- 77:       priceLabel: "Valor: $ 2.000",
- 78:       totalTickets: 800,
- 79:       startNumber: 1,
- 80:       contributionText: "Tu ayuda salva vidas • Muchas gracias por colaborar",
- 81:       primaryColor: "#e11d48",
- 82:       prizes: [
- 83:         { position: 1, label: "1° Premio:", description: "Orden de Compra $ 200.000" },
- 84:         { position: 2, label: "2° Premio:", description: "Horno Microondas Digital" },
- 85:         { position: 3, label: "3° Premio:", description: "Pava Eléctrica + Mate Térmico" },
- 86:       ],
- 87:     },
- 88:   },
- 89:   {
- 90:     id: "gran-sorteo",
- 91:     name: "Gran Rifa Anual Moto 0KM",
- 92:     category: "Gran Premio",
- 93:     icon: <Car className="h-4 w-4 text-amber-400" />,
- 94:     ticket: {
- 95:       eventName: "Gran Sorteo Millonario Fin de Año",
- 96:       subtitle: "Tradicional Sorteo de Fin de Año con Lotería Nacional",
- 97:       organizer: "Asociación Civil Vecinal",
- 98:       drawDate: "28 de Diciembre 2026",
- 99:       price: 10000,
-100:       priceLabel: "Valor: $ 10.000",
-101:       totalTickets: 2000,
-102:       startNumber: 1,
-103:       contributionText: "Jugada nocturna por Quiniela de la Ciudad",
-104:       primaryColor: "#991b1b",
-105:       prizes: [
-106:         { position: 1, label: "1° Premio:", description: "Moto 110cc 0KM con Papeles" },
-107:         { position: 2, label: "2° Premio:", description: "Heladera No Frost con Freezer" },
-108:         { position: 3, label: "3° Premio:", description: "Lavarropas Automático 7Kg" },
-109:         { position: 4, label: "4° Premio:", description: "Microondas + Tostadora" },
-110:         { position: 5, label: "5° Premio:", description: "Juego de Toallones Premium" },
-111:       ],
-112:     },
-113:   },
-114: ];
-115: 
-116: interface PresetSelectorProps {
-117:   onSelect?: () => void;
-118: }
-119: 
-120: export function PresetSelector({ onSelect }: PresetSelectorProps) {
-121:   const { setTicketConfig, setPrintConfig } = useRifaStore();
-122: 
-123:   const handleApplyPreset = (preset: Preset) => {
-124:     setTicketConfig(preset.ticket);
-125:     if (preset.print) {
-126:       setPrintConfig(preset.print);
-127:     }
-128:     onSelect?.();
-129:   };
-130: 
-131:   return (
-132:     <div className="space-y-2">
-133:       <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-300 mb-2">
-134:         <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-135:         <span>Plantillas Profesionales Listas para Usar</span>
-136:       </div>
-137:       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-138:         {PRESETS.map((preset) => (
-139:           <button
-140:             key={preset.id}
-141:             type="button"
-142:             onClick={() => handleApplyPreset(preset)}
-143:             className="flex flex-col items-start p-2.5 rounded-xl border border-slate-700/60 bg-slate-800/60 hover:bg-slate-800 hover:border-amber-500/50 transition-all text-left group"
-144:           >
-145:             <div className="p-1.5 rounded-lg bg-slate-900/80 mb-2 group-hover:scale-105 transition-transform">
-146:               {preset.icon}
-147:             </div>
-148:             <span className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">
-149:               {preset.category}
-150:             </span>
-151:             <span className="text-xs font-bold text-slate-200 group-hover:text-amber-300 transition-colors line-clamp-1">
-152:               {preset.name}
-153:             </span>
-154:           </button>
-155:         ))}
-156:       </div>
-157:     </div>
-158:   );
-159: }
-````
-
-## File: src/components/SavedTicketsDrawer.tsx
-````typescript
-  1: "use client";
-  2: 
-  3: import { useState, useEffect } from "react";
-  4: import {
-  5:   X,
-  6:   FolderOpen,
-  7:   Trash2,
-  8:   Copy,
-  9:   Calendar,
- 10:   Ticket,
- 11:   Trophy,
- 12:   ArrowRight,
- 13:   RefreshCw,
- 14:   Search,
- 15:   Sparkles
- 16: } from "lucide-react";
- 17: import { Button } from "@/components/ui/button";
- 18: import { SavedTicket, getSavedTickets, deleteSavedTicket, duplicateSavedTicket } from "@/services/tickets-service";
- 19: import { useRifaStore } from "@/store/useRifaStore";
- 20: import { formatCurrency } from "@/lib/utils";
- 21: 
- 22: interface SavedTicketsDrawerProps {
- 23:   isOpen: boolean;
- 24:   onClose: () => void;
- 25:   onSelectTicket?: (ticket: SavedTicket) => void;
- 26: }
- 27: 
- 28: export function SavedTicketsDrawer({ isOpen, onClose, onSelectTicket }: SavedTicketsDrawerProps) {
- 29:   const [tickets, setTickets] = useState<SavedTicket[]>([]);
- 30:   const [loading, setLoading] = useState(true);
- 31:   const [search, setSearch] = useState("");
- 32:   const [activeDeleteId, setActiveDeleteId] = useState<string | null>(null);
- 33: 
- 34:   const { setTicketConfig, setPrintConfig } = useRifaStore();
- 35: 
- 36:   const fetchTickets = async () => {
- 37:     setLoading(true);
- 38:     try {
- 39:       const data = await getSavedTickets();
- 40:       setTickets(data);
- 41:     } finally {
- 42:       setLoading(false);
- 43:     }
- 44:   };
- 45: 
- 46:   useEffect(() => {
- 47:     if (isOpen) {
- 48:       fetchTickets();
- 49:     }
- 50:   }, [isOpen]);
- 51: 
- 52:   if (!isOpen) return null;
- 53: 
- 54:   const handleLoad = (ticket: SavedTicket) => {
- 55:     setTicketConfig(ticket.ticket_config);
- 56:     setPrintConfig(ticket.print_config);
- 57:     onSelectTicket?.(ticket);
- 58:     onClose();
- 59:   };
- 60: 
- 61:   const handleDelete = async (id: string, e: React.MouseEvent) => {
- 62:     e.stopPropagation();
- 63:     setActiveDeleteId(id);
- 64:     try {
- 65:       await deleteSavedTicket(id);
- 66:       setTickets((prev) => prev.filter((t) => t.id !== id));
- 67:     } finally {
- 68:       setActiveDeleteId(null);
- 69:     }
- 70:   };
- 71: 
- 72:   const handleDuplicate = async (ticket: SavedTicket, e: React.MouseEvent) => {
- 73:     e.stopPropagation();
- 74:     const duplicated = await duplicateSavedTicket(ticket);
- 75:     setTickets((prev) => [duplicated, ...prev]);
- 76:   };
- 77: 
- 78:   const filtered = tickets.filter((t) =>
- 79:     t.title.toLowerCase().includes(search.toLowerCase()) ||
- 80:     t.ticket_config.eventName.toLowerCase().includes(search.toLowerCase())
- 81:   );
- 82: 
- 83:   return (
- 84:     <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
- 85:       <div className="relative w-full max-w-md h-full bg-slate-900 border-l border-slate-700/80 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
- 86:         {/* Cabecera */}
- 87:         <div className="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-900/90">
- 88:           <div className="flex items-center gap-2.5">
- 89:             <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
- 90:               <FolderOpen className="h-4 w-4" />
- 91:             </div>
- 92:             <div>
- 93:               <h3 className="text-sm font-bold text-slate-100">Mis Rifas Guardadas</h3>
- 94:               <p className="text-[10px] text-slate-400">
- 95:                 {tickets.length} {tickets.length === 1 ? "diseño disponible" : "diseños disponibles"}
- 96:               </p>
- 97:             </div>
- 98:           </div>
- 99: 
-100:           <div className="flex items-center gap-1">
-101:             <button
-102:               onClick={fetchTickets}
-103:               title="Recargar"
-104:               className="text-slate-400 hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
-105:             >
-106:               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin text-amber-400" : ""}`} />
-107:             </button>
-108:             <button
-109:               onClick={onClose}
-110:               className="text-slate-400 hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
-111:             >
-112:               <X className="h-5 w-5" />
-113:             </button>
-114:           </div>
-115:         </div>
-116: 
-117:         {/* Buscador */}
-118:         <div className="p-3 border-b border-slate-800/80 bg-slate-900/50">
-119:           <div className="relative">
-120:             <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-500" />
-121:             <input
-122:               type="text"
-123:               value={search}
-124:               onChange={(e) => setSearch(e.target.value)}
-125:               placeholder="Buscar rifa por nombre..."
-126:               className="w-full pl-8 pr-3 py-1.5 bg-slate-800/80 border border-slate-700 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500"
-127:             />
-128:           </div>
-129:         </div>
-130: 
-131:         {/* Lista de diseños */}
-132:         <div className="flex-1 overflow-y-auto p-4 space-y-3">
-133:           {loading ? (
-134:             <div className="flex flex-col items-center justify-center h-48 text-slate-500 space-y-2">
-135:               <RefreshCw className="h-6 w-6 animate-spin text-amber-400" />
-136:               <p className="text-xs">Cargando tus rifas...</p>
-137:             </div>
-138:           ) : filtered.length === 0 ? (
-139:             <div className="flex flex-col items-center justify-center h-64 text-center p-6 rounded-2xl border border-dashed border-slate-800 bg-slate-900/40">
-140:               <Sparkles className="h-8 w-8 text-slate-600 mb-2" />
-141:               <p className="text-sm font-semibold text-slate-300">No hay rifas guardadas</p>
-142:               <p className="text-xs text-slate-500 mt-1 max-w-[240px]">
-143:                 {search ? "No se encontraron rifas con ese término." : "Crea tu primer diseño y haz clic en 'Guardar Rifa' en la barra superior."}
-144:               </p>
-145:             </div>
-146:           ) : (
-147:             filtered.map((ticket) => (
-148:               <div
-149:                 key={ticket.id}
-150:                 onClick={() => handleLoad(ticket)}
-151:                 className="group relative rounded-xl border border-slate-800 bg-slate-800/50 hover:bg-slate-800 hover:border-amber-500/50 p-3.5 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-lg hover:shadow-amber-500/5"
-152:               >
-153:                 <div className="flex items-start justify-between gap-2">
-154:                   <div className="flex-1 min-w-0">
-155:                     <h4 className="text-xs font-bold text-slate-100 group-hover:text-amber-300 truncate transition-colors">
-156:                       {ticket.title}
-157:                     </h4>
-158:                     <p className="text-[11px] text-slate-400 truncate mt-0.5">
-159:                       {ticket.ticket_config.subtitle || ticket.ticket_config.eventName}
-160:                     </p>
-161:                   </div>
-162: 
-163:                   {/* Acciones */}
-164:                   <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
-165:                     <button
-166:                       onClick={(e) => handleDuplicate(ticket, e)}
-167:                       title="Duplicar"
-168:                       className="text-slate-400 hover:text-amber-400 p-1 rounded hover:bg-slate-700/60"
-169:                     >
-170:                       <Copy className="h-3.5 w-3.5" />
-171:                     </button>
-172:                     <button
-173:                       onClick={(e) => handleDelete(ticket.id, e)}
-174:                       title="Eliminar"
-175:                       disabled={activeDeleteId === ticket.id}
-176:                       className="text-slate-400 hover:text-rose-400 p-1 rounded hover:bg-slate-700/60"
-177:                     >
-178:                       <Trash2 className="h-3.5 w-3.5" />
-179:                     </button>
-180:                   </div>
-181:                 </div>
-182: 
-183:                 {/* Metadata pills */}
-184:                 <div className="grid grid-cols-3 gap-2 mt-3 pt-2.5 border-t border-slate-700/40 text-[10px] text-slate-400">
-185:                   <div className="flex items-center gap-1 truncate">
-186:                     <Ticket className="h-3 w-3 text-amber-400 shrink-0" />
-187:                     <span>{ticket.ticket_config.totalTickets} tks</span>
-188:                   </div>
-189:                   <div className="flex items-center gap-1 truncate">
-190:                     <Trophy className="h-3 w-3 text-amber-400 shrink-0" />
-191:                     <span>{ticket.ticket_config.prizes?.length || 0} premios</span>
-192:                   </div>
-193:                   <div className="flex items-center gap-1 truncate font-mono text-amber-300 font-semibold">
-194:                     <span>{formatCurrency(ticket.ticket_config.price || 0)}</span>
-195:                   </div>
-196:                 </div>
-197: 
-198:                 {/* Botón Cargar */}
-199:                 <div className="mt-2.5 flex items-center justify-between text-[10px] text-slate-500 group-hover:text-amber-400 transition-colors">
-200:                   <span className="flex items-center gap-1">
-201:                     <Calendar className="h-2.5 w-2.5" />
-202:                     {new Date(ticket.updated_at).toLocaleDateString()}
-203:                   </span>
-204:                   <span className="flex items-center gap-0.5 font-medium">
-205:                     Cargar diseño <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
-206:                   </span>
-207:                 </div>
-208:               </div>
-209:             ))
-210:           )}
-211:         </div>
-212: 
-213:         {/* Footer */}
-214:         <div className="p-3 border-t border-slate-800 bg-slate-900/90 text-center">
-215:           <p className="text-[10px] text-slate-500">
-216:             Los cambios se sincronizan en la nube y quedan disponibles en tu cuenta.
-217:           </p>
-218:         </div>
-219:       </div>
-220:     </div>
-221:   );
-222: }
-````
-
-## File: src/hooks/useAuth.ts
-````typescript
-  1: "use client";
-  2: 
-  3: import { useState, useEffect, useCallback } from "react";
-  4: import { getSupabase, isSupabaseConfigured } from "@/lib/supabase";
-  5: import { User } from "@supabase/supabase-js";
-  6: 
-  7: export interface AppUser {
-  8:   id: string;
-  9:   email: string;
- 10:   name?: string;
- 11:   isDemo?: boolean;
- 12: }
- 13: 
- 14: const DEMO_USER_KEY = "eventazo_demo_user";
- 15: 
- 16: export function useAuth() {
- 17:   const [user, setUser] = useState<AppUser | null>(null);
- 18:   const [loading, setLoading] = useState(true);
- 19:   const isConfigured = isSupabaseConfigured();
- 20: 
- 21:   // Escuchar cambios de sesión de Supabase o cargar usuario demo local
- 22:   useEffect(() => {
- 23:     const supabase = getSupabase();
- 24: 
- 25:     if (supabase) {
- 26:       supabase.auth.getSession().then(({ data: { session } }) => {
- 27:         if (session?.user) {
- 28:           setUser({
- 29:             id: session.user.id,
- 30:             email: session.user.email || "",
- 31:             name: session.user.user_metadata?.full_name || session.user.email?.split("@")[0],
- 32:           });
- 33:         }
- 34:         setLoading(false);
- 35:       });
- 36: 
- 37:       const { data: { subscription } } = supabase.auth.onAuthStateChange(
- 38:         (_event, session) => {
- 39:           if (session?.user) {
- 40:             setUser({
- 41:               id: session.user.id,
- 42:               email: session.user.email || "",
- 43:               name: session.user.user_metadata?.full_name || session.user.email?.split("@")[0],
- 44:             });
- 45:           } else {
- 46:             // Verificar si hay usuario demo
- 47:             const demo = localStorage.getItem(DEMO_USER_KEY);
- 48:             if (demo) {
- 49:               setUser(JSON.parse(demo));
- 50:             } else {
- 51:               setUser(null);
- 52:             }
- 53:           }
- 54:           setLoading(false);
- 55:         }
- 56:       );
- 57: 
- 58:       return () => {
- 59:         subscription.unsubscribe();
- 60:       };
- 61:     } else {
- 62:       // Modo local / demo
- 63:       if (typeof window !== "undefined") {
- 64:         const demo = localStorage.getItem(DEMO_USER_KEY);
- 65:         if (demo) {
- 66:           setUser(JSON.parse(demo));
- 67:         }
- 68:       }
- 69:       setLoading(false);
- 70:     }
- 71:   }, []);
- 72: 
- 73:   const signIn = useCallback(async (email: string, password: string): Promise<{ error: string | null }> => {
- 74:     const supabase = getSupabase();
- 75: 
- 76:     if (!supabase) {
- 77:       // Si Supabase no está configurado, loguear como demo
- 78:       const demoUser: AppUser = {
- 79:         id: "demo-user-123",
- 80:         email,
- 81:         name: email.split("@")[0],
- 82:         isDemo: true,
- 83:       };
- 84:       localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser));
- 85:       setUser(demoUser);
- 86:       return { error: null };
- 87:     }
- 88: 
- 89:     try {
- 90:       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
- 91:       if (error) return { error: error.message };
- 92:       if (data.user) {
- 93:         setUser({
- 94:           id: data.user.id,
- 95:           email: data.user.email || "",
- 96:           name: data.user.user_metadata?.full_name || data.user.email?.split("@")[0],
- 97:         });
- 98:       }
- 99:       return { error: null };
-100:     } catch (e) {
-101:       return { error: e instanceof Error ? e.message : "Error al iniciar sesión" };
-102:     }
-103:   }, []);
-104: 
-105:   const signUp = useCallback(async (email: string, password: string): Promise<{ error: string | null; message?: string }> => {
-106:     const supabase = getSupabase();
-107: 
-108:     if (!supabase) {
-109:       const demoUser: AppUser = {
-110:         id: "demo-user-123",
-111:         email,
-112:         name: email.split("@")[0],
-113:         isDemo: true,
-114:       };
-115:       localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser));
-116:       setUser(demoUser);
-117:       return { error: null, message: "Cuenta demo creada exitosamente" };
-118:     }
-119: 
-120:     try {
-121:       const { data, error } = await supabase.auth.signUp({
-122:         email,
-123:         password,
-124:       });
-125:       if (error) return { error: error.message };
-126:       if (data.user) {
-127:         setUser({
-128:           id: data.user.id,
-129:           email: data.user.email || "",
-130:           name: data.user.user_metadata?.full_name || data.user.email?.split("@")[0],
-131:         });
-132:       }
-133:       return { error: null, message: "Revisa tu correo para confirmar tu cuenta si es requerido" };
-134:     } catch (e) {
-135:       return { error: e instanceof Error ? e.message : "Error al registrarse" };
-136:     }
-137:   }, []);
-138: 
-139:   const signInDemo = useCallback(() => {
-140:     const demoUser: AppUser = {
-141:       id: "demo-pro-user",
-142:       email: "demo@eventazo.pro",
-143:       name: "Usuario Pro (Demo)",
-144:       isDemo: true,
-145:     };
-146:     localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser));
-147:     setUser(demoUser);
-148:   }, []);
-149: 
-150:   const signOut = useCallback(async () => {
-151:     const supabase = getSupabase();
-152:     if (supabase) {
-153:       await supabase.auth.signOut();
-154:     }
-155:     localStorage.removeItem(DEMO_USER_KEY);
-156:     setUser(null);
-157:   }, []);
-158: 
-159:   return {
-160:     user,
-161:     loading,
-162:     isConfigured,
-163:     signIn,
-164:     signUp,
-165:     signInDemo,
-166:     signOut,
-167:   };
-168: }
-````
-
-## File: src/lib/supabase.ts
-````typescript
- 1: import { createClient, SupabaseClient } from "@supabase/supabase-js";
- 2: 
- 3: const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
- 4: const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
- 5: 
- 6: export const isSupabaseConfigured = (): boolean => {
- 7:   return Boolean(
- 8:     supabaseUrl &&
- 9:     supabaseAnonKey &&
-10:     supabaseUrl !== "https://tu-proyecto.supabase.co" &&
-11:     supabaseAnonKey !== "tu-anon-key"
-12:   );
-13: };
-14: 
-15: let supabaseInstance: SupabaseClient | null = null;
-16: 
-17: export const getSupabase = (): SupabaseClient | null => {
-18:   if (!isSupabaseConfigured()) {
-19:     return null;
-20:   }
-21: 
-22:   if (!supabaseInstance) {
-23:     supabaseInstance = createClient(supabaseUrl, supabaseAnonKey, {
-24:       auth: {
-25:         persistSession: true,
-26:         autoRefreshToken: true,
-27:       },
-28:     });
-29:   }
-30: 
-31:   return supabaseInstance;
-32: };
-````
-
-## File: src/services/tickets-service.ts
-````typescript
-  1: import { getSupabase, isSupabaseConfigured } from "@/lib/supabase";
-  2: import { TicketConfig, PrintConfig } from "@/types";
-  3: 
-  4: export interface SavedTicket {
-  5:   id: string;
-  6:   user_id?: string;
-  7:   title: string;
-  8:   ticket_config: TicketConfig;
-  9:   print_config: PrintConfig;
- 10:   created_at: string;
- 11:   updated_at: string;
- 12: }
- 13: 
- 14: const LOCAL_STORAGE_KEY = "eventazo_saved_tickets";
- 15: 
- 16: // Obtener tickets desde LocalStorage (fallback de desarrollo/modo demo)
- 17: function getLocalTickets(): SavedTicket[] {
- 18:   if (typeof window === "undefined") return [];
- 19:   try {
- 20:     const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
- 21:     return raw ? JSON.parse(raw) : [];
- 22:   } catch (e) {
- 23:     console.error("Error al leer rifas locales:", e);
- 24:     return [];
- 25:   }
- 26: }
- 27: 
- 28: // Guardar tickets en LocalStorage
- 29: function saveLocalTickets(tickets: SavedTicket[]) {
- 30:   if (typeof window === "undefined") return;
- 31:   try {
- 32:     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(tickets));
- 33:   } catch (e) {
- 34:     console.error("Error al guardar rifas locales:", e);
- 35:   }
- 36: }
- 37: 
- 38: // Obtener todas las rifas del usuario (Supabase o LocalStorage)
- 39: export async function getSavedTickets(): Promise<SavedTicket[]> {
- 40:   const supabase = getSupabase();
- 41: 
- 42:   if (supabase) {
- 43:     try {
- 44:       const { data: { user } } = await supabase.auth.getUser();
- 45:       if (user) {
- 46:         const { data, error } = await supabase
- 47:           .from("saved_tickets")
- 48:           .select("*")
- 49:           .order("updated_at", { ascending: false });
- 50: 
- 51:         if (error) {
- 52:           console.warn("Supabase error, usando fallback local:", error.message);
- 53:           return getLocalTickets();
- 54:         }
- 55: 
- 56:         return data as SavedTicket[];
- 57:       }
- 58:     } catch (e) {
- 59:       console.warn("Error consultando Supabase, usando fallback local:", e);
- 60:     }
- 61:   }
- 62: 
- 63:   return getLocalTickets();
- 64: }
- 65: 
- 66: // Guardar o actualizar una rifa
- 67: export async function saveTicketDesign(
- 68:   title: string,
- 69:   ticketConfig: TicketConfig,
- 70:   printConfig: PrintConfig,
- 71:   existingId?: string
- 72: ): Promise<SavedTicket> {
- 73:   const supabase = getSupabase();
- 74:   const now = new Date().toISOString();
- 75: 
- 76:   if (supabase) {
- 77:     try {
- 78:       const { data: { user } } = await supabase.auth.getUser();
- 79: 
- 80:       if (user) {
- 81:         if (existingId) {
- 82:           const { data, error } = await supabase
- 83:             .from("saved_tickets")
- 84:             .update({
- 85:               title,
- 86:               ticket_config: ticketConfig,
- 87:               print_config: printConfig,
- 88:               updated_at: now,
- 89:             })
- 90:             .eq("id", existingId)
- 91:             .select()
- 92:             .single();
- 93: 
- 94:           if (!error && data) {
- 95:             return data as SavedTicket;
- 96:           }
- 97:         } else {
- 98:           const { data, error } = await supabase
- 99:             .from("saved_tickets")
-100:             .insert({
-101:               user_id: user.id,
-102:               title,
-103:               ticket_config: ticketConfig,
-104:               print_config: printConfig,
-105:               created_at: now,
-106:               updated_at: now,
-107:             })
-108:             .select()
-109:             .single();
-110: 
-111:           if (!error && data) {
-112:             return data as SavedTicket;
-113:           }
-114:         }
-115:       }
-116:     } catch (e) {
-117:       console.warn("Error guardando en Supabase, guardando localmente:", e);
-118:     }
-119:   }
-120: 
-121:   // Fallback local
-122:   const current = getLocalTickets();
-123:   if (existingId) {
-124:     const idx = current.findIndex((t) => t.id === existingId);
-125:     if (idx !== -1) {
-126:       const updated: SavedTicket = {
-127:         ...current[idx],
-128:         title,
-129:         ticket_config: ticketConfig,
-130:         print_config: printConfig,
-131:         updated_at: now,
-132:       };
-133:       current[idx] = updated;
-134:       saveLocalTickets(current);
-135:       return updated;
-136:     }
-137:   }
-138: 
-139:   const newTicket: SavedTicket = {
-140:     id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-141:     title,
-142:     ticket_config: ticketConfig,
-143:     print_config: printConfig,
-144:     created_at: now,
-145:     updated_at: now,
-146:   };
-147:   current.unshift(newTicket);
-148:   saveLocalTickets(current);
-149:   return newTicket;
-150: }
-151: 
-152: // Eliminar una rifa guardada
-153: export async function deleteSavedTicket(id: string): Promise<boolean> {
-154:   const supabase = getSupabase();
-155: 
-156:   if (supabase && !id.startsWith("local-")) {
-157:     try {
-158:       const { error } = await supabase
-159:         .from("saved_tickets")
-160:         .delete()
-161:         .eq("id", id);
-162: 
-163:       if (!error) {
-164:         return true;
-165:       }
-166:     } catch (e) {
-167:       console.warn("Error eliminando en Supabase:", e);
-168:     }
-169:   }
-170: 
-171:   const current = getLocalTickets().filter((t) => t.id !== id);
-172:   saveLocalTickets(current);
-173:   return true;
-174: }
-175: 
-176: // Duplicar una rifa guardada
-177: export async function duplicateSavedTicket(ticket: SavedTicket): Promise<SavedTicket> {
-178:   const newTitle = `${ticket.title} (Copia)`;
-179:   return saveTicketDesign(newTitle, ticket.ticket_config, ticket.print_config);
-180: }
-````
-
-## File: src/app/icon.svg
-````xml
- 1: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
- 2:   <defs>
- 3:     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
- 4:       <stop offset="0%" style="stop-color:#f59e0b"/>
- 5:       <stop offset="100%" style="stop-color:#d97706"/>
- 6:     </linearGradient>
- 7:     <linearGradient id="ticket" x1="0%" y1="0%" x2="100%" y2="100%">
- 8:       <stop offset="0%" style="stop-color:#ffffff"/>
- 9:       <stop offset="100%" style="stop-color:#f1f5f9"/>
-10:     </linearGradient>
-11:   </defs>
-12:   <!-- Fondo redondeado -->
-13:   <rect width="512" height="512" rx="96" fill="url(#bg)"/>
-14:   <!-- Ticket principal -->
-15:   <g transform="translate(80, 140)">
-16:     <!-- Cuerpo del ticket -->
-17:     <rect x="0" y="0" width="352" height="180" rx="16" fill="url(#ticket)" opacity="0.95"/>
-18:     <!-- Muesca superior -->
-19:     <circle cx="260" cy="0" r="16" fill="#d97706"/>
-20:     <!-- Muesca inferior -->
-21:     <circle cx="260" cy="180" r="16" fill="#d97706"/>
-22:     <!-- Línea punteada separadora -->
-23:     <line x1="260" y1="20" x2="260" y2="40" stroke="#d97706" stroke-width="3" stroke-linecap="round"/>
-24:     <line x1="260" y1="52" x2="260" y2="72" stroke="#d97706" stroke-width="3" stroke-linecap="round"/>
-25:     <line x1="260" y1="84" x2="260" y2="104" stroke="#d97706" stroke-width="3" stroke-linecap="round"/>
-26:     <line x1="260" y1="116" x2="260" y2="136" stroke="#d97706" stroke-width="3" stroke-linecap="round"/>
-27:     <line x1="260" y1="148" x2="260" y2="164" stroke="#d97706" stroke-width="3" stroke-linecap="round"/>
-28:     <!-- Estrella/premio -->
-29:     <polygon points="80,50 88,74 114,74 93,88 101,112 80,98 59,112 67,88 46,74 72,74" fill="#f59e0b"/>
-30:     <!-- Líneas de texto simuladas -->
-31:     <rect x="40" y="125" width="120" height="8" rx="4" fill="#1e293b" opacity="0.6"/>
-32:     <rect x="40" y="145" width="80" height="8" rx="4" fill="#1e293b" opacity="0.3"/>
-33:     <!-- Número en el talón -->
-34:     <text x="306" y="105" font-family="monospace" font-size="36" font-weight="bold" fill="#1e293b" text-anchor="middle">001</text>
-35:   </g>
-36:   <!-- Segundo ticket detrás (efecto profundidad) -->
-37:   <g transform="translate(96, 200)" opacity="0.3">
-38:     <rect x="0" y="0" width="352" height="180" rx="16" fill="white"/>
-39:   </g>
-40: </svg>
 ````
 
 ## File: src/components/ui/button.tsx
@@ -2077,6 +1765,630 @@ tsconfig.json
 109: }
 ````
 
+## File: src/components/PresetSelector.tsx
+````typescript
+  1: "use client";
+  2: 
+  3: import { Sparkles, GraduationCap, Trophy, HeartHandshake, Car } from "lucide-react";
+  4: import { TicketConfig, PrintConfig } from "@/types";
+  5: import { useRifaStore } from "@/store/useRifaStore";
+  6: 
+  7: interface Preset {
+  8:   id: string;
+  9:   name: string;
+ 10:   category: string;
+ 11:   icon: React.ReactNode;
+ 12:   ticket: Partial<TicketConfig>;
+ 13:   print?: Partial<PrintConfig>;
+ 14: }
+ 15: 
+ 16: const PRESETS: Preset[] = [
+ 17:   {
+ 18:     id: "escolar",
+ 19:     name: "Rifa Escolar y Kermesse",
+ 20:     category: "Educación",
+ 21:     icon: <GraduationCap className="h-4 w-4 text-amber-400" />,
+ 22:     ticket: {
+ 23:       eventName: "Gran Rifa Escolar Cooperadora",
+ 24:       subtitle: "Escuela Primaria N° 71 • Festejo Comunitario",
+ 25:       organizer: "Comisión Cooperadora",
+ 26:       drawDate: "20 de Octubre 2026",
+ 27:       price: 1500,
+ 28:       priceLabel: "Valor: $ 1.500",
+ 29:       totalTickets: 500,
+ 30:       startNumber: 1,
+ 31:       contributionText: "Bono contribución para obras y equipamiento",
+ 32:       primaryColor: "#0284c7",
+ 33:       prizes: [
+ 34:         { position: 1, label: "1° Premio:", description: "Bicicleta Rodado 29" },
+ 35:         { position: 2, label: "2° Premio:", description: "Tablet 10 pulgadas" },
+ 36:         { position: 3, label: "3° Premio:", description: "Canasta Familiar Completa" },
+ 37:         { position: 4, label: "4° Premio:", description: "Juego de Sabanas 2 1/2" },
+ 38:       ],
+ 39:     },
+ 40:   },
+ 41:   {
+ 42:     id: "deportiva",
+ 43:     name: "Bono Club Deportivo",
+ 44:     category: "Deportes",
+ 45:     icon: <Trophy className="h-4 w-4 text-emerald-400" />,
+ 46:     ticket: {
+ 47:       eventName: "Gran Bono Contribución Club Atlético",
+ 48:       subtitle: "Subcomisión de Fútbol Infantil y Juvenil",
+ 49:       organizer: "Club Atlético",
+ 50:       drawDate: "15 de Noviembre 2026",
+ 51:       price: 3000,
+ 52:       priceLabel: "Valor: $ 3.000",
+ 53:       totalTickets: 1000,
+ 54:       startNumber: 1,
+ 55:       contributionText: "Para indumentaria y viajes del plantel",
+ 56:       primaryColor: "#059669",
+ 57:       prizes: [
+ 58:         { position: 1, label: "1° Premio:", description: "Smart TV 50 pulgadas 4K" },
+ 59:         { position: 2, label: "2° Premio:", description: "Parrilla Portátil + Set Asador" },
+ 60:         { position: 3, label: "3° Premio:", description: "Camiseta Oficial Firmada" },
+ 61:         { position: 4, label: "4° Premio:", description: "Pelota Profesional Oficial" },
+ 62:         { position: 5, label: "5° Premio:", description: "Cajón de Bebidas Variadas" },
+ 63:       ],
+ 64:     },
+ 65:   },
+ 66:   {
+ 67:     id: "salud",
+ 68:     name: "Sorteo Solidario Pro-Salud",
+ 69:     category: "Solidario",
+ 70:     icon: <HeartHandshake className="h-4 w-4 text-rose-400" />,
+ 71:     ticket: {
+ 72:       eventName: "Sorteo Solidario Todos por Sofía",
+ 73:       subtitle: "Campaña de Recaudación para Tratamiento Médico",
+ 74:       organizer: "Familiares y Amigos",
+ 75:       drawDate: "05 de Diciembre 2026",
+ 76:       price: 2000,
+ 77:       priceLabel: "Valor: $ 2.000",
+ 78:       totalTickets: 800,
+ 79:       startNumber: 1,
+ 80:       contributionText: "Tu ayuda salva vidas • Muchas gracias por colaborar",
+ 81:       primaryColor: "#e11d48",
+ 82:       prizes: [
+ 83:         { position: 1, label: "1° Premio:", description: "Orden de Compra $ 200.000" },
+ 84:         { position: 2, label: "2° Premio:", description: "Horno Microondas Digital" },
+ 85:         { position: 3, label: "3° Premio:", description: "Pava Eléctrica + Mate Térmico" },
+ 86:       ],
+ 87:     },
+ 88:   },
+ 89:   {
+ 90:     id: "gran-sorteo",
+ 91:     name: "Gran Rifa Anual Moto 0KM",
+ 92:     category: "Gran Premio",
+ 93:     icon: <Car className="h-4 w-4 text-amber-400" />,
+ 94:     ticket: {
+ 95:       eventName: "Gran Sorteo Millonario Fin de Año",
+ 96:       subtitle: "Tradicional Sorteo de Fin de Año con Lotería Nacional",
+ 97:       organizer: "Asociación Civil Vecinal",
+ 98:       drawDate: "28 de Diciembre 2026",
+ 99:       price: 10000,
+100:       priceLabel: "Valor: $ 10.000",
+101:       totalTickets: 2000,
+102:       startNumber: 1,
+103:       contributionText: "Jugada nocturna por Quiniela de la Ciudad",
+104:       primaryColor: "#991b1b",
+105:       prizes: [
+106:         { position: 1, label: "1° Premio:", description: "Moto 110cc 0KM con Papeles" },
+107:         { position: 2, label: "2° Premio:", description: "Heladera No Frost con Freezer" },
+108:         { position: 3, label: "3° Premio:", description: "Lavarropas Automático 7Kg" },
+109:         { position: 4, label: "4° Premio:", description: "Microondas + Tostadora" },
+110:         { position: 5, label: "5° Premio:", description: "Juego de Toallones Premium" },
+111:       ],
+112:     },
+113:   },
+114: ];
+115: 
+116: interface PresetSelectorProps {
+117:   onSelect?: () => void;
+118: }
+119: 
+120: export function PresetSelector({ onSelect }: PresetSelectorProps) {
+121:   const { setTicketConfig, setPrintConfig } = useRifaStore();
+122: 
+123:   const handleApplyPreset = (preset: Preset) => {
+124:     setTicketConfig(preset.ticket);
+125:     if (preset.print) {
+126:       setPrintConfig(preset.print);
+127:     }
+128:     onSelect?.();
+129:   };
+130: 
+131:   return (
+132:     <div className="space-y-2">
+133:       <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-300 mb-2">
+134:         <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+135:         <span>Plantillas Profesionales Listas para Usar</span>
+136:       </div>
+137:       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+138:         {PRESETS.map((preset) => (
+139:           <button
+140:             key={preset.id}
+141:             type="button"
+142:             onClick={() => handleApplyPreset(preset)}
+143:             className="flex flex-col items-start p-2.5 rounded-xl border border-slate-700/60 bg-slate-800/60 hover:bg-slate-800 hover:border-amber-500/50 transition-all text-left group"
+144:           >
+145:             <div className="p-1.5 rounded-lg bg-slate-900/80 mb-2 group-hover:scale-105 transition-transform">
+146:               {preset.icon}
+147:             </div>
+148:             <span className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">
+149:               {preset.category}
+150:             </span>
+151:             <span className="text-xs font-bold text-slate-200 group-hover:text-amber-300 transition-colors line-clamp-1">
+152:               {preset.name}
+153:             </span>
+154:           </button>
+155:         ))}
+156:       </div>
+157:     </div>
+158:   );
+159: }
+````
+
+## File: src/components/SavedTicketsDrawer.tsx
+````typescript
+  1: "use client";
+  2: 
+  3: import { useState, useEffect } from "react";
+  4: import {
+  5:   X,
+  6:   FolderOpen,
+  7:   Trash2,
+  8:   Copy,
+  9:   Calendar,
+ 10:   Ticket,
+ 11:   Trophy,
+ 12:   ArrowRight,
+ 13:   RefreshCw,
+ 14:   Search,
+ 15:   Sparkles
+ 16: } from "lucide-react";
+ 17: import { Button } from "@/components/ui/button";
+ 18: import { SavedTicket, getSavedTickets, deleteSavedTicket, duplicateSavedTicket } from "@/services/tickets-service";
+ 19: import { useRifaStore } from "@/store/useRifaStore";
+ 20: import { formatCurrency } from "@/lib/utils";
+ 21: 
+ 22: interface SavedTicketsDrawerProps {
+ 23:   isOpen: boolean;
+ 24:   onClose: () => void;
+ 25:   onSelectTicket?: (ticket: SavedTicket) => void;
+ 26: }
+ 27: 
+ 28: export function SavedTicketsDrawer({ isOpen, onClose, onSelectTicket }: SavedTicketsDrawerProps) {
+ 29:   const [tickets, setTickets] = useState<SavedTicket[]>([]);
+ 30:   const [loading, setLoading] = useState(true);
+ 31:   const [search, setSearch] = useState("");
+ 32:   const [activeDeleteId, setActiveDeleteId] = useState<string | null>(null);
+ 33: 
+ 34:   const { setTicketConfig, setPrintConfig } = useRifaStore();
+ 35: 
+ 36:   const fetchTickets = async () => {
+ 37:     setLoading(true);
+ 38:     try {
+ 39:       const data = await getSavedTickets();
+ 40:       setTickets(data);
+ 41:     } finally {
+ 42:       setLoading(false);
+ 43:     }
+ 44:   };
+ 45: 
+ 46:   useEffect(() => {
+ 47:     if (isOpen) {
+ 48:       fetchTickets();
+ 49:     }
+ 50:   }, [isOpen]);
+ 51: 
+ 52:   if (!isOpen) return null;
+ 53: 
+ 54:   const handleLoad = (ticket: SavedTicket) => {
+ 55:     setTicketConfig(ticket.ticket_config);
+ 56:     setPrintConfig(ticket.print_config);
+ 57:     onSelectTicket?.(ticket);
+ 58:     onClose();
+ 59:   };
+ 60: 
+ 61:   const handleDelete = async (id: string, e: React.MouseEvent) => {
+ 62:     e.stopPropagation();
+ 63:     setActiveDeleteId(id);
+ 64:     try {
+ 65:       await deleteSavedTicket(id);
+ 66:       setTickets((prev) => prev.filter((t) => t.id !== id));
+ 67:     } finally {
+ 68:       setActiveDeleteId(null);
+ 69:     }
+ 70:   };
+ 71: 
+ 72:   const handleDuplicate = async (ticket: SavedTicket, e: React.MouseEvent) => {
+ 73:     e.stopPropagation();
+ 74:     const duplicated = await duplicateSavedTicket(ticket);
+ 75:     setTickets((prev) => [duplicated, ...prev]);
+ 76:   };
+ 77: 
+ 78:   const filtered = tickets.filter((t) =>
+ 79:     t.title.toLowerCase().includes(search.toLowerCase()) ||
+ 80:     t.ticket_config.eventName.toLowerCase().includes(search.toLowerCase())
+ 81:   );
+ 82: 
+ 83:   return (
+ 84:     <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+ 85:       <div className="relative w-full max-w-md h-full bg-slate-900 border-l border-slate-700/80 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+ 86:         {/* Cabecera */}
+ 87:         <div className="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-900/90">
+ 88:           <div className="flex items-center gap-2.5">
+ 89:             <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
+ 90:               <FolderOpen className="h-4 w-4" />
+ 91:             </div>
+ 92:             <div>
+ 93:               <h3 className="text-sm font-bold text-slate-100">Mis Rifas Guardadas</h3>
+ 94:               <p className="text-[10px] text-slate-400">
+ 95:                 {tickets.length} {tickets.length === 1 ? "diseño disponible" : "diseños disponibles"}
+ 96:               </p>
+ 97:             </div>
+ 98:           </div>
+ 99: 
+100:           <div className="flex items-center gap-1">
+101:             <button
+102:               onClick={fetchTickets}
+103:               title="Recargar"
+104:               className="text-slate-400 hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
+105:             >
+106:               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin text-amber-400" : ""}`} />
+107:             </button>
+108:             <button
+109:               onClick={onClose}
+110:               className="text-slate-400 hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
+111:             >
+112:               <X className="h-5 w-5" />
+113:             </button>
+114:           </div>
+115:         </div>
+116: 
+117:         {/* Buscador */}
+118:         <div className="p-3 border-b border-slate-800/80 bg-slate-900/50">
+119:           <div className="relative">
+120:             <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-500" />
+121:             <input
+122:               type="text"
+123:               value={search}
+124:               onChange={(e) => setSearch(e.target.value)}
+125:               placeholder="Buscar rifa por nombre..."
+126:               className="w-full pl-8 pr-3 py-1.5 bg-slate-800/80 border border-slate-700 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500"
+127:             />
+128:           </div>
+129:         </div>
+130: 
+131:         {/* Lista de diseños */}
+132:         <div className="flex-1 overflow-y-auto p-4 space-y-3">
+133:           {loading ? (
+134:             <div className="flex flex-col items-center justify-center h-48 text-slate-500 space-y-2">
+135:               <RefreshCw className="h-6 w-6 animate-spin text-amber-400" />
+136:               <p className="text-xs">Cargando tus rifas...</p>
+137:             </div>
+138:           ) : filtered.length === 0 ? (
+139:             <div className="flex flex-col items-center justify-center h-64 text-center p-6 rounded-2xl border border-dashed border-slate-800 bg-slate-900/40">
+140:               <Sparkles className="h-8 w-8 text-slate-600 mb-2" />
+141:               <p className="text-sm font-semibold text-slate-300">No hay rifas guardadas</p>
+142:               <p className="text-xs text-slate-500 mt-1 max-w-[240px]">
+143:                 {search ? "No se encontraron rifas con ese término." : "Crea tu primer diseño y haz clic en 'Guardar Rifa' en la barra superior."}
+144:               </p>
+145:             </div>
+146:           ) : (
+147:             filtered.map((ticket) => (
+148:               <div
+149:                 key={ticket.id}
+150:                 onClick={() => handleLoad(ticket)}
+151:                 className="group relative rounded-xl border border-slate-800 bg-slate-800/50 hover:bg-slate-800 hover:border-amber-500/50 p-3.5 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-lg hover:shadow-amber-500/5"
+152:               >
+153:                 <div className="flex items-start justify-between gap-2">
+154:                   <div className="flex-1 min-w-0">
+155:                     <h4 className="text-xs font-bold text-slate-100 group-hover:text-amber-300 truncate transition-colors">
+156:                       {ticket.title}
+157:                     </h4>
+158:                     <p className="text-[11px] text-slate-400 truncate mt-0.5">
+159:                       {ticket.ticket_config.subtitle || ticket.ticket_config.eventName}
+160:                     </p>
+161:                   </div>
+162: 
+163:                   {/* Acciones */}
+164:                   <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+165:                     <button
+166:                       onClick={(e) => handleDuplicate(ticket, e)}
+167:                       title="Duplicar"
+168:                       className="text-slate-400 hover:text-amber-400 p-1 rounded hover:bg-slate-700/60"
+169:                     >
+170:                       <Copy className="h-3.5 w-3.5" />
+171:                     </button>
+172:                     <button
+173:                       onClick={(e) => handleDelete(ticket.id, e)}
+174:                       title="Eliminar"
+175:                       disabled={activeDeleteId === ticket.id}
+176:                       className="text-slate-400 hover:text-rose-400 p-1 rounded hover:bg-slate-700/60"
+177:                     >
+178:                       <Trash2 className="h-3.5 w-3.5" />
+179:                     </button>
+180:                   </div>
+181:                 </div>
+182: 
+183:                 {/* Metadata pills */}
+184:                 <div className="grid grid-cols-3 gap-2 mt-3 pt-2.5 border-t border-slate-700/40 text-[10px] text-slate-400">
+185:                   <div className="flex items-center gap-1 truncate">
+186:                     <Ticket className="h-3 w-3 text-amber-400 shrink-0" />
+187:                     <span>{ticket.ticket_config.totalTickets} tks</span>
+188:                   </div>
+189:                   <div className="flex items-center gap-1 truncate">
+190:                     <Trophy className="h-3 w-3 text-amber-400 shrink-0" />
+191:                     <span>{ticket.ticket_config.prizes?.length || 0} premios</span>
+192:                   </div>
+193:                   <div className="flex items-center gap-1 truncate font-mono text-amber-300 font-semibold">
+194:                     <span>{formatCurrency(ticket.ticket_config.price || 0)}</span>
+195:                   </div>
+196:                 </div>
+197: 
+198:                 {/* Botón Cargar */}
+199:                 <div className="mt-2.5 flex items-center justify-between text-[10px] text-slate-500 group-hover:text-amber-400 transition-colors">
+200:                   <span className="flex items-center gap-1">
+201:                     <Calendar className="h-2.5 w-2.5" />
+202:                     {new Date(ticket.updated_at).toLocaleDateString()}
+203:                   </span>
+204:                   <span className="flex items-center gap-0.5 font-medium">
+205:                     Cargar diseño <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+206:                   </span>
+207:                 </div>
+208:               </div>
+209:             ))
+210:           )}
+211:         </div>
+212: 
+213:         {/* Footer */}
+214:         <div className="p-3 border-t border-slate-800 bg-slate-900/90 text-center">
+215:           <p className="text-[10px] text-slate-500">
+216:             Los cambios se sincronizan en la nube y quedan disponibles en tu cuenta.
+217:           </p>
+218:         </div>
+219:       </div>
+220:     </div>
+221:   );
+222: }
+````
+
+## File: src/hooks/useAuth.ts
+````typescript
+  1: "use client";
+  2: 
+  3: import { useState, useEffect, useCallback } from "react";
+  4: import { getSupabase, isSupabaseConfigured } from "@/lib/supabase";
+  5: import { User } from "@supabase/supabase-js";
+  6: 
+  7: export interface AppUser {
+  8:   id: string;
+  9:   email: string;
+ 10:   name?: string;
+ 11:   isDemo?: boolean;
+ 12: }
+ 13: 
+ 14: const DEMO_USER_KEY = "eventazo_demo_user";
+ 15: 
+ 16: export function useAuth() {
+ 17:   const [user, setUser] = useState<AppUser | null>(null);
+ 18:   const [loading, setLoading] = useState(true);
+ 19:   const isConfigured = isSupabaseConfigured();
+ 20: 
+ 21:   // Escuchar cambios de sesión de Supabase o cargar usuario demo local
+ 22:   useEffect(() => {
+ 23:     const supabase = getSupabase();
+ 24: 
+ 25:     if (supabase) {
+ 26:       supabase.auth.getSession().then(({ data: { session } }) => {
+ 27:         if (session?.user) {
+ 28:           setUser({
+ 29:             id: session.user.id,
+ 30:             email: session.user.email || "",
+ 31:             name: session.user.user_metadata?.full_name || session.user.email?.split("@")[0],
+ 32:           });
+ 33:         }
+ 34:         setLoading(false);
+ 35:       });
+ 36: 
+ 37:       const { data: { subscription } } = supabase.auth.onAuthStateChange(
+ 38:         (_event, session) => {
+ 39:           if (session?.user) {
+ 40:             setUser({
+ 41:               id: session.user.id,
+ 42:               email: session.user.email || "",
+ 43:               name: session.user.user_metadata?.full_name || session.user.email?.split("@")[0],
+ 44:             });
+ 45:           } else {
+ 46:             // Verificar si hay usuario demo
+ 47:             const demo = localStorage.getItem(DEMO_USER_KEY);
+ 48:             if (demo) {
+ 49:               setUser(JSON.parse(demo));
+ 50:             } else {
+ 51:               setUser(null);
+ 52:             }
+ 53:           }
+ 54:           setLoading(false);
+ 55:         }
+ 56:       );
+ 57: 
+ 58:       return () => {
+ 59:         subscription.unsubscribe();
+ 60:       };
+ 61:     } else {
+ 62:       // Modo local / demo
+ 63:       if (typeof window !== "undefined") {
+ 64:         const demo = localStorage.getItem(DEMO_USER_KEY);
+ 65:         if (demo) {
+ 66:           setUser(JSON.parse(demo));
+ 67:         }
+ 68:       }
+ 69:       setLoading(false);
+ 70:     }
+ 71:   }, []);
+ 72: 
+ 73:   const signIn = useCallback(async (email: string, password: string): Promise<{ error: string | null }> => {
+ 74:     const supabase = getSupabase();
+ 75: 
+ 76:     if (!supabase) {
+ 77:       // Si Supabase no está configurado, loguear como demo
+ 78:       const demoUser: AppUser = {
+ 79:         id: "demo-user-123",
+ 80:         email,
+ 81:         name: email.split("@")[0],
+ 82:         isDemo: true,
+ 83:       };
+ 84:       localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser));
+ 85:       setUser(demoUser);
+ 86:       return { error: null };
+ 87:     }
+ 88: 
+ 89:     try {
+ 90:       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+ 91:       if (error) return { error: error.message };
+ 92:       if (data.user) {
+ 93:         setUser({
+ 94:           id: data.user.id,
+ 95:           email: data.user.email || "",
+ 96:           name: data.user.user_metadata?.full_name || data.user.email?.split("@")[0],
+ 97:         });
+ 98:       }
+ 99:       return { error: null };
+100:     } catch (e) {
+101:       return { error: e instanceof Error ? e.message : "Error al iniciar sesión" };
+102:     }
+103:   }, []);
+104: 
+105:   const signUp = useCallback(async (email: string, password: string): Promise<{ error: string | null; message?: string }> => {
+106:     const supabase = getSupabase();
+107: 
+108:     if (!supabase) {
+109:       const demoUser: AppUser = {
+110:         id: "demo-user-123",
+111:         email,
+112:         name: email.split("@")[0],
+113:         isDemo: true,
+114:       };
+115:       localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser));
+116:       setUser(demoUser);
+117:       return { error: null, message: "Cuenta demo creada exitosamente" };
+118:     }
+119: 
+120:     try {
+121:       const { data, error } = await supabase.auth.signUp({
+122:         email,
+123:         password,
+124:       });
+125:       if (error) return { error: error.message };
+126:       if (data.user) {
+127:         setUser({
+128:           id: data.user.id,
+129:           email: data.user.email || "",
+130:           name: data.user.user_metadata?.full_name || data.user.email?.split("@")[0],
+131:         });
+132:       }
+133:       return { error: null, message: "Revisa tu correo para confirmar tu cuenta si es requerido" };
+134:     } catch (e) {
+135:       return { error: e instanceof Error ? e.message : "Error al registrarse" };
+136:     }
+137:   }, []);
+138: 
+139:   const signInDemo = useCallback(() => {
+140:     const demoUser: AppUser = {
+141:       id: "demo-pro-user",
+142:       email: "demo@eventazo.pro",
+143:       name: "Usuario Pro (Demo)",
+144:       isDemo: true,
+145:     };
+146:     localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser));
+147:     setUser(demoUser);
+148:   }, []);
+149: 
+150:   const updateProfile = useCallback(async (newName: string, newEmail?: string): Promise<{ error: string | null; message?: string }> => {
+151:     const supabase = getSupabase();
+152: 
+153:     if (!supabase || user?.isDemo) {
+154:       const updated: AppUser = {
+155:         id: user?.id || "demo-user",
+156:         email: newEmail || user?.email || "",
+157:         name: newName,
+158:         isDemo: true,
+159:       };
+160:       localStorage.setItem(DEMO_USER_KEY, JSON.stringify(updated));
+161:       setUser(updated);
+162:       return { error: null, message: "Perfil actualizado exitosamente" };
+163:     }
+164: 
+165:     try {
+166:       const updateData: { data?: { full_name: string }; email?: string } = {
+167:         data: { full_name: newName },
+168:       };
+169:       if (newEmail && newEmail !== user?.email) {
+170:         updateData.email = newEmail;
+171:       }
+172: 
+173:       const { data, error } = await supabase.auth.updateUser(updateData);
+174:       if (error) return { error: error.message };
+175: 
+176:       if (data.user) {
+177:         setUser({
+178:           id: data.user.id,
+179:           email: data.user.email || "",
+180:           name: data.user.user_metadata?.full_name || newName,
+181:         });
+182:       }
+183: 
+184:       return {
+185:         error: null,
+186:         message: newEmail && newEmail !== user?.email
+187:           ? "Perfil actualizado. Se envió un correo de confirmación al nuevo email."
+188:           : "Perfil actualizado exitosamente",
+189:       };
+190:     } catch (e) {
+191:       return { error: e instanceof Error ? e.message : "Error al actualizar perfil" };
+192:     }
+193:   }, [user]);
+194: 
+195:   const updatePassword = useCallback(async (newPassword: string): Promise<{ error: string | null }> => {
+196:     const supabase = getSupabase();
+197: 
+198:     if (!supabase || user?.isDemo) {
+199:       return { error: null };
+200:     }
+201: 
+202:     try {
+203:       const { error } = await supabase.auth.updateUser({ password: newPassword });
+204:       if (error) return { error: error.message };
+205:       return { error: null };
+206:     } catch (e) {
+207:       return { error: e instanceof Error ? e.message : "Error al cambiar contraseña" };
+208:     }
+209:   }, [user]);
+210: 
+211:   const signOut = useCallback(async () => {
+212:     const supabase = getSupabase();
+213:     if (supabase) {
+214:       await supabase.auth.signOut();
+215:     }
+216:     localStorage.removeItem(DEMO_USER_KEY);
+217:     setUser(null);
+218:   }, []);
+219: 
+220:   return {
+221:     user,
+222:     loading,
+223:     isConfigured,
+224:     signIn,
+225:     signUp,
+226:     signInDemo,
+227:     updateProfile,
+228:     updatePassword,
+229:     signOut,
+230:   };
+231: }
+````
+
 ## File: src/hooks/usePdfGeneration.ts
 ````typescript
  1: "use client";
@@ -2154,6 +2466,226 @@ tsconfig.json
 73: 
 74:   return { generate, download };
 75: }
+````
+
+## File: src/lib/supabase.ts
+````typescript
+ 1: import { createClient, SupabaseClient } from "@supabase/supabase-js";
+ 2: 
+ 3: const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+ 4: const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+ 5: 
+ 6: export const isSupabaseConfigured = (): boolean => {
+ 7:   return Boolean(
+ 8:     supabaseUrl &&
+ 9:     supabaseAnonKey &&
+10:     supabaseUrl !== "https://tu-proyecto.supabase.co" &&
+11:     supabaseAnonKey !== "tu-anon-key"
+12:   );
+13: };
+14: 
+15: let supabaseInstance: SupabaseClient | null = null;
+16: 
+17: export const getSupabase = (): SupabaseClient | null => {
+18:   if (!isSupabaseConfigured()) {
+19:     return null;
+20:   }
+21: 
+22:   if (!supabaseInstance) {
+23:     supabaseInstance = createClient(supabaseUrl, supabaseAnonKey, {
+24:       auth: {
+25:         persistSession: true,
+26:         autoRefreshToken: true,
+27:       },
+28:     });
+29:   }
+30: 
+31:   return supabaseInstance;
+32: };
+````
+
+## File: src/services/tickets-service.ts
+````typescript
+  1: import { getSupabase, isSupabaseConfigured } from "@/lib/supabase";
+  2: import { TicketConfig, PrintConfig } from "@/types";
+  3: 
+  4: export interface SavedTicket {
+  5:   id: string;
+  6:   user_id?: string;
+  7:   title: string;
+  8:   ticket_config: TicketConfig;
+  9:   print_config: PrintConfig;
+ 10:   created_at: string;
+ 11:   updated_at: string;
+ 12: }
+ 13: 
+ 14: const LOCAL_STORAGE_KEY = "eventazo_saved_tickets";
+ 15: 
+ 16: // Obtener tickets desde LocalStorage (fallback de desarrollo/modo demo)
+ 17: function getLocalTickets(): SavedTicket[] {
+ 18:   if (typeof window === "undefined") return [];
+ 19:   try {
+ 20:     const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+ 21:     return raw ? JSON.parse(raw) : [];
+ 22:   } catch (e) {
+ 23:     console.error("Error al leer rifas locales:", e);
+ 24:     return [];
+ 25:   }
+ 26: }
+ 27: 
+ 28: // Guardar tickets en LocalStorage
+ 29: function saveLocalTickets(tickets: SavedTicket[]) {
+ 30:   if (typeof window === "undefined") return;
+ 31:   try {
+ 32:     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(tickets));
+ 33:   } catch (e) {
+ 34:     console.error("Error al guardar rifas locales:", e);
+ 35:   }
+ 36: }
+ 37: 
+ 38: // Obtener todas las rifas del usuario (Supabase o LocalStorage)
+ 39: export async function getSavedTickets(): Promise<SavedTicket[]> {
+ 40:   const supabase = getSupabase();
+ 41: 
+ 42:   if (supabase) {
+ 43:     try {
+ 44:       const { data: { user } } = await supabase.auth.getUser();
+ 45:       if (user) {
+ 46:         const { data, error } = await supabase
+ 47:           .from("saved_tickets")
+ 48:           .select("*")
+ 49:           .order("updated_at", { ascending: false });
+ 50: 
+ 51:         if (error) {
+ 52:           console.warn("Supabase error, usando fallback local:", error.message);
+ 53:           return getLocalTickets();
+ 54:         }
+ 55: 
+ 56:         return data as SavedTicket[];
+ 57:       }
+ 58:     } catch (e) {
+ 59:       console.warn("Error consultando Supabase, usando fallback local:", e);
+ 60:     }
+ 61:   }
+ 62: 
+ 63:   return getLocalTickets();
+ 64: }
+ 65: 
+ 66: // Guardar o actualizar una rifa
+ 67: export async function saveTicketDesign(
+ 68:   title: string,
+ 69:   ticketConfig: TicketConfig,
+ 70:   printConfig: PrintConfig,
+ 71:   existingId?: string
+ 72: ): Promise<SavedTicket> {
+ 73:   const supabase = getSupabase();
+ 74:   const now = new Date().toISOString();
+ 75: 
+ 76:   if (supabase) {
+ 77:     try {
+ 78:       const { data: { user } } = await supabase.auth.getUser();
+ 79: 
+ 80:       if (user) {
+ 81:         if (existingId) {
+ 82:           const { data, error } = await supabase
+ 83:             .from("saved_tickets")
+ 84:             .update({
+ 85:               title,
+ 86:               ticket_config: ticketConfig,
+ 87:               print_config: printConfig,
+ 88:               updated_at: now,
+ 89:             })
+ 90:             .eq("id", existingId)
+ 91:             .select()
+ 92:             .single();
+ 93: 
+ 94:           if (!error && data) {
+ 95:             return data as SavedTicket;
+ 96:           }
+ 97:         } else {
+ 98:           const { data, error } = await supabase
+ 99:             .from("saved_tickets")
+100:             .insert({
+101:               user_id: user.id,
+102:               title,
+103:               ticket_config: ticketConfig,
+104:               print_config: printConfig,
+105:               created_at: now,
+106:               updated_at: now,
+107:             })
+108:             .select()
+109:             .single();
+110: 
+111:           if (!error && data) {
+112:             return data as SavedTicket;
+113:           }
+114:         }
+115:       }
+116:     } catch (e) {
+117:       console.warn("Error guardando en Supabase, guardando localmente:", e);
+118:     }
+119:   }
+120: 
+121:   // Fallback local
+122:   const current = getLocalTickets();
+123:   if (existingId) {
+124:     const idx = current.findIndex((t) => t.id === existingId);
+125:     if (idx !== -1) {
+126:       const updated: SavedTicket = {
+127:         ...current[idx],
+128:         title,
+129:         ticket_config: ticketConfig,
+130:         print_config: printConfig,
+131:         updated_at: now,
+132:       };
+133:       current[idx] = updated;
+134:       saveLocalTickets(current);
+135:       return updated;
+136:     }
+137:   }
+138: 
+139:   const newTicket: SavedTicket = {
+140:     id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+141:     title,
+142:     ticket_config: ticketConfig,
+143:     print_config: printConfig,
+144:     created_at: now,
+145:     updated_at: now,
+146:   };
+147:   current.unshift(newTicket);
+148:   saveLocalTickets(current);
+149:   return newTicket;
+150: }
+151: 
+152: // Eliminar una rifa guardada
+153: export async function deleteSavedTicket(id: string): Promise<boolean> {
+154:   const supabase = getSupabase();
+155: 
+156:   if (supabase && !id.startsWith("local-")) {
+157:     try {
+158:       const { error } = await supabase
+159:         .from("saved_tickets")
+160:         .delete()
+161:         .eq("id", id);
+162: 
+163:       if (!error) {
+164:         return true;
+165:       }
+166:     } catch (e) {
+167:       console.warn("Error eliminando en Supabase:", e);
+168:     }
+169:   }
+170: 
+171:   const current = getLocalTickets().filter((t) => t.id !== id);
+172:   saveLocalTickets(current);
+173:   return true;
+174: }
+175: 
+176: // Duplicar una rifa guardada
+177: export async function duplicateSavedTicket(ticket: SavedTicket): Promise<SavedTicket> {
+178:   const newTitle = `${ticket.title} (Copia)`;
+179:   return saveTicketDesign(newTitle, ticket.ticket_config, ticket.print_config);
+180: }
 ````
 
 ## File: src/store/useRifaStore.ts
@@ -2248,46 +2780,6 @@ tsconfig.json
 88:       generatedPdfUrl: null,
 89:     }),
 90: }));
-````
-
-## File: package.json
-````json
- 1: {
- 2:   "name": "eventazo",
- 3:   "version": "0.1.0",
- 4:   "private": true,
- 5:   "scripts": {
- 6:     "dev": "next dev",
- 7:     "build": "next build",
- 8:     "start": "next start",
- 9:     "lint": "eslint",
-10:     "repomix": "repomix",
-11:     "analyze": "repomix"
-12:   },
-13:   "dependencies": {
-14:     "@supabase/supabase-js": "^2.116.0",
-15:     "class-variance-authority": "^0.7.1",
-16:     "clsx": "^2.1.1",
-17:     "lucide-react": "^1.16.0",
-18:     "next": "16.2.6",
-19:     "pdf-lib": "^1.17.1",
-20:     "react": "19.2.4",
-21:     "react-dom": "19.2.4",
-22:     "tailwind-merge": "^3.6.0",
-23:     "zustand": "^5.0.13"
-24:   },
-25:   "devDependencies": {
-26:     "@tailwindcss/postcss": "^4",
-27:     "@types/node": "^20",
-28:     "@types/react": "^19",
-29:     "@types/react-dom": "^19",
-30:     "eslint": "^9",
-31:     "eslint-config-next": "16.2.6",
-32:     "repomix": "^1.18.0",
-33:     "tailwindcss": "^4",
-34:     "typescript": "^5"
-35:   }
-36: }
 ````
 
 ## File: README.md
@@ -2689,32 +3181,64 @@ tsconfig.json
 161: .bg-gradient-dark {
 162:   background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
 163: }
+164: 
+165: /* ============================================================ */
+166: /* OPTIMIZACIONES MOBILE APP-LIKE                               */
+167: /* ============================================================ */
+168: 
+169: /* Prevenir auto-zoom en iOS Safari y Android Chrome al enfocar inputs */
+170: @media screen and (max-width: 768px) {
+171:   input, select, textarea {
+172:     font-size: 16px !important;
+173:   }
+174: }
+175: 
+176: /* Eliminar retraso de tap y destello en pantallas táctiles */
+177: html {
+178:   scroll-behavior: smooth;
+179:   -webkit-tap-highlight-color: transparent;
+180: }
+181: 
+182: a, button, [role="button"] {
+183:   touch-action: manipulation;
+184: }
 ````
 
 ## File: src/app/layout.tsx
 ````typescript
- 1: import type { Metadata } from "next";
+ 1: import type { Metadata, Viewport } from "next";
  2: import "./globals.css";
- 3: 
- 4: export const metadata: Metadata = {
- 5:   title: "Eventazo | Generador de Rifas Profesional",
- 6:   description:
- 7:     "Generá rifas y tickets de sorteos de forma profesional. Optimizado para impresión A4 con diseño premium.",
- 8: };
- 9: 
-10: export default function RootLayout({
-11:   children,
-12: }: Readonly<{
-13:   children: React.ReactNode;
-14: }>) {
-15:   return (
-16:     <html lang="es" className="dark">
-17:       <body className="min-h-screen bg-gradient-dark antialiased">
-18:         {children}
-19:       </body>
-20:     </html>
-21:   );
-22: }
+ 3: import { MobileBottomNav } from "@/components/MobileBottomNav";
+ 4: 
+ 5: export const metadata: Metadata = {
+ 6:   title: "Eventazo | Generador de Rifas Profesional",
+ 7:   description:
+ 8:     "Generá rifas y tickets de sorteos de forma profesional. Optimizado para impresión A4 con diseño premium.",
+ 9: };
+10: 
+11: export const viewport: Viewport = {
+12:   width: "device-width",
+13:   initialScale: 1,
+14:   maximumScale: 1,
+15:   userScalable: false,
+16:   viewportFit: "cover",
+17:   themeColor: "#020617",
+18: };
+19: 
+20: export default function RootLayout({
+21:   children,
+22: }: Readonly<{
+23:   children: React.ReactNode;
+24: }>) {
+25:   return (
+26:     <html lang="es" className="dark">
+27:       <body className="min-h-screen bg-gradient-dark antialiased pb-16 sm:pb-0">
+28:         {children}
+29:         <MobileBottomNav />
+30:       </body>
+31:     </html>
+32:   );
+33: }
 ````
 
 ## File: src/components/ui/input.tsx
@@ -3128,6 +3652,46 @@ tsconfig.json
 382:     </div>
 383:   );
 384: }
+````
+
+## File: package.json
+````json
+ 1: {
+ 2:   "name": "eventazo",
+ 3:   "version": "0.1.0",
+ 4:   "private": true,
+ 5:   "scripts": {
+ 6:     "dev": "next dev",
+ 7:     "build": "next build",
+ 8:     "start": "next start",
+ 9:     "lint": "eslint",
+10:     "repomix": "repomix",
+11:     "analyze": "repomix"
+12:   },
+13:   "dependencies": {
+14:     "@supabase/supabase-js": "^2.116.0",
+15:     "class-variance-authority": "^0.7.1",
+16:     "clsx": "^2.1.1",
+17:     "lucide-react": "^1.16.0",
+18:     "next": "16.2.6",
+19:     "pdf-lib": "^1.17.1",
+20:     "react": "19.2.4",
+21:     "react-dom": "19.2.4",
+22:     "tailwind-merge": "^3.6.0",
+23:     "zustand": "^5.0.13"
+24:   },
+25:   "devDependencies": {
+26:     "@tailwindcss/postcss": "^4",
+27:     "@types/node": "^20",
+28:     "@types/react": "^19",
+29:     "@types/react-dom": "^19",
+30:     "eslint": "^9",
+31:     "eslint-config-next": "16.2.6",
+32:     "repomix": "^1.18.0",
+33:     "tailwindcss": "^4",
+34:     "typescript": "^5"
+35:   }
+36: }
 ````
 
 ## File: src/components/GeneratePanel.tsx
@@ -4169,218 +4733,6 @@ tsconfig.json
 748: }
 ````
 
-## File: src/components/Header.tsx
-````typescript
-  1: "use client";
-  2: 
-  3: import { useState, useEffect } from "react";
-  4: import Image from "next/image";
-  5: import {
-  6:   FolderOpen,
-  7:   Save,
-  8:   LogIn,
-  9:   LogOut,
- 10:   User as UserIcon,
- 11:   Check,
- 12:   Sparkles,
- 13:   Database
- 14: } from "lucide-react";
- 15: import { Button } from "@/components/ui/button";
- 16: import { useAuth } from "@/hooks/useAuth";
- 17: import { AuthModal } from "@/components/auth/AuthModal";
- 18: import { SavedTicketsDrawer } from "@/components/SavedTicketsDrawer";
- 19: import { useRifaStore } from "@/store/useRifaStore";
- 20: import { saveTicketDesign, getSavedTickets } from "@/services/tickets-service";
- 21: 
- 22: export function Header() {
- 23:   const { user, signOut, isConfigured } = useAuth();
- 24:   const { ticketConfig, printConfig } = useRifaStore();
- 25: 
- 26:   const [isAuthOpen, setIsAuthOpen] = useState(false);
- 27:   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
- 28:   const [saving, setSaving] = useState(false);
- 29:   const [saveSuccess, setSaveSuccess] = useState(false);
- 30:   const [savedCount, setSavedCount] = useState(0);
- 31: 
- 32:   // Cargar cantidad de boletos guardados
- 33:   const refreshCount = async () => {
- 34:     try {
- 35:       const list = await getSavedTickets();
- 36:       setSavedCount(list.length);
- 37:     } catch {
- 38:       // Ignorar error silencioso
- 39:     }
- 40:   };
- 41: 
- 42:   useEffect(() => {
- 43:     refreshCount();
- 44:   }, [user]);
- 45: 
- 46:   const handleSave = async () => {
- 47:     if (!user) {
- 48:       setIsAuthOpen(true);
- 49:       return;
- 50:     }
- 51: 
- 52:     setSaving(true);
- 53:     try {
- 54:       await saveTicketDesign(
- 55:         ticketConfig.eventName || "Mi Rifa",
- 56:         ticketConfig,
- 57:         printConfig
- 58:       );
- 59:       setSaveSuccess(true);
- 60:       refreshCount();
- 61:       setTimeout(() => setSaveSuccess(false), 2500);
- 62:     } catch (e) {
- 63:       console.error("Error al guardar:", e);
- 64:     } finally {
- 65:       setSaving(false);
- 66:     }
- 67:   };
- 68: 
- 69:   return (
- 70:     <>
- 71:       <header className="sticky top-0 z-40 border-b border-slate-700/60 bg-slate-900/90 backdrop-blur-md">
- 72:         <div className="container mx-auto flex h-14 sm:h-16 items-center justify-between px-3 sm:px-4">
- 73:           {/* Logo & Marca */}
- 74:           <div className="flex items-center gap-2 sm:gap-3">
- 75:             <div className="relative">
- 76:               <Image
- 77:                 src="/icon.svg"
- 78:                 alt="Eventazo"
- 79:                 width={40}
- 80:                 height={40}
- 81:                 className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl shadow-lg shadow-amber-500/20"
- 82:               />
- 83:               <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-amber-400 text-[8px] font-black text-slate-950">
- 84:                 ★
- 85:               </span>
- 86:             </div>
- 87:             <div>
- 88:               <div className="flex items-center gap-1.5">
- 89:                 <h1 className="text-sm sm:text-lg font-black text-slate-100 tracking-tight">
- 90:                   Eventazo
- 91:                 </h1>
- 92:                 <span className="rounded bg-gradient-to-r from-amber-500/20 to-amber-300/20 border border-amber-500/40 px-1.5 py-0.2 text-[9px] font-bold text-amber-300">
- 93:                   PRO
- 94:                 </span>
- 95:               </div>
- 96:               <p className="text-[10px] text-slate-400 hidden sm:block">
- 97:                 Diseño & Impresión de Rifas Profesionales
- 98:               </p>
- 99:             </div>
-100:           </div>
-101: 
-102:           {/* Acciones del Header */}
-103:           <div className="flex items-center gap-1.5 sm:gap-3">
-104:             {/* Botón Mis Rifas */}
-105:             <Button
-106:               variant="outline"
-107:               size="sm"
-108:               onClick={() => setIsDrawerOpen(true)}
-109:               className="border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-slate-200 hover:text-amber-400 text-xs h-8 sm:h-9 px-2 sm:px-3 rounded-xl gap-1.5"
-110:             >
-111:               <FolderOpen className="h-3.5 w-3.5 text-amber-400" />
-112:               <span className="hidden sm:inline">Mis Rifas</span>
-113:               {savedCount > 0 && (
-114:                 <span className="ml-1 rounded-full bg-amber-500/20 px-1.5 py-0.2 text-[10px] font-mono font-bold text-amber-400">
-115:                   {savedCount}
-116:                 </span>
-117:               )}
-118:             </Button>
-119: 
-120:             {/* Botón Guardar Rifa */}
-121:             <Button
-122:               size="sm"
-123:               onClick={handleSave}
-124:               disabled={saving}
-125:               className={`h-8 sm:h-9 px-2 sm:px-3 text-xs font-bold rounded-xl gap-1.5 transition-all shadow-md ${
-126:                 saveSuccess
-127:                   ? "bg-emerald-500 text-white shadow-emerald-500/20"
-128:                   : "bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 shadow-amber-500/20"
-129:               }`}
-130:             >
-131:               {saveSuccess ? (
-132:                 <>
-133:                   <Check className="h-3.5 w-3.5" />
-134:                   <span>¡Guardado!</span>
-135:                 </>
-136:               ) : (
-137:                 <>
-138:                   <Save className="h-3.5 w-3.5" />
-139:                   <span>{saving ? "Guardando..." : "Guardar"}</span>
-140:                 </>
-141:               )}
-142:             </Button>
-143: 
-144:             {/* Usuario / Login */}
-145:             {user ? (
-146:               <div className="flex items-center gap-1 sm:gap-2 pl-1 border-l border-slate-800">
-147:                 <div
-148:                   className="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-slate-800/80 border border-slate-700/60"
-149:                   title={user.email}
-150:                 >
-151:                   <div className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px] font-bold">
-152:                     {user.name ? user.name[0].toUpperCase() : "U"}
-153:                   </div>
-154:                   <span className="text-xs font-medium text-slate-300 max-w-[90px] truncate hidden md:inline">
-155:                     {user.name || user.email}
-156:                   </span>
-157:                   {user.isDemo && (
-158:                     <span className="text-[9px] bg-slate-700 text-amber-300 px-1 rounded">
-159:                       Demo
-160:                     </span>
-161:                   )}
-162:                 </div>
-163: 
-164:                 <Button
-165:                   variant="ghost"
-166:                   size="sm"
-167:                   onClick={() => signOut()}
-168:                   title="Cerrar sesión"
-169:                   className="h-8 w-8 p-0 text-slate-400 hover:text-rose-400 rounded-xl"
-170:                 >
-171:                   <LogOut className="h-3.5 w-3.5" />
-172:                 </Button>
-173:               </div>
-174:             ) : (
-175:               <Button
-176:                 variant="ghost"
-177:                 size="sm"
-178:                 onClick={() => setIsAuthOpen(true)}
-179:                 className="h-8 sm:h-9 px-2 sm:px-3 text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-800/80 rounded-xl gap-1.5"
-180:               >
-181:                 <LogIn className="h-3.5 w-3.5" />
-182:                 <span>Ingresar</span>
-183:               </Button>
-184:             )}
-185:           </div>
-186:         </div>
-187:       </header>
-188: 
-189:       {/* Modal de Autenticación */}
-190:       <AuthModal
-191:         isOpen={isAuthOpen}
-192:         onClose={() => setIsAuthOpen(false)}
-193:         onSuccess={() => {
-194:           refreshCount();
-195:         }}
-196:       />
-197: 
-198:       {/* Cajón de Rifas Guardadas */}
-199:       <SavedTicketsDrawer
-200:         isOpen={isDrawerOpen}
-201:         onClose={() => setIsDrawerOpen(false)}
-202:         onSelectTicket={() => {
-203:           refreshCount();
-204:         }}
-205:       />
-206:     </>
-207:   );
-208: }
-````
-
 ## File: src/components/ConfigPanel.tsx
 ````typescript
   1: "use client";
@@ -5020,6 +5372,228 @@ tsconfig.json
 635: }
 ````
 
+## File: src/components/Header.tsx
+````typescript
+  1: "use client";
+  2: 
+  3: import { useState, useEffect } from "react";
+  4: import Image from "next/image";
+  5: import {
+  6:   FolderOpen,
+  7:   Save,
+  8:   LogIn,
+  9:   LogOut,
+ 10:   User as UserIcon,
+ 11:   Check,
+ 12:   Sparkles,
+ 13:   Database
+ 14: } from "lucide-react";
+ 15: import { Button } from "@/components/ui/button";
+ 16: import { useAuth } from "@/hooks/useAuth";
+ 17: import { AuthModal } from "@/components/auth/AuthModal";
+ 18: import { ProfileModal } from "@/components/auth/ProfileModal";
+ 19: import { SavedTicketsDrawer } from "@/components/SavedTicketsDrawer";
+ 20: import { useRifaStore } from "@/store/useRifaStore";
+ 21: import { saveTicketDesign, getSavedTickets } from "@/services/tickets-service";
+ 22: 
+ 23: export function Header() {
+ 24:   const { user, signOut, isConfigured } = useAuth();
+ 25:   const { ticketConfig, printConfig } = useRifaStore();
+ 26: 
+ 27:   const [isAuthOpen, setIsAuthOpen] = useState(false);
+ 28:   const [isProfileOpen, setIsProfileOpen] = useState(false);
+ 29:   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+ 30:   const [saving, setSaving] = useState(false);
+ 31:   const [saveSuccess, setSaveSuccess] = useState(false);
+ 32:   const [savedCount, setSavedCount] = useState(0);
+ 33: 
+ 34:   // Cargar cantidad de boletos guardados
+ 35:   const refreshCount = async () => {
+ 36:     try {
+ 37:       const list = await getSavedTickets();
+ 38:       setSavedCount(list.length);
+ 39:     } catch {
+ 40:       // Ignorar error silencioso
+ 41:     }
+ 42:   };
+ 43: 
+ 44:   useEffect(() => {
+ 45:     refreshCount();
+ 46:   }, [user]);
+ 47: 
+ 48:   const handleSave = async () => {
+ 49:     if (!user) {
+ 50:       setIsAuthOpen(true);
+ 51:       return;
+ 52:     }
+ 53: 
+ 54:     setSaving(true);
+ 55:     try {
+ 56:       await saveTicketDesign(
+ 57:         ticketConfig.eventName || "Mi Rifa",
+ 58:         ticketConfig,
+ 59:         printConfig
+ 60:       );
+ 61:       setSaveSuccess(true);
+ 62:       refreshCount();
+ 63:       setTimeout(() => setSaveSuccess(false), 2500);
+ 64:     } catch (e) {
+ 65:       console.error("Error al guardar:", e);
+ 66:     } finally {
+ 67:       setSaving(false);
+ 68:     }
+ 69:   };
+ 70: 
+ 71:   return (
+ 72:     <>
+ 73:       <header className="sticky top-0 z-40 border-b border-slate-700/60 bg-slate-900/90 backdrop-blur-md">
+ 74:         <div className="container mx-auto flex h-14 sm:h-16 items-center justify-between px-3 sm:px-4">
+ 75:           {/* Logo & Marca */}
+ 76:           <div className="flex items-center gap-2 sm:gap-3">
+ 77:             <div className="relative">
+ 78:               <Image
+ 79:                 src="/icon.svg"
+ 80:                 alt="Eventazo"
+ 81:                 width={40}
+ 82:                 height={40}
+ 83:                 className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl shadow-lg shadow-amber-500/20"
+ 84:               />
+ 85:               <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-amber-400 text-[8px] font-black text-slate-950">
+ 86:                 ★
+ 87:               </span>
+ 88:             </div>
+ 89:             <div>
+ 90:               <div className="flex items-center gap-1.5">
+ 91:                 <h1 className="text-sm sm:text-lg font-black text-slate-100 tracking-tight">
+ 92:                   Eventazo
+ 93:                 </h1>
+ 94:                 <span className="rounded bg-gradient-to-r from-amber-500/20 to-amber-300/20 border border-amber-500/40 px-1.5 py-0.2 text-[9px] font-bold text-amber-300">
+ 95:                   PRO
+ 96:                 </span>
+ 97:               </div>
+ 98:               <p className="text-[10px] text-slate-400 hidden sm:block">
+ 99:                 Diseño & Impresión de Rifas Profesionales
+100:               </p>
+101:             </div>
+102:           </div>
+103: 
+104:           {/* Acciones del Header */}
+105:           <div className="flex items-center gap-1.5 sm:gap-3">
+106:             {/* Botón Mis Rifas */}
+107:             <Button
+108:               variant="outline"
+109:               size="sm"
+110:               onClick={() => setIsDrawerOpen(true)}
+111:               className="border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-slate-200 hover:text-amber-400 text-xs h-8 sm:h-9 px-2 sm:px-3 rounded-xl gap-1.5"
+112:             >
+113:               <FolderOpen className="h-3.5 w-3.5 text-amber-400" />
+114:               <span className="hidden sm:inline">Mis Rifas</span>
+115:               {savedCount > 0 && (
+116:                 <span className="ml-1 rounded-full bg-amber-500/20 px-1.5 py-0.2 text-[10px] font-mono font-bold text-amber-400">
+117:                   {savedCount}
+118:                 </span>
+119:               )}
+120:             </Button>
+121: 
+122:             {/* Botón Guardar Rifa */}
+123:             <Button
+124:               size="sm"
+125:               onClick={handleSave}
+126:               disabled={saving}
+127:               className={`h-8 sm:h-9 px-2 sm:px-3 text-xs font-bold rounded-xl gap-1.5 transition-all shadow-md ${
+128:                 saveSuccess
+129:                   ? "bg-emerald-500 text-white shadow-emerald-500/20"
+130:                   : "bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 shadow-amber-500/20"
+131:               }`}
+132:             >
+133:               {saveSuccess ? (
+134:                 <>
+135:                   <Check className="h-3.5 w-3.5" />
+136:                   <span>¡Guardado!</span>
+137:                 </>
+138:               ) : (
+139:                 <>
+140:                   <Save className="h-3.5 w-3.5" />
+141:                   <span>{saving ? "Guardando..." : "Guardar"}</span>
+142:                 </>
+143:               )}
+144:             </Button>
+145: 
+146:             {/* Usuario / Login */}
+147:             {user ? (
+148:               <div className="flex items-center gap-1 sm:gap-2 pl-1 border-l border-slate-800">
+149:                 <button
+150:                   type="button"
+151:                   onClick={() => setIsProfileOpen(true)}
+152:                   className="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 hover:border-amber-500/40 transition-colors text-left group"
+153:                   title="Ver y editar mi perfil"
+154:                 >
+155:                   <div className="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px] font-bold border border-amber-500/30 group-hover:scale-105 transition-transform">
+156:                     {user.name ? user.name[0].toUpperCase() : user.email[0].toUpperCase()}
+157:                   </div>
+158:                   <span className="text-xs font-medium text-slate-300 group-hover:text-amber-300 max-w-[95px] truncate hidden md:inline transition-colors">
+159:                     {user.name || user.email.split("@")[0]}
+160:                   </span>
+161:                   {user.isDemo && (
+162:                     <span className="text-[9px] bg-slate-700 text-amber-300 px-1 rounded">
+163:                       Demo
+164:                     </span>
+165:                   )}
+166:                 </button>
+167: 
+168:                 <Button
+169:                   variant="ghost"
+170:                   size="sm"
+171:                   onClick={() => signOut()}
+172:                   title="Cerrar sesión"
+173:                   className="h-8 w-8 p-0 text-slate-400 hover:text-rose-400 rounded-xl"
+174:                 >
+175:                   <LogOut className="h-3.5 w-3.5" />
+176:                 </Button>
+177:               </div>
+178:             ) : (
+179:               <Button
+180:                 variant="ghost"
+181:                 size="sm"
+182:                 onClick={() => setIsAuthOpen(true)}
+183:                 className="h-8 sm:h-9 px-2 sm:px-3 text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-800/80 rounded-xl gap-1.5"
+184:               >
+185:                 <LogIn className="h-3.5 w-3.5" />
+186:                 <span>Ingresar</span>
+187:               </Button>
+188:             )}
+189:           </div>
+190:         </div>
+191:       </header>
+192: 
+193:       {/* Modal de Autenticación */}
+194:       <AuthModal
+195:         isOpen={isAuthOpen}
+196:         onClose={() => setIsAuthOpen(false)}
+197:         onSuccess={() => {
+198:           refreshCount();
+199:         }}
+200:       />
+201: 
+202:       {/* Modal de Perfil de Usuario */}
+203:       <ProfileModal
+204:         isOpen={isProfileOpen}
+205:         onClose={() => setIsProfileOpen(false)}
+206:       />
+207: 
+208:       {/* Cajón de Rifas Guardadas */}
+209:       <SavedTicketsDrawer
+210:         isOpen={isDrawerOpen}
+211:         onClose={() => setIsDrawerOpen(false)}
+212:         onSelectTicket={() => {
+213:           refreshCount();
+214:         }}
+215:       />
+216:     </>
+217:   );
+218: }
+````
+
 ## File: src/components/PageLayoutPreview.tsx
 ````typescript
   1: "use client";
@@ -5575,327 +6149,6 @@ tsconfig.json
 77: export const MM_TO_PT = 2.8346;
 ````
 
-## File: src/services/pdf-generator.ts
-````typescript
-  1: import { PDFDocument, rgb, StandardFonts, PDFPage, PDFFont, degrees, pushGraphicsState, popGraphicsState, translate, rotateRadians } from "pdf-lib";
-  2: import { TicketConfig, PrintConfig } from "@/types";
-  3: import { formatTicketNumber, getDigitsNeeded, formatCurrency, hexToRgb, formatShortDate, resolvePrizeColumns } from "@/lib/utils";
-  4: import { A4_WIDTH_PT, A4_HEIGHT_PT, MM_TO_PT } from "@/lib/constants";
-  5: 
-  6: interface PDFGeneratorOptions {
-  7:   ticketConfig: TicketConfig;
-  8:   printConfig: PrintConfig;
-  9:   onProgress?: (current: number, total: number) => void;
- 10: }
- 11: 
- 12: // Colores del ticket
- 13: const BLACK = rgb(0.05, 0.05, 0.05);
- 14: const DARK_GRAY = rgb(0.3, 0.3, 0.3);
- 15: const MED_GRAY = rgb(0.5, 0.5, 0.5);
- 16: const LIGHT_GRAY = rgb(0.78, 0.78, 0.78);
- 17: const BORDER_COLOR = rgb(0.25, 0.25, 0.25);
- 18: const BG_STUB = rgb(0.97, 0.97, 0.97);
- 19: 
- 20: interface Fonts {
- 21:   font: PDFFont;
- 22:   fontBold: PDFFont;
- 23:   fontItalic: PDFFont;
- 24:   fontBoldItalic: PDFFont;
- 25:   courierBold: PDFFont;
- 26: }
- 27: 
- 28: // Genera el PDF completo con todos los tickets
- 29: export async function generateRifaPDF(options: PDFGeneratorOptions): Promise<Uint8Array> {
- 30:   const { ticketConfig, printConfig, onProgress } = options;
- 31: 
- 32:   const pdfDoc = await PDFDocument.create();
- 33:   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
- 34:   const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
- 35:   const fontItalic = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
- 36:   const fontBoldItalic = await pdfDoc.embedFont(StandardFonts.HelveticaBoldOblique);
- 37:   const courierBold = await pdfDoc.embedFont(StandardFonts.CourierBold);
- 38:   const fonts: Fonts = { font, fontBold, fontItalic, fontBoldItalic, courierBold };
- 39:   const digits = getDigitsNeeded(ticketConfig.totalTickets, ticketConfig.startNumber);
- 40: 
- 41:   // Dimensiones en puntos
- 42:   const margin = printConfig.marginTop * MM_TO_PT;
- 43:   const gap = printConfig.gap * MM_TO_PT;
- 44:   const tW = printConfig.ticketWidth * MM_TO_PT;
- 45:   const tH = printConfig.ticketHeight * MM_TO_PT;
- 46:   const availW = A4_WIDTH_PT - margin * 2;
- 47:   const availH = A4_HEIGHT_PT - margin * 2;
- 48: 
- 49:   // Grilla de tickets horizontales
- 50:   const cols = Math.max(1, Math.floor((availW + gap) / (tW + gap)));
- 51:   const rows = Math.max(1, Math.floor((availH + gap) / (tH + gap)));
- 52:   const horizPerPage = cols * rows;
- 53:   const gridW = cols * tW + (cols - 1) * gap;
- 54: 
- 55:   // Tickets alineados a la izquierda para maximizar espacio derecho
- 56:   const gridStartX = margin;
- 57: 
- 58:   // Columna lateral derecha: tickets verticales (rotados 90°)
- 59:   const rightRem = A4_WIDTH_PT - gridStartX - gridW - gap - margin;
- 60:   const canFitSide = (printConfig.allowSideTickets ?? true) && (rightRem >= tH);
- 61:   // Cada ticket rotado: ancho en página = tH, alto en página = tW
- 62:   const sideCount = canFitSide ? Math.floor((availH + gap) / (tW + gap)) : 0;
- 63:   const totalPerPage = horizPerPage + sideCount;
- 64:   const totalPages = Math.ceil(ticketConfig.totalTickets / totalPerPage);
- 65: 
- 66:   let idx = 0;
- 67:   for (let p = 0; p < totalPages; p++) {
- 68:     const page = pdfDoc.addPage([A4_WIDTH_PT, A4_HEIGHT_PT]);
- 69: 
- 70:     // Dibujar tickets horizontales
- 71:     for (let row = 0; row < rows; row++) {
- 72:       for (let col = 0; col < cols; col++) {
- 73:         if (idx >= ticketConfig.totalTickets) break;
- 74:         const formatted = formatTicketNumber(ticketConfig.startNumber + idx, digits);
- 75:         const x = gridStartX + col * (tW + gap);
- 76:         const y = A4_HEIGHT_PT - margin - (row + 1) * tH - row * gap;
- 77:         drawTicket(page, x, y, tW, tH, formatted, ticketConfig, fonts, printConfig);
- 78:         idx++;
- 79:       }
- 80:     }
- 81: 
- 82:     // Dibujar tickets verticales en el costado derecho (mismo ticket rotado 90° con fidelidad vectorial total)
- 83:     if (canFitSide) {
- 84:       for (let i = 0; i < sideCount; i++) {
- 85:         if (idx >= ticketConfig.totalTickets) break;
- 86:         const formatted = formatTicketNumber(ticketConfig.startNumber + idx, digits);
- 87:         const rx = gridStartX + gridW + gap;
- 88:         const ry = A4_HEIGHT_PT - margin - (i + 1) * tW - i * gap;
- 89: 
- 90:         // Transformación gráfica directa nativa de PDF:
- 91:         // Origen trasladado a (rx, ry + tW) y rotado 90° horario (-Math.PI / 2).
- 92:         // Se dibuja directamente usando las fuentes del documento principal sin pérdida de texto ni overhead.
- 93:         page.pushOperators(
- 94:           pushGraphicsState(),
- 95:           translate(rx, ry + tW),
- 96:           rotateRadians(-Math.PI / 2)
- 97:         );
- 98: 
- 99:         drawTicket(page, 0, 0, tW, tH, formatted, ticketConfig, fonts, printConfig);
-100: 
-101:         page.pushOperators(popGraphicsState());
-102: 
-103:         idx++;
-104:       }
-105:     }
-106: 
-107:     // Reportar progreso y ceder control al navegador para que la UI se actualice
-108:     if (onProgress) {
-109:       onProgress(Math.min(idx, ticketConfig.totalTickets), ticketConfig.totalTickets);
-110:       // Ceder el hilo para que React pueda re-renderizar la barra de progreso
-111:       await new Promise(resolve => setTimeout(resolve, 0));
-112:     }
-113:   }
-114:   return pdfDoc.save();
-115: }
-116: 
-117: // Dibuja un ticket horizontal completo (sección principal + talón)
-118: function drawTicket(
-119:   page: PDFPage, x: number, y: number, w: number, h: number,
-120:   ticketNumber: string, config: TicketConfig, fonts: Fonts,
-121:   printConfig?: PrintConfig
-122: ) {
-123:   const { font, fontBold, fontItalic, fontBoldItalic, courierBold } = fonts;
-124:   // Factor de escala basado en la altura del ticket y configuración tipográfica
-125:   const s = h / 160;
-126:   const fontScale = (config.generalFontScale ?? 100) / 100;
-127:   const titleMultiplier = (config.titleFontSize ?? 14) / 14;
-128:   const subtitleMultiplier = (config.subtitleFontSize ?? 12) / 12;
-129: 
-130:   const TITLE_SIZE = Math.max(4, 8.5 * s * titleMultiplier * fontScale);
-131:   const SUBTITLE_SIZE = Math.max(3.5, 7.5 * s * subtitleMultiplier * fontScale);
-132:   const INFO_SIZE = Math.max(3, 4.8 * s * fontScale);
-133:   const PRICE_SIZE = Math.max(4, 9 * s * fontScale);
-134:   const NUM_SIZE = Math.max(5, 12 * s * fontScale);
-135: 
-136:   // Sección principal y talón de control personalizable
-137:   const rawStubW = (printConfig?.stubWidth ?? 36) * MM_TO_PT;
-138:   // Clamped entre 15mm y w - 25mm para garantizar integridad estructural
-139:   const stubW = Math.min(Math.max(15 * MM_TO_PT, rawStubW), Math.max(20 * MM_TO_PT, w - 25 * MM_TO_PT));
-140:   const mainW = w - stubW;
-141:   const stubX = x + mainW;
-142:   const pad = 4.5 * s;
-143: 
-144:   // Tipografía del talón ajustada a su tamaño
-145:   const stubFontMultiplier = (config.stubFontSize ?? 10) / 10;
-146:   const stubWidthScale = Math.min(1.2, Math.max(0.7, stubW / (36 * MM_TO_PT)));
-147:   const STUB_TITLE_SIZE = Math.max(3, 7 * s * stubFontMultiplier * stubWidthScale * fontScale);
-148:   const STUB_LABEL_SIZE = Math.max(2.5, 5.8 * s * stubFontMultiplier * stubWidthScale * fontScale);
-149:   const STUB_INFO_SIZE = Math.max(2.3, 5.2 * s * stubFontMultiplier * stubWidthScale * fontScale);
-150:   const STUB_NUM_SIZE = Math.max(3.5, 10.5 * s * stubFontMultiplier * stubWidthScale * fontScale);
-151:   const STUB_VAL_SIZE = Math.max(2.5, 5.8 * s * stubFontMultiplier * stubWidthScale * fontScale);
-152: 
-153:   // Fondos y bordes
-154:   page.drawRectangle({ x, y, width: w, height: h, color: rgb(1, 1, 1) });
-155:   page.drawRectangle({ x: stubX, y, width: stubW, height: h, color: BG_STUB });
-156:   page.drawRectangle({ x, y, width: w, height: h, borderColor: BORDER_COLOR, borderWidth: 0.5 });
-157:   // Línea punteada vertical separadora
-158:   dashedLineV(page, stubX, y + 2, y + h - 2, 4, 3, 0.4, MED_GRAY);
-159: 
-160:   const cx = x + pad;
-161:   const mainRight = stubX - pad;
-162:   const mainContentW = mainRight - cx;
-163:   const bottomY = y + pad;
-164:   let cy = y + h - pad;
-165: 
-166:   const { r, g, b } = hexToRgb(config.primaryColor ?? "#991b1b");
-167:   const ACCENT_COLOR = rgb(r, g, b);
-168: 
-169:   // Encabezado del ticket
-170:   cy -= TITLE_SIZE;
-171:   page.drawText(config.eventName, { x: cx, y: cy, size: TITLE_SIZE, font: fontBold, color: BLACK });
-172:   cy -= SUBTITLE_SIZE + 1.8 * s;
-173:   page.drawText(config.subtitle, { x: cx, y: cy, size: SUBTITLE_SIZE, font: fontBoldItalic, color: ACCENT_COLOR });
-174:   cy -= INFO_SIZE + 2 * s;
-175:   page.drawText(`Sorteo: ${config.drawDate}`, { x: cx, y: cy, size: INFO_SIZE, font, color: DARK_GRAY });
-176:   cy -= INFO_SIZE + 1.2 * s;
-177:   const contText = `Contribución: ${config.contributionText}`;
-178:   const maxCont = Math.floor(mainContentW / (INFO_SIZE * 0.52));
-179:   const ct = contText.length > maxCont ? contText.substring(0, maxCont - 1) + "…" : contText;
-180:   page.drawText(ct, { x: cx, y: cy, size: INFO_SIZE, font, color: DARK_GRAY });
-181: 
-182:   // Caja de premios
-183:   cy -= 2.5 * s;
-184:   const prizesTop = cy;
-185:   const prizesBottom = bottomY + Math.max(PRICE_SIZE, NUM_SIZE) + pad + 1.5 * s;
-186:   const prizesBoxH = Math.max(20, prizesTop - prizesBottom);
-187:   page.drawRectangle({ x: cx, y: prizesBottom, width: mainContentW, height: prizesBoxH, borderColor: LIGHT_GRAY, borderWidth: 0.3 });
-188: 
-189:   // Cabecera de la caja de premios
-190:   const PRIZE_HEADER_SIZE = Math.max(3.5, Math.min(6.5 * s * fontScale, prizesBoxH * 0.16));
-191:   const phY = prizesTop - PRIZE_HEADER_SIZE - 1.5 * s;
-192:   page.drawText("LISTA DE PREMIOS:", { x: cx + 3, y: phY, size: PRIZE_HEADER_SIZE, font: fontBold, color: BLACK });
-193: 
-194:   // Cálculo dinámico de multicolumna para que entren TODOS los premios sin límite
-195:   const requestedPrizesFontSize = config.prizesFontSize ?? 8;
-196:   const numCols = resolvePrizeColumns(config.prizeColumns, config.prizes.length, requestedPrizesFontSize);
-197:   const rowsCount = Math.max(1, Math.ceil(config.prizes.length / numCols));
-198:   const prizeAreaTop = phY - PRIZE_HEADER_SIZE - 1.5 * s;
-199:   const availablePrizeH = Math.max(10, prizeAreaTop - prizesBottom - 1 * s);
-200:   const actualLineH = availablePrizeH / rowsCount;
-201: 
-202:   // Ajuste inteligente de tamaño de fuente para que entren TODOS los premios en el alto disponible
-203:   const desiredPrizePt = 5 * s * (requestedPrizesFontSize / 8) * fontScale;
-204:   const actualPrizeFontSize = Math.max(2.4, Math.min(desiredPrizePt, actualLineH * 0.82));
-205: 
-206:   // Distribuir premios en columnas
-207:   const prizeColumns = Array.from({ length: numCols }, (_, c) =>
-208:     config.prizes.filter((_, i) => i % numCols === c)
-209:   );
-210: 
-211:   const colWidth = mainContentW / numCols;
-212:   const colContentW = colWidth - 2.5 * s;
-213:   const maxChars = Math.max(6, Math.floor(colContentW / (actualPrizeFontSize * 0.52)));
-214: 
-215:   // Renderizar TODOS los premios de todas las columnas
-216:   prizeColumns.forEach((colPrizes, colIdx) => {
-217:     const colX = cx + 2.5 * s + colIdx * colWidth;
-218:     colPrizes.forEach((p, rowIdx) => {
-219:       const t = `${p.label} ${p.description}`;
-220:       const tr = t.length > maxChars ? t.substring(0, maxChars - 2) + ".." : t;
-221:       page.drawText(tr, {
-222:         x: colX,
-223:         y: prizeAreaTop - (rowIdx + 0.85) * actualLineH,
-224:         size: actualPrizeFontSize,
-225:         font: fontItalic,
-226:         color: ACCENT_COLOR,
-227:       });
-228:     });
-229:   });
-230: 
-231:   // Pie: VALOR a la izquierda, N° a la derecha
-232:   page.drawText(config.priceLabel, { x: cx, y: bottomY, size: PRICE_SIZE, font: fontBold, color: BLACK });
-233:   const numText = `N° ${ticketNumber}`;
-234:   const numW = courierBold.widthOfTextAtSize(numText, NUM_SIZE);
-235:   page.drawText(numText, { x: mainRight - numW, y: bottomY, size: NUM_SIZE, font: courierBold, color: ACCENT_COLOR });
-236: 
-237:   // === TALÓN DE CONTROL ===
-238:   const sp = 4 * s;
-239:   const scx = stubX + sp;
-240:   const sr = stubX + stubW - sp;
-241:   const scW = sr - scx;
-242:   let sy = y + h - pad;
-243: 
-244:   // Título del talón centrado
-245:   sy -= STUB_TITLE_SIZE;
-246:   const stT = "TALÓN DE CONTROL";
-247:   const stTW = fontBold.widthOfTextAtSize(stT, STUB_TITLE_SIZE);
-248:   page.drawText(stT, { x: scx + (scW - stTW) / 2, y: sy, size: STUB_TITLE_SIZE, font: fontBold, color: BLACK });
-249:   sy -= 3 * s;
-250:   page.drawLine({ start: { x: scx, y: sy }, end: { x: sr, y: sy }, thickness: 0.25, color: LIGHT_GRAY });
-251: 
-252:   // Fecha del sorteo (dinámica desde la configuración)
-253:   sy -= STUB_INFO_SIZE + 2 * s;
-254:   const ds = `Sorteo: ${formatShortDate(config.drawDate)}`;
-255:   const dsW = font.widthOfTextAtSize(ds, STUB_INFO_SIZE);
-256:   page.drawText(ds, { x: scx + (scW - dsW) / 2, y: sy, size: STUB_INFO_SIZE, font, color: MED_GRAY });
-257: 
-258:   // Campo nombre
-259:   sy -= STUB_LABEL_SIZE + 4 * s;
-260:   page.drawText("Nombre y Apellido:", { x: scx, y: sy, size: STUB_LABEL_SIZE, font: fontBold, color: BLACK });
-261:   sy -= 4 * s;
-262:   page.drawLine({ start: { x: scx, y: sy }, end: { x: sr, y: sy }, thickness: 0.25, color: DARK_GRAY });
-263: 
-264:   // Campo teléfono
-265:   sy -= STUB_LABEL_SIZE + 4 * s;
-266:   page.drawText("Teléfono:", { x: scx, y: sy, size: STUB_LABEL_SIZE, font: fontBold, color: BLACK });
-267:   sy -= 4 * s;
-268:   page.drawLine({ start: { x: scx, y: sy }, end: { x: sr, y: sy }, thickness: 0.25, color: DARK_GRAY });
-269: 
-270:   // Valor centrado
-271:   sy -= STUB_VAL_SIZE + 5 * s;
-272:   const vt = `Valor: ${formatCurrency(config.price)}`;
-273:   const vtW = fontBold.widthOfTextAtSize(vt, STUB_VAL_SIZE);
-274:   page.drawText(vt, { x: scx + (scW - vtW) / 2, y: sy, size: STUB_VAL_SIZE, font: fontBold, color: DARK_GRAY });
-275: 
-276:   // Número grande centrado
-277:   sy -= STUB_NUM_SIZE + 3 * s;
-278:   const sn = `N° ${ticketNumber}`;
-279:   const snW = courierBold.widthOfTextAtSize(sn, STUB_NUM_SIZE);
-280:   page.drawText(sn, { x: scx + (scW - snW) / 2, y: sy, size: STUB_NUM_SIZE, font: courierBold, color: ACCENT_COLOR });
-281: 
-282:   // Línea de corte horizontal debajo del ticket
-283:   dashedLineH(page, x, y - 1, x + w, 4, 2.5, 0.2, LIGHT_GRAY);
-284: }
-285: 
-286: // Dibuja una línea punteada vertical
-287: function dashedLineV(page: PDFPage, x: number, yStart: number, yEnd: number, dash: number, gapLen: number, thickness: number, color: ReturnType<typeof rgb>) {
-288:   let pos = yStart;
-289:   while (pos < yEnd) {
-290:     const end = Math.min(pos + dash, yEnd);
-291:     page.drawLine({ start: { x, y: pos }, end: { x, y: end }, thickness, color });
-292:     pos += dash + gapLen;
-293:   }
-294: }
-295: 
-296: // Dibuja una línea punteada horizontal
-297: function dashedLineH(page: PDFPage, xStart: number, y: number, xEnd: number, dash: number, gapLen: number, thickness: number, color: ReturnType<typeof rgb>) {
-298:   let pos = xStart;
-299:   while (pos < xEnd) {
-300:     const end = Math.min(pos + dash, xEnd);
-301:     page.drawLine({ start: { x: pos, y }, end: { x: end, y }, thickness, color });
-302:     pos += dash + gapLen;
-303:   }
-304: }
-305: 
-306: // Descarga el PDF generado como archivo
-307: export function downloadPdf(pdfBytes: Uint8Array, filename: string) {
-308:   const blob = new Blob([pdfBytes as unknown as BlobPart], { type: "application/pdf" });
-309:   const url = URL.createObjectURL(blob);
-310:   const link = document.createElement("a");
-311:   link.href = url;
-312:   link.download = filename;
-313:   document.body.appendChild(link);
-314:   link.click();
-315:   document.body.removeChild(link);
-316:   URL.revokeObjectURL(url);
-317: }
-````
-
 ## File: src/types/index.ts
 ````typescript
  1: export interface TicketConfig {
@@ -6273,4 +6526,325 @@ tsconfig.json
 305:     </Card>
 306:   );
 307: }
+````
+
+## File: src/services/pdf-generator.ts
+````typescript
+  1: import { PDFDocument, rgb, StandardFonts, PDFPage, PDFFont, degrees, pushGraphicsState, popGraphicsState, translate, rotateRadians } from "pdf-lib";
+  2: import { TicketConfig, PrintConfig } from "@/types";
+  3: import { formatTicketNumber, getDigitsNeeded, formatCurrency, hexToRgb, formatShortDate, resolvePrizeColumns } from "@/lib/utils";
+  4: import { A4_WIDTH_PT, A4_HEIGHT_PT, MM_TO_PT } from "@/lib/constants";
+  5: 
+  6: interface PDFGeneratorOptions {
+  7:   ticketConfig: TicketConfig;
+  8:   printConfig: PrintConfig;
+  9:   onProgress?: (current: number, total: number) => void;
+ 10: }
+ 11: 
+ 12: // Colores del ticket
+ 13: const BLACK = rgb(0.05, 0.05, 0.05);
+ 14: const DARK_GRAY = rgb(0.3, 0.3, 0.3);
+ 15: const MED_GRAY = rgb(0.5, 0.5, 0.5);
+ 16: const LIGHT_GRAY = rgb(0.78, 0.78, 0.78);
+ 17: const BORDER_COLOR = rgb(0.25, 0.25, 0.25);
+ 18: const BG_STUB = rgb(0.97, 0.97, 0.97);
+ 19: 
+ 20: interface Fonts {
+ 21:   font: PDFFont;
+ 22:   fontBold: PDFFont;
+ 23:   fontItalic: PDFFont;
+ 24:   fontBoldItalic: PDFFont;
+ 25:   courierBold: PDFFont;
+ 26: }
+ 27: 
+ 28: // Genera el PDF completo con todos los tickets
+ 29: export async function generateRifaPDF(options: PDFGeneratorOptions): Promise<Uint8Array> {
+ 30:   const { ticketConfig, printConfig, onProgress } = options;
+ 31: 
+ 32:   const pdfDoc = await PDFDocument.create();
+ 33:   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+ 34:   const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+ 35:   const fontItalic = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
+ 36:   const fontBoldItalic = await pdfDoc.embedFont(StandardFonts.HelveticaBoldOblique);
+ 37:   const courierBold = await pdfDoc.embedFont(StandardFonts.CourierBold);
+ 38:   const fonts: Fonts = { font, fontBold, fontItalic, fontBoldItalic, courierBold };
+ 39:   const digits = getDigitsNeeded(ticketConfig.totalTickets, ticketConfig.startNumber);
+ 40: 
+ 41:   // Dimensiones en puntos
+ 42:   const margin = printConfig.marginTop * MM_TO_PT;
+ 43:   const gap = printConfig.gap * MM_TO_PT;
+ 44:   const tW = printConfig.ticketWidth * MM_TO_PT;
+ 45:   const tH = printConfig.ticketHeight * MM_TO_PT;
+ 46:   const availW = A4_WIDTH_PT - margin * 2;
+ 47:   const availH = A4_HEIGHT_PT - margin * 2;
+ 48: 
+ 49:   // Grilla de tickets horizontales
+ 50:   const cols = Math.max(1, Math.floor((availW + gap) / (tW + gap)));
+ 51:   const rows = Math.max(1, Math.floor((availH + gap) / (tH + gap)));
+ 52:   const horizPerPage = cols * rows;
+ 53:   const gridW = cols * tW + (cols - 1) * gap;
+ 54: 
+ 55:   // Tickets alineados a la izquierda para maximizar espacio derecho
+ 56:   const gridStartX = margin;
+ 57: 
+ 58:   // Columna lateral derecha: tickets verticales (rotados 90°)
+ 59:   const rightRem = A4_WIDTH_PT - gridStartX - gridW - gap - margin;
+ 60:   const canFitSide = (printConfig.allowSideTickets ?? true) && (rightRem >= tH);
+ 61:   // Cada ticket rotado: ancho en página = tH, alto en página = tW
+ 62:   const sideCount = canFitSide ? Math.floor((availH + gap) / (tW + gap)) : 0;
+ 63:   const totalPerPage = horizPerPage + sideCount;
+ 64:   const totalPages = Math.ceil(ticketConfig.totalTickets / totalPerPage);
+ 65: 
+ 66:   let idx = 0;
+ 67:   for (let p = 0; p < totalPages; p++) {
+ 68:     const page = pdfDoc.addPage([A4_WIDTH_PT, A4_HEIGHT_PT]);
+ 69: 
+ 70:     // Dibujar tickets horizontales
+ 71:     for (let row = 0; row < rows; row++) {
+ 72:       for (let col = 0; col < cols; col++) {
+ 73:         if (idx >= ticketConfig.totalTickets) break;
+ 74:         const formatted = formatTicketNumber(ticketConfig.startNumber + idx, digits);
+ 75:         const x = gridStartX + col * (tW + gap);
+ 76:         const y = A4_HEIGHT_PT - margin - (row + 1) * tH - row * gap;
+ 77:         drawTicket(page, x, y, tW, tH, formatted, ticketConfig, fonts, printConfig);
+ 78:         idx++;
+ 79:       }
+ 80:     }
+ 81: 
+ 82:     // Dibujar tickets verticales en el costado derecho (mismo ticket rotado 90° con fidelidad vectorial total)
+ 83:     if (canFitSide) {
+ 84:       for (let i = 0; i < sideCount; i++) {
+ 85:         if (idx >= ticketConfig.totalTickets) break;
+ 86:         const formatted = formatTicketNumber(ticketConfig.startNumber + idx, digits);
+ 87:         const rx = gridStartX + gridW + gap;
+ 88:         const ry = A4_HEIGHT_PT - margin - (i + 1) * tW - i * gap;
+ 89: 
+ 90:         // Transformación gráfica directa nativa de PDF:
+ 91:         // Origen trasladado a (rx, ry + tW) y rotado 90° horario (-Math.PI / 2).
+ 92:         // Se dibuja directamente usando las fuentes del documento principal sin pérdida de texto ni overhead.
+ 93:         page.pushOperators(
+ 94:           pushGraphicsState(),
+ 95:           translate(rx, ry + tW),
+ 96:           rotateRadians(-Math.PI / 2)
+ 97:         );
+ 98: 
+ 99:         drawTicket(page, 0, 0, tW, tH, formatted, ticketConfig, fonts, printConfig);
+100: 
+101:         page.pushOperators(popGraphicsState());
+102: 
+103:         idx++;
+104:       }
+105:     }
+106: 
+107:     // Reportar progreso y ceder control al navegador para que la UI se actualice
+108:     if (onProgress) {
+109:       onProgress(Math.min(idx, ticketConfig.totalTickets), ticketConfig.totalTickets);
+110:       // Ceder el hilo para que React pueda re-renderizar la barra de progreso
+111:       await new Promise(resolve => setTimeout(resolve, 0));
+112:     }
+113:   }
+114:   return pdfDoc.save();
+115: }
+116: 
+117: // Dibuja un ticket horizontal completo (sección principal + talón)
+118: function drawTicket(
+119:   page: PDFPage, x: number, y: number, w: number, h: number,
+120:   ticketNumber: string, config: TicketConfig, fonts: Fonts,
+121:   printConfig?: PrintConfig
+122: ) {
+123:   const { font, fontBold, fontItalic, fontBoldItalic, courierBold } = fonts;
+124:   // Factor de escala basado en la altura del ticket y configuración tipográfica
+125:   const s = h / 160;
+126:   const fontScale = (config.generalFontScale ?? 100) / 100;
+127:   const titleMultiplier = (config.titleFontSize ?? 14) / 14;
+128:   const subtitleMultiplier = (config.subtitleFontSize ?? 12) / 12;
+129: 
+130:   const TITLE_SIZE = Math.max(4, 8.5 * s * titleMultiplier * fontScale);
+131:   const SUBTITLE_SIZE = Math.max(3.5, 7.5 * s * subtitleMultiplier * fontScale);
+132:   const INFO_SIZE = Math.max(3, 4.8 * s * fontScale);
+133:   const PRICE_SIZE = Math.max(4, 9 * s * fontScale);
+134:   const NUM_SIZE = Math.max(5, 12 * s * fontScale);
+135: 
+136:   // Sección principal y talón de control personalizable
+137:   const rawStubW = (printConfig?.stubWidth ?? 36) * MM_TO_PT;
+138:   // Clamped entre 15mm y w - 25mm para garantizar integridad estructural
+139:   const stubW = Math.min(Math.max(15 * MM_TO_PT, rawStubW), Math.max(20 * MM_TO_PT, w - 25 * MM_TO_PT));
+140:   const mainW = w - stubW;
+141:   const stubX = x + mainW;
+142:   const pad = 4.5 * s;
+143: 
+144:   // Tipografía del talón ajustada a su tamaño
+145:   const stubFontMultiplier = (config.stubFontSize ?? 10) / 10;
+146:   const stubWidthScale = Math.min(1.2, Math.max(0.7, stubW / (36 * MM_TO_PT)));
+147:   const STUB_TITLE_SIZE = Math.max(3, 7 * s * stubFontMultiplier * stubWidthScale * fontScale);
+148:   const STUB_LABEL_SIZE = Math.max(2.5, 5.8 * s * stubFontMultiplier * stubWidthScale * fontScale);
+149:   const STUB_INFO_SIZE = Math.max(2.3, 5.2 * s * stubFontMultiplier * stubWidthScale * fontScale);
+150:   const STUB_NUM_SIZE = Math.max(3.5, 10.5 * s * stubFontMultiplier * stubWidthScale * fontScale);
+151:   const STUB_VAL_SIZE = Math.max(2.5, 5.8 * s * stubFontMultiplier * stubWidthScale * fontScale);
+152: 
+153:   // Fondos y bordes
+154:   page.drawRectangle({ x, y, width: w, height: h, color: rgb(1, 1, 1) });
+155:   page.drawRectangle({ x: stubX, y, width: stubW, height: h, color: BG_STUB });
+156:   page.drawRectangle({ x, y, width: w, height: h, borderColor: BORDER_COLOR, borderWidth: 0.5 });
+157:   // Línea punteada vertical separadora
+158:   dashedLineV(page, stubX, y + 2, y + h - 2, 4, 3, 0.4, MED_GRAY);
+159: 
+160:   const cx = x + pad;
+161:   const mainRight = stubX - pad;
+162:   const mainContentW = mainRight - cx;
+163:   const bottomY = y + pad;
+164:   let cy = y + h - pad;
+165: 
+166:   const { r, g, b } = hexToRgb(config.primaryColor ?? "#991b1b");
+167:   const ACCENT_COLOR = rgb(r, g, b);
+168: 
+169:   // Encabezado del ticket
+170:   cy -= TITLE_SIZE;
+171:   page.drawText(config.eventName, { x: cx, y: cy, size: TITLE_SIZE, font: fontBold, color: BLACK });
+172:   cy -= SUBTITLE_SIZE + 1.8 * s;
+173:   page.drawText(config.subtitle, { x: cx, y: cy, size: SUBTITLE_SIZE, font: fontBoldItalic, color: ACCENT_COLOR });
+174:   cy -= INFO_SIZE + 2 * s;
+175:   page.drawText(`Sorteo: ${config.drawDate}`, { x: cx, y: cy, size: INFO_SIZE, font, color: DARK_GRAY });
+176:   cy -= INFO_SIZE + 1.2 * s;
+177:   const contText = `Contribución: ${config.contributionText}`;
+178:   const maxCont = Math.floor(mainContentW / (INFO_SIZE * 0.52));
+179:   const ct = contText.length > maxCont ? contText.substring(0, maxCont - 1) + "…" : contText;
+180:   page.drawText(ct, { x: cx, y: cy, size: INFO_SIZE, font, color: DARK_GRAY });
+181: 
+182:   // Caja de premios
+183:   cy -= 2.5 * s;
+184:   const prizesTop = cy;
+185:   const prizesBottom = bottomY + Math.max(PRICE_SIZE, NUM_SIZE) + pad + 1.5 * s;
+186:   const prizesBoxH = Math.max(20, prizesTop - prizesBottom);
+187:   page.drawRectangle({ x: cx, y: prizesBottom, width: mainContentW, height: prizesBoxH, borderColor: LIGHT_GRAY, borderWidth: 0.3 });
+188: 
+189:   // Cabecera de la caja de premios
+190:   const PRIZE_HEADER_SIZE = Math.max(3.5, Math.min(6.5 * s * fontScale, prizesBoxH * 0.16));
+191:   const phY = prizesTop - PRIZE_HEADER_SIZE - 1.5 * s;
+192:   page.drawText("LISTA DE PREMIOS:", { x: cx + 3, y: phY, size: PRIZE_HEADER_SIZE, font: fontBold, color: BLACK });
+193: 
+194:   // Cálculo dinámico de multicolumna para que entren TODOS los premios sin límite
+195:   const requestedPrizesFontSize = config.prizesFontSize ?? 8;
+196:   const numCols = resolvePrizeColumns(config.prizeColumns, config.prizes.length, requestedPrizesFontSize);
+197:   const rowsCount = Math.max(1, Math.ceil(config.prizes.length / numCols));
+198:   const prizeAreaTop = phY - PRIZE_HEADER_SIZE - 1.5 * s;
+199:   const availablePrizeH = Math.max(10, prizeAreaTop - prizesBottom - 1 * s);
+200:   const actualLineH = availablePrizeH / rowsCount;
+201: 
+202:   // Ajuste inteligente de tamaño de fuente para que entren TODOS los premios en el alto disponible
+203:   const desiredPrizePt = 5 * s * (requestedPrizesFontSize / 8) * fontScale;
+204:   const actualPrizeFontSize = Math.max(2.4, Math.min(desiredPrizePt, actualLineH * 0.82));
+205: 
+206:   // Distribuir premios en columnas
+207:   const prizeColumns = Array.from({ length: numCols }, (_, c) =>
+208:     config.prizes.filter((_, i) => i % numCols === c)
+209:   );
+210: 
+211:   const colWidth = mainContentW / numCols;
+212:   const colContentW = colWidth - 2.5 * s;
+213:   const maxChars = Math.max(6, Math.floor(colContentW / (actualPrizeFontSize * 0.52)));
+214: 
+215:   // Renderizar TODOS los premios de todas las columnas
+216:   prizeColumns.forEach((colPrizes, colIdx) => {
+217:     const colX = cx + 2.5 * s + colIdx * colWidth;
+218:     colPrizes.forEach((p, rowIdx) => {
+219:       const t = `${p.label} ${p.description}`;
+220:       const tr = t.length > maxChars ? t.substring(0, maxChars - 2) + ".." : t;
+221:       page.drawText(tr, {
+222:         x: colX,
+223:         y: prizeAreaTop - (rowIdx + 0.85) * actualLineH,
+224:         size: actualPrizeFontSize,
+225:         font: fontItalic,
+226:         color: ACCENT_COLOR,
+227:       });
+228:     });
+229:   });
+230: 
+231:   // Pie: VALOR a la izquierda, N° a la derecha
+232:   page.drawText(config.priceLabel, { x: cx, y: bottomY, size: PRICE_SIZE, font: fontBold, color: BLACK });
+233:   const numText = `N° ${ticketNumber}`;
+234:   const numW = courierBold.widthOfTextAtSize(numText, NUM_SIZE);
+235:   page.drawText(numText, { x: mainRight - numW, y: bottomY, size: NUM_SIZE, font: courierBold, color: ACCENT_COLOR });
+236: 
+237:   // === TALÓN DE CONTROL ===
+238:   const sp = 4 * s;
+239:   const scx = stubX + sp;
+240:   const sr = stubX + stubW - sp;
+241:   const scW = sr - scx;
+242:   let sy = y + h - pad;
+243: 
+244:   // Título del talón centrado
+245:   sy -= STUB_TITLE_SIZE;
+246:   const stT = "TALÓN DE CONTROL";
+247:   const stTW = fontBold.widthOfTextAtSize(stT, STUB_TITLE_SIZE);
+248:   page.drawText(stT, { x: scx + (scW - stTW) / 2, y: sy, size: STUB_TITLE_SIZE, font: fontBold, color: BLACK });
+249:   sy -= 3 * s;
+250:   page.drawLine({ start: { x: scx, y: sy }, end: { x: sr, y: sy }, thickness: 0.25, color: LIGHT_GRAY });
+251: 
+252:   // Fecha del sorteo (dinámica desde la configuración)
+253:   sy -= STUB_INFO_SIZE + 2 * s;
+254:   const ds = `Sorteo: ${formatShortDate(config.drawDate)}`;
+255:   const dsW = font.widthOfTextAtSize(ds, STUB_INFO_SIZE);
+256:   page.drawText(ds, { x: scx + (scW - dsW) / 2, y: sy, size: STUB_INFO_SIZE, font, color: MED_GRAY });
+257: 
+258:   // Campo nombre
+259:   sy -= STUB_LABEL_SIZE + 4 * s;
+260:   page.drawText("Nombre y Apellido:", { x: scx, y: sy, size: STUB_LABEL_SIZE, font: fontBold, color: BLACK });
+261:   sy -= 4 * s;
+262:   page.drawLine({ start: { x: scx, y: sy }, end: { x: sr, y: sy }, thickness: 0.25, color: DARK_GRAY });
+263: 
+264:   // Campo teléfono
+265:   sy -= STUB_LABEL_SIZE + 4 * s;
+266:   page.drawText("Teléfono:", { x: scx, y: sy, size: STUB_LABEL_SIZE, font: fontBold, color: BLACK });
+267:   sy -= 4 * s;
+268:   page.drawLine({ start: { x: scx, y: sy }, end: { x: sr, y: sy }, thickness: 0.25, color: DARK_GRAY });
+269: 
+270:   // Valor centrado
+271:   sy -= STUB_VAL_SIZE + 5 * s;
+272:   const vt = `Valor: ${formatCurrency(config.price)}`;
+273:   const vtW = fontBold.widthOfTextAtSize(vt, STUB_VAL_SIZE);
+274:   page.drawText(vt, { x: scx + (scW - vtW) / 2, y: sy, size: STUB_VAL_SIZE, font: fontBold, color: DARK_GRAY });
+275: 
+276:   // Número grande centrado
+277:   sy -= STUB_NUM_SIZE + 3 * s;
+278:   const sn = `N° ${ticketNumber}`;
+279:   const snW = courierBold.widthOfTextAtSize(sn, STUB_NUM_SIZE);
+280:   page.drawText(sn, { x: scx + (scW - snW) / 2, y: sy, size: STUB_NUM_SIZE, font: courierBold, color: ACCENT_COLOR });
+281: 
+282:   // Línea de corte horizontal debajo del ticket
+283:   dashedLineH(page, x, y - 1, x + w, 4, 2.5, 0.2, LIGHT_GRAY);
+284: }
+285: 
+286: // Dibuja una línea punteada vertical
+287: function dashedLineV(page: PDFPage, x: number, yStart: number, yEnd: number, dash: number, gapLen: number, thickness: number, color: ReturnType<typeof rgb>) {
+288:   let pos = yStart;
+289:   while (pos < yEnd) {
+290:     const end = Math.min(pos + dash, yEnd);
+291:     page.drawLine({ start: { x, y: pos }, end: { x, y: end }, thickness, color });
+292:     pos += dash + gapLen;
+293:   }
+294: }
+295: 
+296: // Dibuja una línea punteada horizontal
+297: function dashedLineH(page: PDFPage, xStart: number, y: number, xEnd: number, dash: number, gapLen: number, thickness: number, color: ReturnType<typeof rgb>) {
+298:   let pos = xStart;
+299:   while (pos < xEnd) {
+300:     const end = Math.min(pos + dash, xEnd);
+301:     page.drawLine({ start: { x: pos, y }, end: { x: end, y }, thickness, color });
+302:     pos += dash + gapLen;
+303:   }
+304: }
+305: 
+306: // Descarga el PDF generado como archivo
+307: export function downloadPdf(pdfBytes: Uint8Array, filename: string) {
+308:   const blob = new Blob([pdfBytes as unknown as BlobPart], { type: "application/pdf" });
+309:   const url = URL.createObjectURL(blob);
+310:   const link = document.createElement("a");
+311:   link.href = url;
+312:   link.download = filename;
+313:   document.body.appendChild(link);
+314:   link.click();
+315:   document.body.removeChild(link);
+316:   URL.revokeObjectURL(url);
+317: }
 ````
