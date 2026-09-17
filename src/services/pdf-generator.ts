@@ -1,4 +1,4 @@
-import { PDFDocument, rgb, StandardFonts, PDFPage, PDFFont, degrees } from "pdf-lib";
+import { PDFDocument, rgb, StandardFonts, PDFPage, PDFFont, degrees, pushGraphicsState, popGraphicsState, translate, rotateRadians } from "pdf-lib";
 import { TicketConfig, PrintConfig } from "@/types";
 import { formatTicketNumber, getDigitsNeeded, formatCurrency, hexToRgb, formatShortDate, resolvePrizeColumns } from "@/lib/utils";
 import { A4_WIDTH_PT, A4_HEIGHT_PT, MM_TO_PT } from "@/lib/constants";
@@ -79,7 +79,7 @@ export async function generateRifaPDF(options: PDFGeneratorOptions): Promise<Uin
       }
     }
 
-    // Dibujar tickets verticales en el costado derecho (mismo ticket rotado 90°)
+    // Dibujar tickets verticales en el costado derecho (mismo ticket rotado 90° con fidelidad vectorial total)
     if (canFitSide) {
       for (let i = 0; i < sideCount; i++) {
         if (idx >= ticketConfig.totalTickets) break;
@@ -87,28 +87,18 @@ export async function generateRifaPDF(options: PDFGeneratorOptions): Promise<Uin
         const rx = gridStartX + gridW + gap;
         const ry = A4_HEIGHT_PT - margin - (i + 1) * tW - i * gap;
 
-        // Crear documento temporal con el ticket horizontal
-        const tempDoc = await PDFDocument.create();
-        const tFont = await tempDoc.embedFont(StandardFonts.Helvetica);
-        const tFontBold = await tempDoc.embedFont(StandardFonts.HelveticaBold);
-        const tFontItalic = await tempDoc.embedFont(StandardFonts.HelveticaOblique);
-        const tFontBoldItalic = await tempDoc.embedFont(StandardFonts.HelveticaBoldOblique);
-        const tCourierBold = await tempDoc.embedFont(StandardFonts.CourierBold);
-        const tempFonts: Fonts = { font: tFont, fontBold: tFontBold, fontItalic: tFontItalic, fontBoldItalic: tFontBoldItalic, courierBold: tCourierBold };
+        // Transformación gráfica directa nativa de PDF:
+        // Origen trasladado a (rx, ry + tW) y rotado 90° horario (-Math.PI / 2).
+        // Se dibuja directamente usando las fuentes del documento principal sin pérdida de texto ni overhead.
+        page.pushOperators(
+          pushGraphicsState(),
+          translate(rx, ry + tW),
+          rotateRadians(-Math.PI / 2)
+        );
 
-        const tempPage = tempDoc.addPage([tW, tH]);
-        drawTicket(tempPage, 0, 0, tW, tH, formatted, ticketConfig, tempFonts, printConfig);
+        drawTicket(page, 0, 0, tW, tH, formatted, ticketConfig, fonts, printConfig);
 
-        // Incrustar la página temporal en el documento principal
-        const [embeddedPage] = await pdfDoc.embedPages([tempPage]);
-
-        // Dibujar rotado 90° en sentido horario
-        // Ajuste: pegado al borde izquierdo de la columna lateral
-        page.drawPage(embeddedPage, {
-          x: rx,
-          y: ry + tW,
-          rotate: degrees(-90),
-        });
+        page.pushOperators(popGraphicsState());
 
         idx++;
       }
