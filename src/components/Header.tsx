@@ -93,7 +93,7 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-md">
+      <header className="hidden sm:block sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-md">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
           {/* Logo & Marca unificada */}
           <Link href="/" className="flex items-center gap-2.5 group">

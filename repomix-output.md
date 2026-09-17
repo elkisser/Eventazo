@@ -137,678 +137,6 @@ tsconfig.json
 40: </svg>
 ````
 
-## File: src/components/auth/AuthModal.tsx
-````typescript
-  1: "use client";
-  2: 
-  3: import { useState } from "react";
-  4: import {
-  5:   X,
-  6:   Lock,
-  7:   Mail,
-  8:   Sparkles,
-  9:   CheckCircle2,
- 10:   AlertCircle,
- 11:   Database,
- 12:   Loader2,
- 13:   Copy,
- 14:   Check,
- 15:   RefreshCw,
- 16:   ArrowRight
- 17: } from "lucide-react";
- 18: import { Button } from "@/components/ui/button";
- 19: import { useAuth } from "@/hooks/useAuth";
- 20: 
- 21: interface AuthModalProps {
- 22:   isOpen: boolean;
- 23:   onClose: () => void;
- 24:   onSuccess?: () => void;
- 25: }
- 26: 
- 27: export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
- 28:   const [mode, setMode] = useState<"login" | "register">("login");
- 29:   const [email, setEmail] = useState("");
- 30:   const [password, setPassword] = useState("");
- 31:   const [error, setError] = useState<string | null>(null);
- 32:   const [message, setMessage] = useState<string | null>(null);
- 33:   const [submitting, setSubmitting] = useState(false);
- 34:   const [successLogin, setSuccessLogin] = useState(false);
- 35:   const [isUnconfirmed, setIsUnconfirmed] = useState(false);
- 36:   const [copiedSql, setCopiedSql] = useState(false);
- 37:   const [confirmingRpc, setConfirmingRpc] = useState(false);
- 38: 
- 39:   const { signIn, signUp, signInDemo, confirmEmailAndLogin, isConfigured } = useAuth();
- 40: 
- 41:   if (!isOpen) return null;
- 42: 
- 43:   const sqlConfirmationQuery = `UPDATE auth.users SET email_confirmed_at = NOW(), confirmed_at = NOW() WHERE email = '${email.trim().toLowerCase() || "andreaarceguet@gmail.com"}';`;
- 44: 
- 45:   const handleSubmit = async (e: React.FormEvent) => {
- 46:     e.preventDefault();
- 47:     setError(null);
- 48:     setMessage(null);
- 49:     setIsUnconfirmed(false);
- 50:     setSubmitting(true);
- 51: 
- 52:     try {
- 53:       if (mode === "login") {
- 54:         const res = await signIn(email, password);
- 55:         if (res.error) {
- 56:           setError(res.error);
- 57:           if (res.isUnconfirmed) {
- 58:             setIsUnconfirmed(true);
- 59:           }
- 60:         } else {
- 61:           setSuccessLogin(true);
- 62:           setMessage("¡Sesión iniciada correctamente! Cargando tus datos...");
- 63:           setTimeout(() => {
- 64:             setSuccessLogin(false);
- 65:             onSuccess?.();
- 66:             onClose();
- 67:           }, 800);
- 68:         }
- 69:       } else {
- 70:         const res = await signUp(email, password);
- 71:         if (res.error) {
- 72:           setError(res.error);
- 73:         } else {
- 74:           setSuccessLogin(true);
- 75:           setMessage(res.message || "¡Cuenta creada exitosamente!");
- 76:           setTimeout(() => {
- 77:             setSuccessLogin(false);
- 78:             onSuccess?.();
- 79:             onClose();
- 80:           }, 1000);
- 81:         }
- 82:       }
- 83:     } finally {
- 84:       setSubmitting(false);
- 85:     }
- 86:   };
- 87: 
- 88:   const handleConfirmAndLogin = async () => {
- 89:     setConfirmingRpc(true);
- 90:     setError(null);
- 91:     try {
- 92:       const res = await confirmEmailAndLogin(email, password);
- 93:       if (res.error) {
- 94:         setError(res.error);
- 95:       } else {
- 96:         setSuccessLogin(true);
- 97:         setMessage("¡Cuenta confirmada y sesión iniciada!");
- 98:         setTimeout(() => {
- 99:           setSuccessLogin(false);
-100:           onSuccess?.();
-101:           onClose();
-102:         }, 800);
-103:       }
-104:     } finally {
-105:       setConfirmingRpc(false);
-106:     }
-107:   };
-108: 
-109:   const handleCopySql = () => {
-110:     if (typeof navigator !== "undefined") {
-111:       navigator.clipboard.writeText(sqlConfirmationQuery);
-112:       setCopiedSql(true);
-113:       setTimeout(() => setCopiedSql(false), 2000);
-114:     }
-115:   };
-116: 
-117:   const handleDemoLogin = () => {
-118:     setSubmitting(true);
-119:     signInDemo();
-120:     setSuccessLogin(true);
-121:     setMessage("¡Acceso Demo PRO concedido!");
-122:     setTimeout(() => {
-123:       setSubmitting(false);
-124:       setSuccessLogin(false);
-125:       onSuccess?.();
-126:       onClose();
-127:     }, 600);
-128:   };
-129: 
-130:   return (
-131:     <div
-132:       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
-133:       onClick={onClose}
-134:     >
-135:       <div
-136:         className="relative w-full max-w-md rounded-2xl border border-slate-800/90 bg-slate-950/95 p-6 shadow-2xl shadow-amber-500/15 backdrop-blur-2xl animate-in zoom-in-95 duration-200"
-137:         onClick={(e) => e.stopPropagation()}
-138:       >
-139:         {/* Botón cerrar */}
-140:         <button
-141:           onClick={onClose}
-142:           className="absolute top-4 right-4 text-slate-400 hover:text-slate-200 p-1.5 rounded-xl hover:bg-slate-900 transition-colors"
-143:         >
-144:           <X className="h-5 w-5" />
-145:         </button>
-146: 
-147:         {/* Encabezado */}
-148:         <div className="text-center mb-5">
-149:           <div className="mx-auto w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-400 to-amber-500 flex items-center justify-center shadow-lg shadow-amber-500/25 mb-3">
-150:             <Lock className="h-6 w-6 text-slate-950" />
-151:           </div>
-152:           <h3 className="text-xl font-black text-slate-100 tracking-tight">
-153:             {mode === "login" ? "Iniciar Sesión" : "Crear Cuenta"}
-154:           </h3>
-155:           <p className="text-xs text-slate-400 mt-1">
-156:             {mode === "login"
-157:               ? "Accede a tus rifas guardadas y gestiona tus diseños privados."
-158:               : "Regístrate gratis para empezar a diseñar y descargar tus rifas."}
-159:           </p>
-160: 
-161:           {/* Badge de estado Supabase */}
-162:           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-medium mt-3 border bg-slate-900/80 border-slate-800 text-slate-300">
-163:             <Database className={`h-3 w-3 ${isConfigured ? "text-emerald-400" : "text-amber-400"}`} />
-164:             <span>
-165:               {isConfigured ? "Conexión a Supabase Activa" : "Modo Local / Demo activo"}
-166:             </span>
-167:           </div>
-168:         </div>
-169: 
-170:         {/* Tabs de Modo */}
-171:         <div className="flex rounded-xl bg-slate-900/80 p-1 mb-4 border border-slate-800">
-172:           <button
-173:             type="button"
-174:             onClick={() => {
-175:               setMode("login");
-176:               setError(null);
-177:               setIsUnconfirmed(false);
-178:             }}
-179:             className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-180:               mode === "login"
-181:                 ? "bg-gradient-to-r from-amber-500 to-amber-400 text-slate-950 shadow-md font-bold"
-182:                 : "text-slate-400 hover:text-slate-200"
-183:             }`}
-184:           >
-185:             Ingresar
-186:           </button>
-187:           <button
-188:             type="button"
-189:             onClick={() => {
-190:               setMode("register");
-191:               setError(null);
-192:               setIsUnconfirmed(false);
-193:             }}
-194:             className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-195:               mode === "register"
-196:                 ? "bg-gradient-to-r from-amber-500 to-amber-400 text-slate-950 shadow-md font-bold"
-197:                 : "text-slate-400 hover:text-slate-200"
-198:             }`}
-199:           >
-200:             Registrarse
-201:           </button>
-202:         </div>
-203: 
-204:         {/* Alerta de Éxito con Animación */}
-205:         {(successLogin || message) && (
-206:           <div className="mb-4 flex items-center gap-2.5 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs animate-in zoom-in-95 duration-200">
-207:             <CheckCircle2 className="h-4 w-4 shrink-0 animate-bounce" />
-208:             <span className="font-semibold">{message}</span>
-209:           </div>
-210:         )}
-211: 
-212:         {/* Alerta de Error Convencional */}
-213:         {error && !isUnconfirmed && (
-214:           <div className="mb-4 flex items-start gap-2.5 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs animate-in fade-in duration-200">
-215:             <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-216:             <div className="flex-1">
-217:               <p className="font-semibold">{error}</p>
-218:             </div>
-219:           </div>
-220:         )}
-221: 
-222:         {/* Bloque especial interactivo si el email no está confirmado */}
-223:         {isUnconfirmed && (
-224:           <div className="mb-4 p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs space-y-2.5 animate-in zoom-in-95 duration-200">
-225:             <div className="flex items-start gap-2">
-226:               <AlertCircle className="h-4 w-4 shrink-0 text-amber-400 mt-0.5" />
-227:               <div>
-228:                 <p className="font-bold text-slate-100">Cuenta creada pero no confirmada</p>
-229:                 <p className="text-[11px] text-slate-300 mt-0.5 leading-relaxed">
-230:                   Supabase requiere confirmar el correo antes de permitir el login con contraseña.
-231:                 </p>
-232:               </div>
-233:             </div>
-234: 
-235:             <div className="flex flex-col gap-2 pt-1">
-236:               <Button
-237:                 type="button"
-238:                 size="sm"
-239:                 onClick={handleConfirmAndLogin}
-240:                 disabled={confirmingRpc}
-241:                 className="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold text-xs h-8 rounded-lg gap-1.5 shadow-md"
-242:               >
-243:                 {confirmingRpc ? (
-244:                   <>
-245:                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
-246:                     <span>Confirmando cuenta...</span>
-247:                   </>
-248:                 ) : (
-249:                   <>
-250:                     <RefreshCw className="h-3.5 w-3.5" />
-251:                     <span>Auto-Confirmar y Entrar</span>
-252:                   </>
-253:                 )}
-254:               </Button>
-255: 
-256:               <div className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-[10px] space-y-1">
-257:                 <div className="flex items-center justify-between text-slate-400">
-258:                   <span>O ejecuta en Supabase SQL Editor:</span>
-259:                   <button
-260:                     type="button"
-261:                     onClick={handleCopySql}
-262:                     className="text-amber-400 hover:text-amber-300 flex items-center gap-1 font-semibold"
-263:                   >
-264:                     {copiedSql ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
-265:                     <span>{copiedSql ? "¡Copiado!" : "Copiar SQL"}</span>
-266:                   </button>
-267:                 </div>
-268:                 <code className="block font-mono text-[10px] text-slate-300 bg-slate-950 p-1.5 rounded truncate select-all">
-269:                   {sqlConfirmationQuery}
-270:                 </code>
-271:               </div>
-272:             </div>
-273:           </div>
-274:         )}
-275: 
-276:         {/* Formulario */}
-277:         <form onSubmit={handleSubmit} className="space-y-3.5">
-278:           <div>
-279:             <label className="block text-xs font-semibold text-slate-300 mb-1">
-280:               Correo Electrónico
-281:             </label>
-282:             <div className="relative">
-283:               <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
-284:               <input
-285:                 type="email"
-286:                 required
-287:                 disabled={submitting || successLogin}
-288:                 value={email}
-289:                 onChange={(e) => setEmail(e.target.value)}
-290:                 placeholder="andreaarceguet@gmail.com"
-291:                 className="w-full pl-9 pr-3 py-2 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all disabled:opacity-50"
-292:               />
-293:             </div>
-294:           </div>
-295: 
-296:           <div>
-297:             <label className="block text-xs font-semibold text-slate-300 mb-1">
-298:               Contraseña
-299:             </label>
-300:             <div className="relative">
-301:               <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
-302:               <input
-303:                 type="password"
-304:                 required
-305:                 minLength={6}
-306:                 disabled={submitting || successLogin}
-307:                 value={password}
-308:                 onChange={(e) => setPassword(e.target.value)}
-309:                 placeholder="••••••••"
-310:                 className="w-full pl-9 pr-3 py-2 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all disabled:opacity-50"
-311:               />
-312:             </div>
-313:           </div>
-314: 
-315:           {/* Botón Principal con Loader */}
-316:           <Button
-317:             type="submit"
-318:             disabled={submitting || successLogin}
-319:             className="w-full bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-slate-950 font-bold hover:from-amber-400 hover:to-amber-300 h-10 text-xs shadow-lg shadow-amber-500/25 rounded-xl mt-2 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-320:           >
-321:             {submitting ? (
-322:               <>
-323:                 <Loader2 className="h-4 w-4 animate-spin text-slate-950" />
-324:                 <span>{mode === "login" ? "Verificando credenciales..." : "Creando tu cuenta..."}</span>
-325:               </>
-326:             ) : successLogin ? (
-327:               <>
-328:                 <Check className="h-4 w-4 text-slate-950" />
-329:                 <span>¡Listo!</span>
-330:               </>
-331:             ) : (
-332:               <>
-333:                 <span>{mode === "login" ? "Iniciar Sesión" : "Crear Cuenta"}</span>
-334:                 <ArrowRight className="h-3.5 w-3.5" />
-335:               </>
-336:             )}
-337:           </Button>
-338:         </form>
-339: 
-340:         {/* Separador */}
-341:         <div className="relative my-4">
-342:           <div className="absolute inset-0 flex items-center">
-343:             <div className="w-full border-t border-slate-800" />
-344:           </div>
-345:           <div className="relative flex justify-center text-[10px] uppercase">
-346:             <span className="bg-slate-950 px-2 text-slate-500 font-medium">
-347:               o modo inmediato
-348:             </span>
-349:           </div>
-350:         </div>
-351: 
-352:         {/* Botón Acceso Rápido Demo */}
-353:         <Button
-354:           type="button"
-355:           variant="outline"
-356:           onClick={handleDemoLogin}
-357:           disabled={submitting}
-358:           className="w-full border-slate-800 bg-slate-900/60 hover:bg-slate-800 text-amber-400 hover:text-amber-300 h-9 text-xs rounded-xl flex items-center justify-center gap-2 transition-all"
-359:         >
-360:           <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-361:           <span>Acceder con Modo Demo Pro (1-Click)</span>
-362:         </Button>
-363:       </div>
-364:     </div>
-365:   );
-366: }
-````
-
-## File: src/components/auth/ProfileModal.tsx
-````typescript
-  1: "use client";
-  2: 
-  3: import { useState, useEffect } from "react";
-  4: import {
-  5:   X,
-  6:   User,
-  7:   Mail,
-  8:   Lock,
-  9:   CheckCircle2,
- 10:   AlertCircle,
- 11:   LogOut,
- 12:   Sparkles,
- 13:   Database,
- 14:   Ticket,
- 15:   KeyRound,
- 16:   Loader2
- 17: } from "lucide-react";
- 18: import { Button } from "@/components/ui/button";
- 19: import { useAuth } from "@/hooks/useAuth";
- 20: import { getSavedTickets } from "@/services/tickets-service";
- 21: 
- 22: interface ProfileModalProps {
- 23:   isOpen: boolean;
- 24:   onClose: () => void;
- 25: }
- 26: 
- 27: export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
- 28:   const { user, updateProfile, updatePassword, signOut, isConfigured } = useAuth();
- 29: 
- 30:   const [name, setName] = useState("");
- 31:   const [email, setEmail] = useState("");
- 32:   const [newPassword, setNewPassword] = useState("");
- 33:   const [confirmPassword, setConfirmPassword] = useState("");
- 34:   const [savedTicketsCount, setSavedTicketsCount] = useState(0);
- 35: 
- 36:   const [profileLoading, setProfileLoading] = useState(false);
- 37:   const [passwordLoading, setPasswordLoading] = useState(false);
- 38:   const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
- 39: 
- 40:   useEffect(() => {
- 41:     if (user) {
- 42:       setName(user.name || "");
- 43:       setEmail(user.email || "");
- 44:       getSavedTickets().then((tickets) => setSavedTicketsCount(tickets.length)).catch(() => {});
- 45:     }
- 46:   }, [user, isOpen]);
- 47: 
- 48:   if (!isOpen || !user) return null;
- 49: 
- 50:   const handleUpdateProfile = async (e: React.FormEvent) => {
- 51:     e.preventDefault();
- 52:     setStatusMessage(null);
- 53:     setProfileLoading(true);
- 54: 
- 55:     try {
- 56:       const res = await updateProfile(name, email);
- 57:       if (res.error) {
- 58:         setStatusMessage({ type: "error", text: res.error });
- 59:       } else {
- 60:         setStatusMessage({ type: "success", text: res.message || "Perfil actualizado exitosamente" });
- 61:         setTimeout(() => setStatusMessage(null), 3000);
- 62:       }
- 63:     } finally {
- 64:       setProfileLoading(false);
- 65:     }
- 66:   };
- 67: 
- 68:   const handleChangePassword = async (e: React.FormEvent) => {
- 69:     e.preventDefault();
- 70:     setStatusMessage(null);
- 71: 
- 72:     if (newPassword.length < 6) {
- 73:       setStatusMessage({ type: "error", text: "La contraseña debe tener al menos 6 caracteres" });
- 74:       return;
- 75:     }
- 76: 
- 77:     if (newPassword !== confirmPassword) {
- 78:       setStatusMessage({ type: "error", text: "Las contraseñas no coinciden" });
- 79:       return;
- 80:     }
- 81: 
- 82:     setPasswordLoading(true);
- 83:     try {
- 84:       const res = await updatePassword(newPassword);
- 85:       if (res.error) {
- 86:         setStatusMessage({ type: "error", text: res.error });
- 87:       } else {
- 88:         setStatusMessage({ type: "success", text: "Contraseña actualizada exitosamente" });
- 89:         setNewPassword("");
- 90:         setConfirmPassword("");
- 91:         setTimeout(() => setStatusMessage(null), 3000);
- 92:       }
- 93:     } finally {
- 94:       setPasswordLoading(false);
- 95:     }
- 96:   };
- 97: 
- 98:   const handleSignOut = async () => {
- 99:     await signOut();
-100:     onClose();
-101:   };
-102: 
-103:   return (
-104:     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
-105:       <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto rounded-3xl border border-slate-700/80 bg-slate-900 p-5 sm:p-6 shadow-2xl shadow-amber-500/10 backdrop-blur-xl">
-106:         {/* Botón Cerrar */}
-107:         <button
-108:           onClick={onClose}
-109:           className="absolute top-4 right-4 text-slate-400 hover:text-slate-200 p-1.5 rounded-xl hover:bg-slate-800 transition-colors"
-110:         >
-111:           <X className="h-5 w-5" />
-112:         </button>
-113: 
-114:         {/* Header con Avatar */}
-115:         <div className="flex items-center gap-3.5 pb-4 border-b border-slate-800">
-116:           <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center text-xl font-black shadow-lg shadow-amber-500/30">
-117:             {name ? name[0].toUpperCase() : user.email[0].toUpperCase()}
-118:           </div>
-119:           <div>
-120:             <div className="flex items-center gap-1.5">
-121:               <h3 className="text-base font-bold text-slate-100">{name || "Mi Cuenta"}</h3>
-122:               <span className="rounded-full bg-amber-500/20 border border-amber-500/40 px-2 py-0.2 text-[9px] font-bold text-amber-300">
-123:                 PRO
-124:               </span>
-125:             </div>
-126:             <p className="text-xs text-slate-400 mt-0.5 truncate max-w-[220px]">{user.email}</p>
-127:           </div>
-128:         </div>
-129: 
-130:         {/* Métricas de la cuenta */}
-131:         <div className="grid grid-cols-2 gap-2.5 my-4">
-132:           <div className="p-3 rounded-2xl bg-slate-800/60 border border-slate-800 flex items-center gap-2.5">
-133:             <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400">
-134:               <Ticket className="h-4 w-4" />
-135:             </div>
-136:             <div>
-137:               <p className="text-xs font-bold text-slate-200">{savedTicketsCount}</p>
-138:               <p className="text-[10px] text-slate-400">Rifas Guardadas</p>
-139:             </div>
-140:           </div>
-141: 
-142:           <div className="p-3 rounded-2xl bg-slate-800/60 border border-slate-800 flex items-center gap-2.5">
-143:             <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
-144:               <Database className="h-4 w-4" />
-145:             </div>
-146:             <div>
-147:               <p className="text-xs font-bold text-slate-200">{isConfigured ? "Supabase Cloud" : "Local Demo"}</p>
-148:               <p className="text-[10px] text-slate-400">Almacenamiento</p>
-149:             </div>
-150:           </div>
-151:         </div>
-152: 
-153:         {/* Alerta de Feedback */}
-154:         {statusMessage && (
-155:           <div
-156:             className={`mb-4 flex items-center gap-2 p-3 rounded-2xl text-xs ${
-157:               statusMessage.type === "success"
-158:                 ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400"
-159:                 : "bg-rose-500/10 border border-rose-500/30 text-rose-400"
-160:             }`}
-161:           >
-162:             {statusMessage.type === "success" ? (
-163:               <CheckCircle2 className="h-4 w-4 shrink-0" />
-164:             ) : (
-165:               <AlertCircle className="h-4 w-4 shrink-0" />
-166:             )}
-167:             <span>{statusMessage.text}</span>
-168:           </div>
-169:         )}
-170: 
-171:         {/* Formulario 1: Datos Personales */}
-172:         <form onSubmit={handleUpdateProfile} className="space-y-3 pt-1">
-173:           <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-174:             <User className="h-3.5 w-3.5 text-amber-400" />
-175:             <span>Datos del Perfil</span>
-176:           </h4>
-177: 
-178:           <div>
-179:             <label className="block text-[11px] font-medium text-slate-300 mb-1">
-180:               Nombre Completo
-181:             </label>
-182:             <input
-183:               type="text"
-184:               required
-185:               value={name}
-186:               onChange={(e) => setName(e.target.value)}
-187:               placeholder="Tu nombre o el de tu organización"
-188:               className="w-full px-3 py-2 bg-slate-800/90 border border-slate-700 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500"
-189:             />
-190:           </div>
-191: 
-192:           <div>
-193:             <label className="block text-[11px] font-medium text-slate-300 mb-1">
-194:               Correo Electrónico
-195:             </label>
-196:             <input
-197:               type="email"
-198:               required
-199:               disabled={profileLoading}
-200:               value={email}
-201:               onChange={(e) => setEmail(e.target.value)}
-202:               placeholder="tu@email.com"
-203:               className="w-full px-3 py-2 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 disabled:opacity-50"
-204:             />
-205:           </div>
-206: 
-207:           <Button
-208:             type="submit"
-209:             disabled={profileLoading}
-210:             size="sm"
-211:             className="w-full bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 hover:text-amber-300 text-xs font-semibold h-9 rounded-xl transition-all flex items-center justify-center gap-2"
-212:           >
-213:             {profileLoading ? (
-214:               <>
-215:                 <Loader2 className="h-3.5 w-3.5 animate-spin text-amber-400" />
-216:                 <span>Guardando cambios...</span>
-217:               </>
-218:             ) : (
-219:               <span>Guardar Cambios de Perfil</span>
-220:             )}
-221:           </Button>
-222:         </form>
-223: 
-224:         {/* Separador */}
-225:         <div className="my-5 border-t border-slate-800" />
-226: 
-227:         {/* Formulario 2: Cambiar Contraseña */}
-228:         <form onSubmit={handleChangePassword} className="space-y-3">
-229:           <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-230:             <KeyRound className="h-3.5 w-3.5 text-amber-400" />
-231:             <span>Seguridad y Contraseña</span>
-232:           </h4>
-233: 
-234:           <div>
-235:             <label className="block text-[11px] font-medium text-slate-300 mb-1">
-236:               Nueva Contraseña
-237:             </label>
-238:             <input
-239:               type="password"
-240:               minLength={6}
-241:               disabled={passwordLoading}
-242:               value={newPassword}
-243:               onChange={(e) => setNewPassword(e.target.value)}
-244:               placeholder="Mínimo 6 caracteres"
-245:               className="w-full px-3 py-2 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 disabled:opacity-50"
-246:             />
-247:           </div>
-248: 
-249:           <div>
-250:             <label className="block text-[11px] font-medium text-slate-300 mb-1">
-251:               Confirmar Nueva Contraseña
-252:             </label>
-253:             <input
-254:               type="password"
-255:               minLength={6}
-256:               disabled={passwordLoading}
-257:               value={confirmPassword}
-258:               onChange={(e) => setConfirmPassword(e.target.value)}
-259:               placeholder="Repite la nueva contraseña"
-260:               className="w-full px-3 py-2 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 disabled:opacity-50"
-261:             />
-262:           </div>
-263: 
-264:           <Button
-265:             type="submit"
-266:             disabled={passwordLoading || !newPassword}
-267:             size="sm"
-268:             className="w-full bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 hover:text-amber-300 text-xs font-semibold h-9 rounded-xl transition-all flex items-center justify-center gap-2"
-269:           >
-270:             {passwordLoading ? (
-271:               <>
-272:                 <Loader2 className="h-3.5 w-3.5 animate-spin text-amber-400" />
-273:                 <span>Actualizando contraseña...</span>
-274:               </>
-275:             ) : (
-276:               <span>Actualizar Contraseña</span>
-277:             )}
-278:           </Button>
-279:         </form>
-280: 
-281:         {/* Separador y Cerrar Sesión */}
-282:         <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
-283:           <span className="text-[11px] text-slate-500">Sesión iniciada</span>
-284:           <Button
-285:             type="button"
-286:             variant="ghost"
-287:             size="sm"
-288:             onClick={handleSignOut}
-289:             className="text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 text-xs h-8 rounded-xl flex items-center gap-1.5"
-290:           >
-291:             <LogOut className="h-3.5 w-3.5" />
-292:             <span>Cerrar Sesión</span>
-293:           </Button>
-294:         </div>
-295:       </div>
-296:     </div>
-297:   );
-298: }
-````
-
 ## File: src/components/ui/checkbox.tsx
 ````typescript
  1: "use client";
@@ -1761,6 +1089,678 @@ tsconfig.json
 215:     </button>
 216:   );
 217: }
+````
+
+## File: src/components/auth/AuthModal.tsx
+````typescript
+  1: "use client";
+  2: 
+  3: import { useState } from "react";
+  4: import {
+  5:   X,
+  6:   Lock,
+  7:   Mail,
+  8:   Sparkles,
+  9:   CheckCircle2,
+ 10:   AlertCircle,
+ 11:   Database,
+ 12:   Loader2,
+ 13:   Copy,
+ 14:   Check,
+ 15:   RefreshCw,
+ 16:   ArrowRight
+ 17: } from "lucide-react";
+ 18: import { Button } from "@/components/ui/button";
+ 19: import { useAuth } from "@/hooks/useAuth";
+ 20: 
+ 21: interface AuthModalProps {
+ 22:   isOpen: boolean;
+ 23:   onClose: () => void;
+ 24:   onSuccess?: () => void;
+ 25: }
+ 26: 
+ 27: export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
+ 28:   const [mode, setMode] = useState<"login" | "register">("login");
+ 29:   const [email, setEmail] = useState("");
+ 30:   const [password, setPassword] = useState("");
+ 31:   const [error, setError] = useState<string | null>(null);
+ 32:   const [message, setMessage] = useState<string | null>(null);
+ 33:   const [submitting, setSubmitting] = useState(false);
+ 34:   const [successLogin, setSuccessLogin] = useState(false);
+ 35:   const [isUnconfirmed, setIsUnconfirmed] = useState(false);
+ 36:   const [copiedSql, setCopiedSql] = useState(false);
+ 37:   const [confirmingRpc, setConfirmingRpc] = useState(false);
+ 38: 
+ 39:   const { signIn, signUp, signInDemo, confirmEmailAndLogin, isConfigured } = useAuth();
+ 40: 
+ 41:   if (!isOpen) return null;
+ 42: 
+ 43:   const sqlConfirmationQuery = `UPDATE auth.users SET email_confirmed_at = NOW(), confirmed_at = NOW() WHERE email = '${email.trim().toLowerCase() || "andreaarceguet@gmail.com"}';`;
+ 44: 
+ 45:   const handleSubmit = async (e: React.FormEvent) => {
+ 46:     e.preventDefault();
+ 47:     setError(null);
+ 48:     setMessage(null);
+ 49:     setIsUnconfirmed(false);
+ 50:     setSubmitting(true);
+ 51: 
+ 52:     try {
+ 53:       if (mode === "login") {
+ 54:         const res = await signIn(email, password);
+ 55:         if (res.error) {
+ 56:           setError(res.error);
+ 57:           if (res.isUnconfirmed) {
+ 58:             setIsUnconfirmed(true);
+ 59:           }
+ 60:         } else {
+ 61:           setSuccessLogin(true);
+ 62:           setMessage("¡Sesión iniciada correctamente! Cargando tus datos...");
+ 63:           setTimeout(() => {
+ 64:             setSuccessLogin(false);
+ 65:             onSuccess?.();
+ 66:             onClose();
+ 67:           }, 800);
+ 68:         }
+ 69:       } else {
+ 70:         const res = await signUp(email, password);
+ 71:         if (res.error) {
+ 72:           setError(res.error);
+ 73:         } else {
+ 74:           setSuccessLogin(true);
+ 75:           setMessage(res.message || "¡Cuenta creada exitosamente!");
+ 76:           setTimeout(() => {
+ 77:             setSuccessLogin(false);
+ 78:             onSuccess?.();
+ 79:             onClose();
+ 80:           }, 1000);
+ 81:         }
+ 82:       }
+ 83:     } finally {
+ 84:       setSubmitting(false);
+ 85:     }
+ 86:   };
+ 87: 
+ 88:   const handleConfirmAndLogin = async () => {
+ 89:     setConfirmingRpc(true);
+ 90:     setError(null);
+ 91:     try {
+ 92:       const res = await confirmEmailAndLogin(email, password);
+ 93:       if (res.error) {
+ 94:         setError(res.error);
+ 95:       } else {
+ 96:         setSuccessLogin(true);
+ 97:         setMessage("¡Cuenta confirmada y sesión iniciada!");
+ 98:         setTimeout(() => {
+ 99:           setSuccessLogin(false);
+100:           onSuccess?.();
+101:           onClose();
+102:         }, 800);
+103:       }
+104:     } finally {
+105:       setConfirmingRpc(false);
+106:     }
+107:   };
+108: 
+109:   const handleCopySql = () => {
+110:     if (typeof navigator !== "undefined") {
+111:       navigator.clipboard.writeText(sqlConfirmationQuery);
+112:       setCopiedSql(true);
+113:       setTimeout(() => setCopiedSql(false), 2000);
+114:     }
+115:   };
+116: 
+117:   const handleDemoLogin = () => {
+118:     setSubmitting(true);
+119:     signInDemo();
+120:     setSuccessLogin(true);
+121:     setMessage("¡Acceso Demo PRO concedido!");
+122:     setTimeout(() => {
+123:       setSubmitting(false);
+124:       setSuccessLogin(false);
+125:       onSuccess?.();
+126:       onClose();
+127:     }, 600);
+128:   };
+129: 
+130:   return (
+131:     <div
+132:       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+133:       onClick={onClose}
+134:     >
+135:       <div
+136:         className="relative w-full max-w-md rounded-2xl border border-slate-800/90 bg-slate-950/95 p-6 shadow-2xl shadow-amber-500/15 backdrop-blur-2xl animate-in zoom-in-95 duration-200"
+137:         onClick={(e) => e.stopPropagation()}
+138:       >
+139:         {/* Botón cerrar */}
+140:         <button
+141:           onClick={onClose}
+142:           className="absolute top-4 right-4 text-slate-400 hover:text-slate-200 p-1.5 rounded-xl hover:bg-slate-900 transition-colors"
+143:         >
+144:           <X className="h-5 w-5" />
+145:         </button>
+146: 
+147:         {/* Encabezado */}
+148:         <div className="text-center mb-5">
+149:           <div className="mx-auto w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-400 to-amber-500 flex items-center justify-center shadow-lg shadow-amber-500/25 mb-3">
+150:             <Lock className="h-6 w-6 text-slate-950" />
+151:           </div>
+152:           <h3 className="text-xl font-black text-slate-100 tracking-tight">
+153:             {mode === "login" ? "Iniciar Sesión" : "Crear Cuenta"}
+154:           </h3>
+155:           <p className="text-xs text-slate-400 mt-1">
+156:             {mode === "login"
+157:               ? "Accede a tus rifas guardadas y gestiona tus diseños privados."
+158:               : "Regístrate gratis para empezar a diseñar y descargar tus rifas."}
+159:           </p>
+160: 
+161:           {/* Badge de estado Supabase */}
+162:           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-medium mt-3 border bg-slate-900/80 border-slate-800 text-slate-300">
+163:             <Database className={`h-3 w-3 ${isConfigured ? "text-emerald-400" : "text-amber-400"}`} />
+164:             <span>
+165:               {isConfigured ? "Conexión a Supabase Activa" : "Modo Local / Demo activo"}
+166:             </span>
+167:           </div>
+168:         </div>
+169: 
+170:         {/* Tabs de Modo */}
+171:         <div className="flex rounded-xl bg-slate-900/80 p-1 mb-4 border border-slate-800">
+172:           <button
+173:             type="button"
+174:             onClick={() => {
+175:               setMode("login");
+176:               setError(null);
+177:               setIsUnconfirmed(false);
+178:             }}
+179:             className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+180:               mode === "login"
+181:                 ? "bg-gradient-to-r from-amber-500 to-amber-400 text-slate-950 shadow-md font-bold"
+182:                 : "text-slate-400 hover:text-slate-200"
+183:             }`}
+184:           >
+185:             Ingresar
+186:           </button>
+187:           <button
+188:             type="button"
+189:             onClick={() => {
+190:               setMode("register");
+191:               setError(null);
+192:               setIsUnconfirmed(false);
+193:             }}
+194:             className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+195:               mode === "register"
+196:                 ? "bg-gradient-to-r from-amber-500 to-amber-400 text-slate-950 shadow-md font-bold"
+197:                 : "text-slate-400 hover:text-slate-200"
+198:             }`}
+199:           >
+200:             Registrarse
+201:           </button>
+202:         </div>
+203: 
+204:         {/* Alerta de Éxito con Animación */}
+205:         {(successLogin || message) && (
+206:           <div className="mb-4 flex items-center gap-2.5 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs animate-in zoom-in-95 duration-200">
+207:             <CheckCircle2 className="h-4 w-4 shrink-0 animate-bounce" />
+208:             <span className="font-semibold">{message}</span>
+209:           </div>
+210:         )}
+211: 
+212:         {/* Alerta de Error Convencional */}
+213:         {error && !isUnconfirmed && (
+214:           <div className="mb-4 flex items-start gap-2.5 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs animate-in fade-in duration-200">
+215:             <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+216:             <div className="flex-1">
+217:               <p className="font-semibold">{error}</p>
+218:             </div>
+219:           </div>
+220:         )}
+221: 
+222:         {/* Bloque especial interactivo si el email no está confirmado */}
+223:         {isUnconfirmed && (
+224:           <div className="mb-4 p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs space-y-2.5 animate-in zoom-in-95 duration-200">
+225:             <div className="flex items-start gap-2">
+226:               <AlertCircle className="h-4 w-4 shrink-0 text-amber-400 mt-0.5" />
+227:               <div>
+228:                 <p className="font-bold text-slate-100">Cuenta creada pero no confirmada</p>
+229:                 <p className="text-[11px] text-slate-300 mt-0.5 leading-relaxed">
+230:                   Supabase requiere confirmar el correo antes de permitir el login con contraseña.
+231:                 </p>
+232:               </div>
+233:             </div>
+234: 
+235:             <div className="flex flex-col gap-2 pt-1">
+236:               <Button
+237:                 type="button"
+238:                 size="sm"
+239:                 onClick={handleConfirmAndLogin}
+240:                 disabled={confirmingRpc}
+241:                 className="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold text-xs h-8 rounded-lg gap-1.5 shadow-md"
+242:               >
+243:                 {confirmingRpc ? (
+244:                   <>
+245:                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
+246:                     <span>Confirmando cuenta...</span>
+247:                   </>
+248:                 ) : (
+249:                   <>
+250:                     <RefreshCw className="h-3.5 w-3.5" />
+251:                     <span>Auto-Confirmar y Entrar</span>
+252:                   </>
+253:                 )}
+254:               </Button>
+255: 
+256:               <div className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-[10px] space-y-1">
+257:                 <div className="flex items-center justify-between text-slate-400">
+258:                   <span>O ejecuta en Supabase SQL Editor:</span>
+259:                   <button
+260:                     type="button"
+261:                     onClick={handleCopySql}
+262:                     className="text-amber-400 hover:text-amber-300 flex items-center gap-1 font-semibold"
+263:                   >
+264:                     {copiedSql ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
+265:                     <span>{copiedSql ? "¡Copiado!" : "Copiar SQL"}</span>
+266:                   </button>
+267:                 </div>
+268:                 <code className="block font-mono text-[10px] text-slate-300 bg-slate-950 p-1.5 rounded truncate select-all">
+269:                   {sqlConfirmationQuery}
+270:                 </code>
+271:               </div>
+272:             </div>
+273:           </div>
+274:         )}
+275: 
+276:         {/* Formulario */}
+277:         <form onSubmit={handleSubmit} className="space-y-3.5">
+278:           <div>
+279:             <label className="block text-xs font-semibold text-slate-300 mb-1">
+280:               Correo Electrónico
+281:             </label>
+282:             <div className="relative">
+283:               <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
+284:               <input
+285:                 type="email"
+286:                 required
+287:                 disabled={submitting || successLogin}
+288:                 value={email}
+289:                 onChange={(e) => setEmail(e.target.value)}
+290:                 placeholder="andreaarceguet@gmail.com"
+291:                 className="w-full pl-9 pr-3 py-2 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all disabled:opacity-50"
+292:               />
+293:             </div>
+294:           </div>
+295: 
+296:           <div>
+297:             <label className="block text-xs font-semibold text-slate-300 mb-1">
+298:               Contraseña
+299:             </label>
+300:             <div className="relative">
+301:               <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
+302:               <input
+303:                 type="password"
+304:                 required
+305:                 minLength={6}
+306:                 disabled={submitting || successLogin}
+307:                 value={password}
+308:                 onChange={(e) => setPassword(e.target.value)}
+309:                 placeholder="••••••••"
+310:                 className="w-full pl-9 pr-3 py-2 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all disabled:opacity-50"
+311:               />
+312:             </div>
+313:           </div>
+314: 
+315:           {/* Botón Principal con Loader */}
+316:           <Button
+317:             type="submit"
+318:             disabled={submitting || successLogin}
+319:             className="w-full bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-slate-950 font-bold hover:from-amber-400 hover:to-amber-300 h-10 text-xs shadow-lg shadow-amber-500/25 rounded-xl mt-2 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+320:           >
+321:             {submitting ? (
+322:               <>
+323:                 <Loader2 className="h-4 w-4 animate-spin text-slate-950" />
+324:                 <span>{mode === "login" ? "Verificando credenciales..." : "Creando tu cuenta..."}</span>
+325:               </>
+326:             ) : successLogin ? (
+327:               <>
+328:                 <Check className="h-4 w-4 text-slate-950" />
+329:                 <span>¡Listo!</span>
+330:               </>
+331:             ) : (
+332:               <>
+333:                 <span>{mode === "login" ? "Iniciar Sesión" : "Crear Cuenta"}</span>
+334:                 <ArrowRight className="h-3.5 w-3.5" />
+335:               </>
+336:             )}
+337:           </Button>
+338:         </form>
+339: 
+340:         {/* Separador */}
+341:         <div className="relative my-4">
+342:           <div className="absolute inset-0 flex items-center">
+343:             <div className="w-full border-t border-slate-800" />
+344:           </div>
+345:           <div className="relative flex justify-center text-[10px] uppercase">
+346:             <span className="bg-slate-950 px-2 text-slate-500 font-medium">
+347:               o modo inmediato
+348:             </span>
+349:           </div>
+350:         </div>
+351: 
+352:         {/* Botón Acceso Rápido Demo */}
+353:         <Button
+354:           type="button"
+355:           variant="outline"
+356:           onClick={handleDemoLogin}
+357:           disabled={submitting}
+358:           className="w-full border-slate-800 bg-slate-900/60 hover:bg-slate-800 text-amber-400 hover:text-amber-300 h-9 text-xs rounded-xl flex items-center justify-center gap-2 transition-all"
+359:         >
+360:           <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+361:           <span>Acceder con Modo Demo Pro (1-Click)</span>
+362:         </Button>
+363:       </div>
+364:     </div>
+365:   );
+366: }
+````
+
+## File: src/components/auth/ProfileModal.tsx
+````typescript
+  1: "use client";
+  2: 
+  3: import { useState, useEffect } from "react";
+  4: import {
+  5:   X,
+  6:   User,
+  7:   Mail,
+  8:   Lock,
+  9:   CheckCircle2,
+ 10:   AlertCircle,
+ 11:   LogOut,
+ 12:   Sparkles,
+ 13:   Database,
+ 14:   Ticket,
+ 15:   KeyRound,
+ 16:   Loader2
+ 17: } from "lucide-react";
+ 18: import { Button } from "@/components/ui/button";
+ 19: import { useAuth } from "@/hooks/useAuth";
+ 20: import { getSavedTickets } from "@/services/tickets-service";
+ 21: 
+ 22: interface ProfileModalProps {
+ 23:   isOpen: boolean;
+ 24:   onClose: () => void;
+ 25: }
+ 26: 
+ 27: export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
+ 28:   const { user, updateProfile, updatePassword, signOut, isConfigured } = useAuth();
+ 29: 
+ 30:   const [name, setName] = useState("");
+ 31:   const [email, setEmail] = useState("");
+ 32:   const [newPassword, setNewPassword] = useState("");
+ 33:   const [confirmPassword, setConfirmPassword] = useState("");
+ 34:   const [savedTicketsCount, setSavedTicketsCount] = useState(0);
+ 35: 
+ 36:   const [profileLoading, setProfileLoading] = useState(false);
+ 37:   const [passwordLoading, setPasswordLoading] = useState(false);
+ 38:   const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+ 39: 
+ 40:   useEffect(() => {
+ 41:     if (user) {
+ 42:       setName(user.name || "");
+ 43:       setEmail(user.email || "");
+ 44:       getSavedTickets().then((tickets) => setSavedTicketsCount(tickets.length)).catch(() => {});
+ 45:     }
+ 46:   }, [user, isOpen]);
+ 47: 
+ 48:   if (!isOpen || !user) return null;
+ 49: 
+ 50:   const handleUpdateProfile = async (e: React.FormEvent) => {
+ 51:     e.preventDefault();
+ 52:     setStatusMessage(null);
+ 53:     setProfileLoading(true);
+ 54: 
+ 55:     try {
+ 56:       const res = await updateProfile(name, email);
+ 57:       if (res.error) {
+ 58:         setStatusMessage({ type: "error", text: res.error });
+ 59:       } else {
+ 60:         setStatusMessage({ type: "success", text: res.message || "Perfil actualizado exitosamente" });
+ 61:         setTimeout(() => setStatusMessage(null), 3000);
+ 62:       }
+ 63:     } finally {
+ 64:       setProfileLoading(false);
+ 65:     }
+ 66:   };
+ 67: 
+ 68:   const handleChangePassword = async (e: React.FormEvent) => {
+ 69:     e.preventDefault();
+ 70:     setStatusMessage(null);
+ 71: 
+ 72:     if (newPassword.length < 6) {
+ 73:       setStatusMessage({ type: "error", text: "La contraseña debe tener al menos 6 caracteres" });
+ 74:       return;
+ 75:     }
+ 76: 
+ 77:     if (newPassword !== confirmPassword) {
+ 78:       setStatusMessage({ type: "error", text: "Las contraseñas no coinciden" });
+ 79:       return;
+ 80:     }
+ 81: 
+ 82:     setPasswordLoading(true);
+ 83:     try {
+ 84:       const res = await updatePassword(newPassword);
+ 85:       if (res.error) {
+ 86:         setStatusMessage({ type: "error", text: res.error });
+ 87:       } else {
+ 88:         setStatusMessage({ type: "success", text: "Contraseña actualizada exitosamente" });
+ 89:         setNewPassword("");
+ 90:         setConfirmPassword("");
+ 91:         setTimeout(() => setStatusMessage(null), 3000);
+ 92:       }
+ 93:     } finally {
+ 94:       setPasswordLoading(false);
+ 95:     }
+ 96:   };
+ 97: 
+ 98:   const handleSignOut = async () => {
+ 99:     await signOut();
+100:     onClose();
+101:   };
+102: 
+103:   return (
+104:     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
+105:       <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto rounded-3xl border border-slate-700/80 bg-slate-900 p-5 sm:p-6 shadow-2xl shadow-amber-500/10 backdrop-blur-xl">
+106:         {/* Botón Cerrar */}
+107:         <button
+108:           onClick={onClose}
+109:           className="absolute top-4 right-4 text-slate-400 hover:text-slate-200 p-1.5 rounded-xl hover:bg-slate-800 transition-colors"
+110:         >
+111:           <X className="h-5 w-5" />
+112:         </button>
+113: 
+114:         {/* Header con Avatar */}
+115:         <div className="flex items-center gap-3.5 pb-4 border-b border-slate-800">
+116:           <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center text-xl font-black shadow-lg shadow-amber-500/30">
+117:             {name ? name[0].toUpperCase() : user.email[0].toUpperCase()}
+118:           </div>
+119:           <div>
+120:             <div className="flex items-center gap-1.5">
+121:               <h3 className="text-base font-bold text-slate-100">{name || "Mi Cuenta"}</h3>
+122:               <span className="rounded-full bg-amber-500/20 border border-amber-500/40 px-2 py-0.2 text-[9px] font-bold text-amber-300">
+123:                 PRO
+124:               </span>
+125:             </div>
+126:             <p className="text-xs text-slate-400 mt-0.5 truncate max-w-[220px]">{user.email}</p>
+127:           </div>
+128:         </div>
+129: 
+130:         {/* Métricas de la cuenta */}
+131:         <div className="grid grid-cols-2 gap-2.5 my-4">
+132:           <div className="p-3 rounded-2xl bg-slate-800/60 border border-slate-800 flex items-center gap-2.5">
+133:             <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400">
+134:               <Ticket className="h-4 w-4" />
+135:             </div>
+136:             <div>
+137:               <p className="text-xs font-bold text-slate-200">{savedTicketsCount}</p>
+138:               <p className="text-[10px] text-slate-400">Rifas Guardadas</p>
+139:             </div>
+140:           </div>
+141: 
+142:           <div className="p-3 rounded-2xl bg-slate-800/60 border border-slate-800 flex items-center gap-2.5">
+143:             <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
+144:               <Database className="h-4 w-4" />
+145:             </div>
+146:             <div>
+147:               <p className="text-xs font-bold text-slate-200">{isConfigured ? "Supabase Cloud" : "Local Demo"}</p>
+148:               <p className="text-[10px] text-slate-400">Almacenamiento</p>
+149:             </div>
+150:           </div>
+151:         </div>
+152: 
+153:         {/* Alerta de Feedback */}
+154:         {statusMessage && (
+155:           <div
+156:             className={`mb-4 flex items-center gap-2 p-3 rounded-2xl text-xs ${
+157:               statusMessage.type === "success"
+158:                 ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400"
+159:                 : "bg-rose-500/10 border border-rose-500/30 text-rose-400"
+160:             }`}
+161:           >
+162:             {statusMessage.type === "success" ? (
+163:               <CheckCircle2 className="h-4 w-4 shrink-0" />
+164:             ) : (
+165:               <AlertCircle className="h-4 w-4 shrink-0" />
+166:             )}
+167:             <span>{statusMessage.text}</span>
+168:           </div>
+169:         )}
+170: 
+171:         {/* Formulario 1: Datos Personales */}
+172:         <form onSubmit={handleUpdateProfile} className="space-y-3 pt-1">
+173:           <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+174:             <User className="h-3.5 w-3.5 text-amber-400" />
+175:             <span>Datos del Perfil</span>
+176:           </h4>
+177: 
+178:           <div>
+179:             <label className="block text-[11px] font-medium text-slate-300 mb-1">
+180:               Nombre Completo
+181:             </label>
+182:             <input
+183:               type="text"
+184:               required
+185:               value={name}
+186:               onChange={(e) => setName(e.target.value)}
+187:               placeholder="Tu nombre o el de tu organización"
+188:               className="w-full px-3 py-2 bg-slate-800/90 border border-slate-700 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500"
+189:             />
+190:           </div>
+191: 
+192:           <div>
+193:             <label className="block text-[11px] font-medium text-slate-300 mb-1">
+194:               Correo Electrónico
+195:             </label>
+196:             <input
+197:               type="email"
+198:               required
+199:               disabled={profileLoading}
+200:               value={email}
+201:               onChange={(e) => setEmail(e.target.value)}
+202:               placeholder="tu@email.com"
+203:               className="w-full px-3 py-2 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 disabled:opacity-50"
+204:             />
+205:           </div>
+206: 
+207:           <Button
+208:             type="submit"
+209:             disabled={profileLoading}
+210:             size="sm"
+211:             className="w-full bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 hover:text-amber-300 text-xs font-semibold h-9 rounded-xl transition-all flex items-center justify-center gap-2"
+212:           >
+213:             {profileLoading ? (
+214:               <>
+215:                 <Loader2 className="h-3.5 w-3.5 animate-spin text-amber-400" />
+216:                 <span>Guardando cambios...</span>
+217:               </>
+218:             ) : (
+219:               <span>Guardar Cambios de Perfil</span>
+220:             )}
+221:           </Button>
+222:         </form>
+223: 
+224:         {/* Separador */}
+225:         <div className="my-5 border-t border-slate-800" />
+226: 
+227:         {/* Formulario 2: Cambiar Contraseña */}
+228:         <form onSubmit={handleChangePassword} className="space-y-3">
+229:           <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+230:             <KeyRound className="h-3.5 w-3.5 text-amber-400" />
+231:             <span>Seguridad y Contraseña</span>
+232:           </h4>
+233: 
+234:           <div>
+235:             <label className="block text-[11px] font-medium text-slate-300 mb-1">
+236:               Nueva Contraseña
+237:             </label>
+238:             <input
+239:               type="password"
+240:               minLength={6}
+241:               disabled={passwordLoading}
+242:               value={newPassword}
+243:               onChange={(e) => setNewPassword(e.target.value)}
+244:               placeholder="Mínimo 6 caracteres"
+245:               className="w-full px-3 py-2 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 disabled:opacity-50"
+246:             />
+247:           </div>
+248: 
+249:           <div>
+250:             <label className="block text-[11px] font-medium text-slate-300 mb-1">
+251:               Confirmar Nueva Contraseña
+252:             </label>
+253:             <input
+254:               type="password"
+255:               minLength={6}
+256:               disabled={passwordLoading}
+257:               value={confirmPassword}
+258:               onChange={(e) => setConfirmPassword(e.target.value)}
+259:               placeholder="Repite la nueva contraseña"
+260:               className="w-full px-3 py-2 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 disabled:opacity-50"
+261:             />
+262:           </div>
+263: 
+264:           <Button
+265:             type="submit"
+266:             disabled={passwordLoading || !newPassword}
+267:             size="sm"
+268:             className="w-full bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 hover:text-amber-300 text-xs font-semibold h-9 rounded-xl transition-all flex items-center justify-center gap-2"
+269:           >
+270:             {passwordLoading ? (
+271:               <>
+272:                 <Loader2 className="h-3.5 w-3.5 animate-spin text-amber-400" />
+273:                 <span>Actualizando contraseña...</span>
+274:               </>
+275:             ) : (
+276:               <span>Actualizar Contraseña</span>
+277:             )}
+278:           </Button>
+279:         </form>
+280: 
+281:         {/* Separador y Cerrar Sesión */}
+282:         <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
+283:           <span className="text-[11px] text-slate-500">Sesión iniciada</span>
+284:           <Button
+285:             type="button"
+286:             variant="ghost"
+287:             size="sm"
+288:             onClick={handleSignOut}
+289:             className="text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 text-xs h-8 rounded-xl flex items-center gap-1.5"
+290:           >
+291:             <LogOut className="h-3.5 w-3.5" />
+292:             <span>Cerrar Sesión</span>
+293:           </Button>
+294:         </div>
+295:       </div>
+296:     </div>
+297:   );
+298: }
 ````
 
 ## File: src/components/ui/button.tsx
@@ -3685,6 +3685,141 @@ tsconfig.json
 148: }
 ````
 
+## File: src/lib/utils.ts
+````typescript
+  1: import { type ClassValue, clsx } from "clsx";
+  2: import { twMerge } from "tailwind-merge";
+  3: 
+  4: export function cn(...inputs: ClassValue[]) {
+  5:   return twMerge(clsx(inputs));
+  6: }
+  7: 
+  8: export function formatTicketNumber(num: number, digits: number = 3): string {
+  9:   return num.toString().padStart(digits, "0");
+ 10: }
+ 11: 
+ 12: export function formatCurrency(amount: number): string {
+ 13:   return `$${amount.toLocaleString("es-AR")}`;
+ 14: }
+ 15: 
+ 16: export function getDigitsNeeded(totalTickets: number, startNumber: number): number {
+ 17:   const maxNumber = startNumber + totalTickets - 1;
+ 18:   return Math.max(3, maxNumber.toString().length);
+ 19: }
+ 20: 
+ 21: export function generateTicketNumbers(
+ 22:   startNumber: number,
+ 23:   totalTickets: number
+ 24: ): number[] {
+ 25:   const numbers: number[] = [];
+ 26:   const seen = new Set<number>();
+ 27: 
+ 28:   for (let i = 0; i < totalTickets; i++) {
+ 29:     const num = startNumber + i;
+ 30:     if (seen.has(num)) {
+ 31:       throw new Error(`Número duplicado detectado: ${num}`);
+ 32:     }
+ 33:     seen.add(num);
+ 34:     numbers.push(num);
+ 35:   }
+ 36: 
+ 37:   return numbers;
+ 38: }
+ 39: 
+ 40: export function calculateOptimalLayout(
+ 41:   pageWidthMm: number,
+ 42:   pageHeightMm: number,
+ 43:   marginMm: number
+ 44: ): { ticketsPerRow: number; ticketsPerColumn: number; ticketWidth: number; ticketHeight: number } {
+ 45:   const availableWidth = pageWidthMm - marginMm * 2;
+ 46:   const availableHeight = pageHeightMm - marginMm * 2;
+ 47: 
+ 48:   // Ticket aspect ratio based on the design (roughly 180mm x 65mm)
+ 49:   const ticketWidth = availableWidth;
+ 50:   const ticketHeight = 62;
+ 51: 
+ 52:   const ticketsPerRow = 1;
+ 53:   const ticketsPerColumn = Math.floor(availableHeight / ticketHeight);
+ 54: 
+ 55:   return {
+ 56:     ticketsPerRow,
+ 57:     ticketsPerColumn,
+ 58:     ticketWidth,
+ 59:     ticketHeight,
+ 60:   };
+ 61: }
+ 62: 
+ 63: export function formatSpanishDate(isoDateString: string): string {
+ 64:   if (!isoDateString) return "";
+ 65:   const parts = isoDateString.split("-");
+ 66:   if (parts.length !== 3) return isoDateString;
+ 67:   const year = parseInt(parts[0], 10);
+ 68:   const month = parseInt(parts[1], 10) - 1;
+ 69:   const day = parseInt(parts[2], 10);
+ 70:   const date = new Date(year, month, day);
+ 71:   if (isNaN(date.getTime())) return isoDateString;
+ 72: 
+ 73:   const days = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+ 74:   const months = [
+ 75:     "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+ 76:     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+ 77:   ];
+ 78:   return `${days[date.getDay()]} ${day} de ${months[date.getMonth()]} de ${year}`;
+ 79: }
+ 80: 
+ 81: export function formatShortDate(dateString: string): string {
+ 82:   if (!dateString) return "";
+ 83:   const trimmed = dateString.trim();
+ 84:   if (/^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(trimmed)) return trimmed;
+ 85: 
+ 86:   const match = trimmed.match(/(\d{1,2})\s+de\s+([a-zA-ZáéíóúÁÉÍÓÚ]+)(?:\s+de\s+(\d{4}))?/i);
+ 87:   if (match) {
+ 88:     const day = match[1].padStart(2, "0");
+ 89:     const monthName = match[2].toLowerCase();
+ 90:     const year = match[3] || new Date().getFullYear().toString();
+ 91:     const monthsMap: Record<string, string> = {
+ 92:       enero: "01", febrero: "02", marzo: "03", abril: "04", mayo: "05", junio: "06",
+ 93:       julio: "07", agosto: "08", septiembre: "09", octubre: "10", noviembre: "11", diciembre: "12"
+ 94:     };
+ 95:     const mm = monthsMap[monthName] || "01";
+ 96:     return `${day}/${mm}/${year}`;
+ 97:   }
+ 98:   return trimmed.length > 16 ? trimmed.substring(0, 16) : trimmed;
+ 99: }
+100: 
+101: export function hexToRgb(hex: string): { r: number; g: number; b: number } {
+102:   const clean = hex.replace("#", "").trim();
+103:   if (clean.length === 3) {
+104:     return {
+105:       r: parseInt(clean[0] + clean[0], 16) / 255,
+106:       g: parseInt(clean[1] + clean[1], 16) / 255,
+107:       b: parseInt(clean[2] + clean[2], 16) / 255,
+108:     };
+109:   }
+110:   return {
+111:     r: (parseInt(clean.substring(0, 2), 16) || 153) / 255,
+112:     g: (parseInt(clean.substring(2, 4), 16) || 27) / 255,
+113:     b: (parseInt(clean.substring(4, 6), 16) || 27) / 255,
+114:   };
+115: }
+116: 
+117: export function resolvePrizeColumns(
+118:   prizeColumns?: 2 | 3 | 4 | "auto",
+119:   prizesCount: number = 20,
+120:   fontSize: number = 8
+121: ): number {
+122:   if (prizeColumns && prizeColumns !== "auto") {
+123:     return prizeColumns;
+124:   }
+125:   if (fontSize >= 11 && prizesCount > 12) {
+126:     return prizesCount > 24 ? 4 : 3;
+127:   }
+128:   if (prizesCount > 28) return 4;
+129:   if (prizesCount > 14) return 3;
+130:   return 2;
+131: }
+````
+
 ## File: src/components/MobileBottomNav.tsx
 ````typescript
   1: "use client";
@@ -4317,141 +4452,6 @@ tsconfig.json
 453:   const store = useAuthStore();
 454:   return store;
 455: }
-````
-
-## File: src/lib/utils.ts
-````typescript
-  1: import { type ClassValue, clsx } from "clsx";
-  2: import { twMerge } from "tailwind-merge";
-  3: 
-  4: export function cn(...inputs: ClassValue[]) {
-  5:   return twMerge(clsx(inputs));
-  6: }
-  7: 
-  8: export function formatTicketNumber(num: number, digits: number = 3): string {
-  9:   return num.toString().padStart(digits, "0");
- 10: }
- 11: 
- 12: export function formatCurrency(amount: number): string {
- 13:   return `$${amount.toLocaleString("es-AR")}`;
- 14: }
- 15: 
- 16: export function getDigitsNeeded(totalTickets: number, startNumber: number): number {
- 17:   const maxNumber = startNumber + totalTickets - 1;
- 18:   return Math.max(3, maxNumber.toString().length);
- 19: }
- 20: 
- 21: export function generateTicketNumbers(
- 22:   startNumber: number,
- 23:   totalTickets: number
- 24: ): number[] {
- 25:   const numbers: number[] = [];
- 26:   const seen = new Set<number>();
- 27: 
- 28:   for (let i = 0; i < totalTickets; i++) {
- 29:     const num = startNumber + i;
- 30:     if (seen.has(num)) {
- 31:       throw new Error(`Número duplicado detectado: ${num}`);
- 32:     }
- 33:     seen.add(num);
- 34:     numbers.push(num);
- 35:   }
- 36: 
- 37:   return numbers;
- 38: }
- 39: 
- 40: export function calculateOptimalLayout(
- 41:   pageWidthMm: number,
- 42:   pageHeightMm: number,
- 43:   marginMm: number
- 44: ): { ticketsPerRow: number; ticketsPerColumn: number; ticketWidth: number; ticketHeight: number } {
- 45:   const availableWidth = pageWidthMm - marginMm * 2;
- 46:   const availableHeight = pageHeightMm - marginMm * 2;
- 47: 
- 48:   // Ticket aspect ratio based on the design (roughly 180mm x 65mm)
- 49:   const ticketWidth = availableWidth;
- 50:   const ticketHeight = 62;
- 51: 
- 52:   const ticketsPerRow = 1;
- 53:   const ticketsPerColumn = Math.floor(availableHeight / ticketHeight);
- 54: 
- 55:   return {
- 56:     ticketsPerRow,
- 57:     ticketsPerColumn,
- 58:     ticketWidth,
- 59:     ticketHeight,
- 60:   };
- 61: }
- 62: 
- 63: export function formatSpanishDate(isoDateString: string): string {
- 64:   if (!isoDateString) return "";
- 65:   const parts = isoDateString.split("-");
- 66:   if (parts.length !== 3) return isoDateString;
- 67:   const year = parseInt(parts[0], 10);
- 68:   const month = parseInt(parts[1], 10) - 1;
- 69:   const day = parseInt(parts[2], 10);
- 70:   const date = new Date(year, month, day);
- 71:   if (isNaN(date.getTime())) return isoDateString;
- 72: 
- 73:   const days = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
- 74:   const months = [
- 75:     "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
- 76:     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
- 77:   ];
- 78:   return `${days[date.getDay()]} ${day} de ${months[date.getMonth()]} de ${year}`;
- 79: }
- 80: 
- 81: export function formatShortDate(dateString: string): string {
- 82:   if (!dateString) return "";
- 83:   const trimmed = dateString.trim();
- 84:   if (/^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(trimmed)) return trimmed;
- 85: 
- 86:   const match = trimmed.match(/(\d{1,2})\s+de\s+([a-zA-ZáéíóúÁÉÍÓÚ]+)(?:\s+de\s+(\d{4}))?/i);
- 87:   if (match) {
- 88:     const day = match[1].padStart(2, "0");
- 89:     const monthName = match[2].toLowerCase();
- 90:     const year = match[3] || new Date().getFullYear().toString();
- 91:     const monthsMap: Record<string, string> = {
- 92:       enero: "01", febrero: "02", marzo: "03", abril: "04", mayo: "05", junio: "06",
- 93:       julio: "07", agosto: "08", septiembre: "09", octubre: "10", noviembre: "11", diciembre: "12"
- 94:     };
- 95:     const mm = monthsMap[monthName] || "01";
- 96:     return `${day}/${mm}/${year}`;
- 97:   }
- 98:   return trimmed.length > 16 ? trimmed.substring(0, 16) : trimmed;
- 99: }
-100: 
-101: export function hexToRgb(hex: string): { r: number; g: number; b: number } {
-102:   const clean = hex.replace("#", "").trim();
-103:   if (clean.length === 3) {
-104:     return {
-105:       r: parseInt(clean[0] + clean[0], 16) / 255,
-106:       g: parseInt(clean[1] + clean[1], 16) / 255,
-107:       b: parseInt(clean[2] + clean[2], 16) / 255,
-108:     };
-109:   }
-110:   return {
-111:     r: (parseInt(clean.substring(0, 2), 16) || 153) / 255,
-112:     g: (parseInt(clean.substring(2, 4), 16) || 27) / 255,
-113:     b: (parseInt(clean.substring(4, 6), 16) || 27) / 255,
-114:   };
-115: }
-116: 
-117: export function resolvePrizeColumns(
-118:   prizeColumns?: 2 | 3 | 4 | "auto",
-119:   prizesCount: number = 20,
-120:   fontSize: number = 8
-121: ): number {
-122:   if (prizeColumns && prizeColumns !== "auto") {
-123:     return prizeColumns;
-124:   }
-125:   if (fontSize >= 11 && prizesCount > 12) {
-126:     return prizesCount > 24 ? 4 : 3;
-127:   }
-128:   if (prizesCount > 28) return 4;
-129:   if (prizesCount > 14) return 3;
-130:   return 2;
-131: }
 ````
 
 ## File: src/app/page.tsx
@@ -6760,317 +6760,6 @@ tsconfig.json
 317: }
 ````
 
-## File: src/components/Header.tsx
-````typescript
-  1: "use client";
-  2: 
-  3: import { useState, useEffect } from "react";
-  4: import Link from "next/link";
-  5: import Image from "next/image";
-  6: import { usePathname } from "next/navigation";
-  7: import {
-  8:   FolderOpen,
-  9:   Save,
- 10:   LogIn,
- 11:   LogOut,
- 12:   Check,
- 13:   Sparkles,
- 14:   ArrowRight,
- 15:   Sliders,
- 16:   Home
- 17: } from "lucide-react";
- 18: import { Button } from "@/components/ui/button";
- 19: import { useAuth } from "@/hooks/useAuth";
- 20: import { AuthModal } from "@/components/auth/AuthModal";
- 21: import { ProfileModal } from "@/components/auth/ProfileModal";
- 22: import { SavedTicketsDrawer } from "@/components/SavedTicketsDrawer";
- 23: import { useRifaStore } from "@/store/useRifaStore";
- 24: import { saveTicketDesign, getSavedTickets } from "@/services/tickets-service";
- 25: 
- 26: export function Header() {
- 27:   const pathname = usePathname();
- 28:   const isEditor = pathname === "/editor";
- 29:   const {
- 30:     user,
- 31:     loading,
- 32:     signOut,
- 33:     initAuth,
- 34:     isAuthModalOpen,
- 35:     openAuthModal,
- 36:     closeAuthModal,
- 37:     isProfileModalOpen,
- 38:     openProfileModal,
- 39:     closeProfileModal,
- 40:     isDrawerOpen,
- 41:     openDrawer,
- 42:     closeDrawer,
- 43:   } = useAuth();
- 44:   const { ticketConfig, printConfig } = useRifaStore();
- 45: 
- 46:   const [saving, setSaving] = useState(false);
- 47:   const [saveSuccess, setSaveSuccess] = useState(false);
- 48:   const [savedCount, setSavedCount] = useState(0);
- 49: 
- 50:   // Inicializar listener de Supabase
- 51:   useEffect(() => {
- 52:     const unsub = initAuth();
- 53:     return () => unsub?.();
- 54:   }, [initAuth]);
- 55: 
- 56:   // Cargar cantidad de boletos guardados
- 57:   const refreshCount = async () => {
- 58:     try {
- 59:       const list = await getSavedTickets();
- 60:       setSavedCount(list.length);
- 61:     } catch {
- 62:       // Fallback silencioso
- 63:     }
- 64:   };
- 65: 
- 66:   useEffect(() => {
- 67:     refreshCount();
- 68:   }, [user]);
- 69: 
- 70:   const handleSave = async () => {
- 71:     if (!user) {
- 72:       openAuthModal();
- 73:       return;
- 74:     }
- 75: 
- 76:     setSaving(true);
- 77:     try {
- 78:       await saveTicketDesign(
- 79:         ticketConfig.eventName || "Mi Rifa",
- 80:         ticketConfig,
- 81:         printConfig
- 82:       );
- 83:       setSaveSuccess(true);
- 84:       refreshCount();
- 85:       setTimeout(() => setSaveSuccess(false), 2500);
- 86:     } catch (e) {
- 87:       console.error("Error al guardar:", e);
- 88:     } finally {
- 89:       setSaving(false);
- 90:     }
- 91:   };
- 92: 
- 93: 
- 94:   return (
- 95:     <>
- 96:       <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-md">
- 97:         <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
- 98:           {/* Logo & Marca unificada */}
- 99:           <Link href="/" className="flex items-center gap-2.5 group">
-100:             <div className="relative">
-101:               <Image
-102:                 src="/icon.svg"
-103:                 alt="Eventazo"
-104:                 width={36}
-105:                 height={36}
-106:                 className="h-9 w-9 rounded-xl shadow-lg shadow-amber-500/20 group-hover:scale-105 transition-transform"
-107:               />
-108:               <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-amber-400 text-[8px] font-black text-slate-950">
-109:                 ★
-110:               </span>
-111:             </div>
-112:             <div>
-113:               <div className="flex items-center gap-1.5">
-114:                 <span className="text-base sm:text-lg font-black tracking-tight text-slate-100">
-115:                   Eventazo
-116:                 </span>
-117:                 <span className="rounded bg-gradient-to-r from-amber-500/20 to-amber-300/20 border border-amber-500/40 px-1.5 py-0.2 text-[9px] font-bold text-amber-400">
-118:                   PRO
-119:                 </span>
-120:               </div>
-121:             </div>
-122:           </Link>
-123: 
-124:           {/* Enlaces de navegación desktop */}
-125:           <div className="hidden md:flex items-center gap-6 text-xs font-medium text-slate-300">
-126:             {isEditor ? (
-127:               <>
-128:                 <Link
-129:                   href="/"
-130:                   className="flex items-center gap-1.5 hover:text-amber-400 transition-colors"
-131:                 >
-132:                   <Home className="h-3.5 w-3.5 text-amber-400" />
-133:                   <span>Inicio</span>
-134:                 </Link>
-135:                 <Link
-136:                   href="/#caracteristicas"
-137:                   className="hover:text-amber-400 transition-colors"
-138:                 >
-139:                   Características
-140:                 </Link>
-141:                 <Link
-142:                   href="/#calculadora"
-143:                   className="hover:text-amber-400 transition-colors"
-144:                 >
-145:                   Calculadora de Ahorro
-146:                 </Link>
-147:                 <Link
-148:                   href="/#preguntas"
-149:                   className="hover:text-amber-400 transition-colors"
-150:                 >
-151:                   Preguntas
-152:                 </Link>
-153:               </>
-154:             ) : (
-155:               <>
-156:                 <a href="#caracteristicas" className="hover:text-amber-400 transition-colors">
-157:                   Características
-158:                 </a>
-159:                 <a href="#calculadora" className="hover:text-amber-400 transition-colors">
-160:                   Calculadora de Ahorro
-161:                 </a>
-162:                 <a href="#comparativa" className="hover:text-amber-400 transition-colors">
-163:                   Comparativa
-164:                 </a>
-165:                 <a href="#casos" className="hover:text-amber-400 transition-colors">
-166:                   Casos de Uso
-167:                 </a>
-168:                 <a href="#preguntas" className="hover:text-amber-400 transition-colors">
-169:                   Preguntas Frecuentes
-170:                 </a>
-171:               </>
-172:             )}
-173:           </div>
-174: 
-175:           {/* Acciones del Header */}
-176:           <div className="flex items-center gap-2 sm:gap-3">
-177:             {/* Botón Mis Rifas (accesible siempre) */}
-178:             <Button
-179:               variant="ghost"
-180:               size="sm"
-181:               onClick={() => openDrawer()}
-182:               className="border border-slate-800 bg-slate-900/80 hover:bg-slate-800 hover:border-amber-500/40 text-slate-200 hover:text-amber-400 text-xs h-9 px-3 rounded-xl gap-1.5 shadow-sm"
-183:             >
-184:               <FolderOpen className="h-3.5 w-3.5 text-amber-400" />
-185:               <span className="hidden sm:inline">Mis Rifas</span>
-186:               {savedCount > 0 && (
-187:                 <span className="ml-1 rounded-full bg-amber-500/20 px-1.5 py-0.2 text-[10px] font-mono font-bold text-amber-400 border border-amber-500/30">
-188:                   {savedCount}
-189:                 </span>
-190:               )}
-191:             </Button>
-192: 
-193:             {/* Acción Primaria según la ruta */}
-194:             {isEditor ? (
-195:               <Button
-196:                 size="sm"
-197:                 onClick={handleSave}
-198:                 disabled={saving}
-199:                 className={`h-9 px-3.5 sm:px-4 text-xs font-bold rounded-xl gap-1.5 transition-all shadow-lg ${
-200:                   saveSuccess
-201:                     ? "bg-emerald-500 text-white shadow-emerald-500/25 scale-105"
-202:                     : "bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 shadow-amber-500/25 active:scale-95"
-203:                 }`}
-204:               >
-205:                 {saveSuccess ? (
-206:                   <>
-207:                     <Check className="h-3.5 w-3.5" />
-208:                     <span>¡Guardado!</span>
-209:                   </>
-210:                 ) : (
-211:                   <>
-212:                     <Save className="h-3.5 w-3.5" />
-213:                     <span>{saving ? "Guardando..." : "Guardar"}</span>
-214:                   </>
-215:                 )}
-216:               </Button>
-217:             ) : (
-218:               <Link href="/editor">
-219:                 <Button
-220:                   size="sm"
-221:                   className="bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold text-xs h-9 px-3.5 sm:px-4 rounded-xl shadow-lg shadow-amber-500/25 flex items-center gap-1.5 group"
-222:                 >
-223:                   <Sliders className="h-3.5 w-3.5" />
-224:                   <span>Crear Rifa Gratis</span>
-225:                   <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
-226:                 </Button>
-227:               </Link>
-228:             )}
-229: 
-230:             {/* Usuario / Login */}
-231:             {loading ? (
-232:               <div className="flex items-center justify-center h-9 w-9">
-233:                 <span className="h-4 w-4 rounded-full border-2 border-amber-400/30 border-t-amber-400 animate-spin" />
-234:               </div>
-235:             ) : user ? (
-236:               <div className="flex items-center gap-1.5 sm:gap-2 pl-1 border-l border-slate-800">
-237:                 <button
-238:                   type="button"
-239:                   onClick={() => openProfileModal()}
-240:                   className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/40 transition-colors text-left group"
-241:                   title="Ver y editar mi perfil"
-242:                 >
-243:                   <div className="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px] font-bold border border-amber-500/30 group-hover:scale-105 transition-transform">
-244:                     {user.name ? user.name[0].toUpperCase() : user.email[0].toUpperCase()}
-245:                   </div>
-246:                   <span className="text-xs font-semibold text-slate-300 group-hover:text-amber-300 max-w-[100px] truncate hidden md:inline transition-colors">
-247:                     {user.name || user.email.split("@")[0]}
-248:                   </span>
-249:                   {user.isDemo && (
-250:                     <span className="text-[9px] bg-slate-800 text-amber-300 px-1 py-0.5 rounded border border-slate-700">
-251:                       Demo
-252:                     </span>
-253:                   )}
-254:                 </button>
-255: 
-256:                 <Button
-257:                   variant="ghost"
-258:                   size="sm"
-259:                   onClick={() => signOut()}
-260:                   title="Cerrar sesión"
-261:                   className="h-9 w-9 p-0 text-slate-400 hover:text-rose-400 rounded-xl hover:bg-slate-900"
-262:                 >
-263:                   <LogOut className="h-3.5 w-3.5" />
-264:                 </Button>
-265:               </div>
-266:             ) : (
-267:               <Button
-268:                 variant="ghost"
-269:                 size="sm"
-270:                 onClick={() => openAuthModal()}
-271:                 className="h-9 px-3 text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-900 border border-slate-800/80 rounded-xl gap-1.5"
-272:               >
-273:                 <LogIn className="h-3.5 w-3.5" />
-274:                 <span>Ingresar</span>
-275:               </Button>
-276:             )}
-277:           </div>
-278:         </div>
-279:       </header>
-280: 
-281:       {/* Modal de Autenticación */}
-282:       <AuthModal
-283:         isOpen={isAuthModalOpen}
-284:         onClose={closeAuthModal}
-285:         onSuccess={() => {
-286:           refreshCount();
-287:         }}
-288:       />
-289: 
-290:       {/* Modal de Perfil de Usuario */}
-291:       <ProfileModal
-292:         isOpen={isProfileModalOpen}
-293:         onClose={closeProfileModal}
-294:       />
-295: 
-296:       {/* Cajón de Rifas Guardadas */}
-297:       <SavedTicketsDrawer
-298:         isOpen={isDrawerOpen}
-299:         onClose={closeDrawer}
-300:         onSelectTicket={() => {
-301:           refreshCount();
-302:         }}
-303:         onOpenAuth={() => openAuthModal()}
-304:       />
-305:     </>
-306:   );
-307: }
-````
-
 ## File: src/components/TicketPreview.tsx
 ````typescript
   1: "use client";
@@ -7378,6 +7067,317 @@ tsconfig.json
 303:         </div>
 304:       </CardContent>
 305:     </Card>
+306:   );
+307: }
+````
+
+## File: src/components/Header.tsx
+````typescript
+  1: "use client";
+  2: 
+  3: import { useState, useEffect } from "react";
+  4: import Link from "next/link";
+  5: import Image from "next/image";
+  6: import { usePathname } from "next/navigation";
+  7: import {
+  8:   FolderOpen,
+  9:   Save,
+ 10:   LogIn,
+ 11:   LogOut,
+ 12:   Check,
+ 13:   Sparkles,
+ 14:   ArrowRight,
+ 15:   Sliders,
+ 16:   Home
+ 17: } from "lucide-react";
+ 18: import { Button } from "@/components/ui/button";
+ 19: import { useAuth } from "@/hooks/useAuth";
+ 20: import { AuthModal } from "@/components/auth/AuthModal";
+ 21: import { ProfileModal } from "@/components/auth/ProfileModal";
+ 22: import { SavedTicketsDrawer } from "@/components/SavedTicketsDrawer";
+ 23: import { useRifaStore } from "@/store/useRifaStore";
+ 24: import { saveTicketDesign, getSavedTickets } from "@/services/tickets-service";
+ 25: 
+ 26: export function Header() {
+ 27:   const pathname = usePathname();
+ 28:   const isEditor = pathname === "/editor";
+ 29:   const {
+ 30:     user,
+ 31:     loading,
+ 32:     signOut,
+ 33:     initAuth,
+ 34:     isAuthModalOpen,
+ 35:     openAuthModal,
+ 36:     closeAuthModal,
+ 37:     isProfileModalOpen,
+ 38:     openProfileModal,
+ 39:     closeProfileModal,
+ 40:     isDrawerOpen,
+ 41:     openDrawer,
+ 42:     closeDrawer,
+ 43:   } = useAuth();
+ 44:   const { ticketConfig, printConfig } = useRifaStore();
+ 45: 
+ 46:   const [saving, setSaving] = useState(false);
+ 47:   const [saveSuccess, setSaveSuccess] = useState(false);
+ 48:   const [savedCount, setSavedCount] = useState(0);
+ 49: 
+ 50:   // Inicializar listener de Supabase
+ 51:   useEffect(() => {
+ 52:     const unsub = initAuth();
+ 53:     return () => unsub?.();
+ 54:   }, [initAuth]);
+ 55: 
+ 56:   // Cargar cantidad de boletos guardados
+ 57:   const refreshCount = async () => {
+ 58:     try {
+ 59:       const list = await getSavedTickets();
+ 60:       setSavedCount(list.length);
+ 61:     } catch {
+ 62:       // Fallback silencioso
+ 63:     }
+ 64:   };
+ 65: 
+ 66:   useEffect(() => {
+ 67:     refreshCount();
+ 68:   }, [user]);
+ 69: 
+ 70:   const handleSave = async () => {
+ 71:     if (!user) {
+ 72:       openAuthModal();
+ 73:       return;
+ 74:     }
+ 75: 
+ 76:     setSaving(true);
+ 77:     try {
+ 78:       await saveTicketDesign(
+ 79:         ticketConfig.eventName || "Mi Rifa",
+ 80:         ticketConfig,
+ 81:         printConfig
+ 82:       );
+ 83:       setSaveSuccess(true);
+ 84:       refreshCount();
+ 85:       setTimeout(() => setSaveSuccess(false), 2500);
+ 86:     } catch (e) {
+ 87:       console.error("Error al guardar:", e);
+ 88:     } finally {
+ 89:       setSaving(false);
+ 90:     }
+ 91:   };
+ 92: 
+ 93: 
+ 94:   return (
+ 95:     <>
+ 96:       <header className="hidden sm:block sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-md">
+ 97:         <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
+ 98:           {/* Logo & Marca unificada */}
+ 99:           <Link href="/" className="flex items-center gap-2.5 group">
+100:             <div className="relative">
+101:               <Image
+102:                 src="/icon.svg"
+103:                 alt="Eventazo"
+104:                 width={36}
+105:                 height={36}
+106:                 className="h-9 w-9 rounded-xl shadow-lg shadow-amber-500/20 group-hover:scale-105 transition-transform"
+107:               />
+108:               <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-amber-400 text-[8px] font-black text-slate-950">
+109:                 ★
+110:               </span>
+111:             </div>
+112:             <div>
+113:               <div className="flex items-center gap-1.5">
+114:                 <span className="text-base sm:text-lg font-black tracking-tight text-slate-100">
+115:                   Eventazo
+116:                 </span>
+117:                 <span className="rounded bg-gradient-to-r from-amber-500/20 to-amber-300/20 border border-amber-500/40 px-1.5 py-0.2 text-[9px] font-bold text-amber-400">
+118:                   PRO
+119:                 </span>
+120:               </div>
+121:             </div>
+122:           </Link>
+123: 
+124:           {/* Enlaces de navegación desktop */}
+125:           <div className="hidden md:flex items-center gap-6 text-xs font-medium text-slate-300">
+126:             {isEditor ? (
+127:               <>
+128:                 <Link
+129:                   href="/"
+130:                   className="flex items-center gap-1.5 hover:text-amber-400 transition-colors"
+131:                 >
+132:                   <Home className="h-3.5 w-3.5 text-amber-400" />
+133:                   <span>Inicio</span>
+134:                 </Link>
+135:                 <Link
+136:                   href="/#caracteristicas"
+137:                   className="hover:text-amber-400 transition-colors"
+138:                 >
+139:                   Características
+140:                 </Link>
+141:                 <Link
+142:                   href="/#calculadora"
+143:                   className="hover:text-amber-400 transition-colors"
+144:                 >
+145:                   Calculadora de Ahorro
+146:                 </Link>
+147:                 <Link
+148:                   href="/#preguntas"
+149:                   className="hover:text-amber-400 transition-colors"
+150:                 >
+151:                   Preguntas
+152:                 </Link>
+153:               </>
+154:             ) : (
+155:               <>
+156:                 <a href="#caracteristicas" className="hover:text-amber-400 transition-colors">
+157:                   Características
+158:                 </a>
+159:                 <a href="#calculadora" className="hover:text-amber-400 transition-colors">
+160:                   Calculadora de Ahorro
+161:                 </a>
+162:                 <a href="#comparativa" className="hover:text-amber-400 transition-colors">
+163:                   Comparativa
+164:                 </a>
+165:                 <a href="#casos" className="hover:text-amber-400 transition-colors">
+166:                   Casos de Uso
+167:                 </a>
+168:                 <a href="#preguntas" className="hover:text-amber-400 transition-colors">
+169:                   Preguntas Frecuentes
+170:                 </a>
+171:               </>
+172:             )}
+173:           </div>
+174: 
+175:           {/* Acciones del Header */}
+176:           <div className="flex items-center gap-2 sm:gap-3">
+177:             {/* Botón Mis Rifas (accesible siempre) */}
+178:             <Button
+179:               variant="ghost"
+180:               size="sm"
+181:               onClick={() => openDrawer()}
+182:               className="border border-slate-800 bg-slate-900/80 hover:bg-slate-800 hover:border-amber-500/40 text-slate-200 hover:text-amber-400 text-xs h-9 px-3 rounded-xl gap-1.5 shadow-sm"
+183:             >
+184:               <FolderOpen className="h-3.5 w-3.5 text-amber-400" />
+185:               <span className="hidden sm:inline">Mis Rifas</span>
+186:               {savedCount > 0 && (
+187:                 <span className="ml-1 rounded-full bg-amber-500/20 px-1.5 py-0.2 text-[10px] font-mono font-bold text-amber-400 border border-amber-500/30">
+188:                   {savedCount}
+189:                 </span>
+190:               )}
+191:             </Button>
+192: 
+193:             {/* Acción Primaria según la ruta */}
+194:             {isEditor ? (
+195:               <Button
+196:                 size="sm"
+197:                 onClick={handleSave}
+198:                 disabled={saving}
+199:                 className={`h-9 px-3.5 sm:px-4 text-xs font-bold rounded-xl gap-1.5 transition-all shadow-lg ${
+200:                   saveSuccess
+201:                     ? "bg-emerald-500 text-white shadow-emerald-500/25 scale-105"
+202:                     : "bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 shadow-amber-500/25 active:scale-95"
+203:                 }`}
+204:               >
+205:                 {saveSuccess ? (
+206:                   <>
+207:                     <Check className="h-3.5 w-3.5" />
+208:                     <span>¡Guardado!</span>
+209:                   </>
+210:                 ) : (
+211:                   <>
+212:                     <Save className="h-3.5 w-3.5" />
+213:                     <span>{saving ? "Guardando..." : "Guardar"}</span>
+214:                   </>
+215:                 )}
+216:               </Button>
+217:             ) : (
+218:               <Link href="/editor">
+219:                 <Button
+220:                   size="sm"
+221:                   className="bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold text-xs h-9 px-3.5 sm:px-4 rounded-xl shadow-lg shadow-amber-500/25 flex items-center gap-1.5 group"
+222:                 >
+223:                   <Sliders className="h-3.5 w-3.5" />
+224:                   <span>Crear Rifa Gratis</span>
+225:                   <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+226:                 </Button>
+227:               </Link>
+228:             )}
+229: 
+230:             {/* Usuario / Login */}
+231:             {loading ? (
+232:               <div className="flex items-center justify-center h-9 w-9">
+233:                 <span className="h-4 w-4 rounded-full border-2 border-amber-400/30 border-t-amber-400 animate-spin" />
+234:               </div>
+235:             ) : user ? (
+236:               <div className="flex items-center gap-1.5 sm:gap-2 pl-1 border-l border-slate-800">
+237:                 <button
+238:                   type="button"
+239:                   onClick={() => openProfileModal()}
+240:                   className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/40 transition-colors text-left group"
+241:                   title="Ver y editar mi perfil"
+242:                 >
+243:                   <div className="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px] font-bold border border-amber-500/30 group-hover:scale-105 transition-transform">
+244:                     {user.name ? user.name[0].toUpperCase() : user.email[0].toUpperCase()}
+245:                   </div>
+246:                   <span className="text-xs font-semibold text-slate-300 group-hover:text-amber-300 max-w-[100px] truncate hidden md:inline transition-colors">
+247:                     {user.name || user.email.split("@")[0]}
+248:                   </span>
+249:                   {user.isDemo && (
+250:                     <span className="text-[9px] bg-slate-800 text-amber-300 px-1 py-0.5 rounded border border-slate-700">
+251:                       Demo
+252:                     </span>
+253:                   )}
+254:                 </button>
+255: 
+256:                 <Button
+257:                   variant="ghost"
+258:                   size="sm"
+259:                   onClick={() => signOut()}
+260:                   title="Cerrar sesión"
+261:                   className="h-9 w-9 p-0 text-slate-400 hover:text-rose-400 rounded-xl hover:bg-slate-900"
+262:                 >
+263:                   <LogOut className="h-3.5 w-3.5" />
+264:                 </Button>
+265:               </div>
+266:             ) : (
+267:               <Button
+268:                 variant="ghost"
+269:                 size="sm"
+270:                 onClick={() => openAuthModal()}
+271:                 className="h-9 px-3 text-xs text-slate-300 hover:text-amber-400 hover:bg-slate-900 border border-slate-800/80 rounded-xl gap-1.5"
+272:               >
+273:                 <LogIn className="h-3.5 w-3.5" />
+274:                 <span>Ingresar</span>
+275:               </Button>
+276:             )}
+277:           </div>
+278:         </div>
+279:       </header>
+280: 
+281:       {/* Modal de Autenticación */}
+282:       <AuthModal
+283:         isOpen={isAuthModalOpen}
+284:         onClose={closeAuthModal}
+285:         onSuccess={() => {
+286:           refreshCount();
+287:         }}
+288:       />
+289: 
+290:       {/* Modal de Perfil de Usuario */}
+291:       <ProfileModal
+292:         isOpen={isProfileModalOpen}
+293:         onClose={closeProfileModal}
+294:       />
+295: 
+296:       {/* Cajón de Rifas Guardadas */}
+297:       <SavedTicketsDrawer
+298:         isOpen={isDrawerOpen}
+299:         onClose={closeDrawer}
+300:         onSelectTicket={() => {
+301:           refreshCount();
+302:         }}
+303:         onOpenAuth={() => openAuthModal()}
+304:       />
+305:     </>
 306:   );
 307: }
 ````
